@@ -9,8 +9,6 @@ import (
 )
 
 var (
-	logC           = make(chan string, 128)
-	runCtl         = make(chan bool, 1)
 	programName    = "DarkEye"
 	programDesc    = "白嫖神器"
 	programVersion = "1.0." + fmt.Sprintf("%d%d%d%d%d\n大橘Oo0\n84500316@qq.com",
@@ -34,6 +32,9 @@ func runApp() {
 	windowFofa = registerFofa(sysTray)
 	windowFofa.Show()
 
+	windowSecurityTails = registerSecurityTrails(sysTray)
+	windowSecurityTails.Hide()
+
 	sysTrayDaemon(sysTray, app)
 	sysTray.Show()
 	app.Exec()
@@ -44,7 +45,8 @@ func sysTrayDaemon(sysTray *QSystemTrayIconWithCustomSlot, app *widgets.QApplica
 	sysTray.SetToolTip(programDesc)
 
 	sysTrayMenu := widgets.NewQMenu(nil)
-	fofa := sysTrayMenu.AddAction("Fofa")
+	fofa := sysTrayMenu.AddAction("资产搜索神器")
+	securitytrails := sysTrayMenu.AddAction("域名搜索神器")
 	about := sysTrayMenu.AddAction("关于")
 	quit := sysTrayMenu.AddAction("退出")
 	sysTray.SetContextMenu(sysTrayMenu)
@@ -55,6 +57,10 @@ func sysTrayDaemon(sysTray *QSystemTrayIconWithCustomSlot, app *widgets.QApplica
 
 	fofa.ConnectTriggered(func(bool) {
 		windowFofa.Show()
+	})
+
+	securitytrails.ConnectTriggered(func(bool) {
+		windowSecurityTails.Show()
 	})
 
 	about.ConnectTriggered(func(bool) {
@@ -81,15 +87,18 @@ type CustomEditor struct {
 	_ func(string) `signal:"updateTextFromGoroutine,auto(this.QTextEdit.Append)"`
 }
 
-func listenLog(logP *CustomEditor) {
+func getWindowCtl() (chan string, chan bool, *CustomEditor) {
+	logC := make(chan string, 128)
+	runCtl := make(chan bool, 1)
+
+	logP := NewCustomEditor(nil)
+	logP.SetReadOnly(true)
+
 	go func() {
 		for {
 			log := <-logC
 			logP.UpdateTextFromGoroutine(log)
 		}
 	}()
-}
-
-func sendUILog(log string) {
-	logC <- log
+	return logC, runCtl, logP
 }

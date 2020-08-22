@@ -12,9 +12,8 @@ import (
 	"time"
 )
 
-func (f *Fofa) doIp(ip string) {
-	url := fmt.Sprintf("https://fofa.so/result?qbase64=%s&full=true",
-		base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("ip=%s", ip))))
+func (f *Fofa) get(query string) {
+	url := f.genUrl(query, 1)
 	cookie := "_fofapro_ars_session" + "=" + f.FofaSession
 	userAgent := common.UserAgents[rand.Int()%len(common.UserAgents)]
 	req := common.Http{
@@ -28,21 +27,21 @@ func (f *Fofa) doIp(ip string) {
 	//获取首页面
 	body, err := req.Http()
 	if err != nil {
-		f.ErrChannel <- common.LogBuild("fofa.doip",
-			fmt.Sprintf("收集IP%s失败:%s", ip, err.Error()), common.ALERT)
+		f.ErrChannel <- common.LogBuild("fofa.get",
+			fmt.Sprintf("收集IP%s失败:%s", query, err.Error()), common.ALERT)
 		return
 	}
 	//获取页数
 	pageRe, err := regexp.Compile(`>(\d*)</a> <a class="next_page" rel="next"`)
 	if err != nil {
-		f.ErrChannel <- common.LogBuild("fofa.doip",
-			fmt.Sprintf("收集IP%s失败:为匹配到页码", ip), common.FAULT)
+		f.ErrChannel <- common.LogBuild("fofa.get",
+			fmt.Sprintf("收集IP%s失败:为匹配到页码", query), common.FAULT)
 		return
 	}
 	pageNum := pageRe.FindSubmatch(body)
 	if len(pageNum) < 2 {
-		f.ErrChannel <- common.LogBuild("fofa.doip",
-			fmt.Sprintf("收集IP%s失败:匹配到错误页码", ip), common.FAULT)
+		f.ErrChannel <- common.LogBuild("fofa.get",
+			fmt.Sprintf("收集IP%s失败:匹配到错误页码", query), common.FAULT)
 		return
 	}
 	pageNr, _ := strconv.Atoi(string(pageNum[1]))
@@ -56,43 +55,51 @@ func (f *Fofa) doIp(ip string) {
 		//学做人，防止fofa封
 		time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))
 		//耗时点增加关停
-		if common.ShouldStop() {
+		if common.ShouldStop(&f.Stop) {
 			break
 		}
-		f.parseIPHtml(ip, body, start)
-		//NextPage
+		f.parseHtml(query, body, start)
+		//下一页
 		start += 1
 		if start > pageNr {
 			break
 		}
-		url := fmt.Sprintf("https://fofa.so/result?qbase64=%s&full=true&page=%d",
-			base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("ip=%s", ip))), start)
-		req.Url = url
-		//拉页面
+		req.Url = f.genUrl(query, start)
 		body, err = req.Http()
 		if err != nil {
-			f.ErrChannel <- common.LogBuild("fofa.doip", fmt.Sprintf("收集IP%s失败:%s", ip, err.Error()), common.ALERT)
+			f.ErrChannel <- common.LogBuild("fofa.get",
+				fmt.Sprintf("收集IP%s失败:%s", query, err.Error()), common.ALERT)
 			return
 		}
 	}
 }
 
-func (f *Fofa) parseIPHtml(ip string, body []byte, page int) {
+func (f *Fofa) genUrl(query string, page int) string {
+	url := fmt.Sprintf("https://fofa.so/result?qbase64=%s&full=true&page=%d",
+		base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("ip=%s", query))), page)
+	if f.FofaComma {
+		url = fmt.Sprintf("https://fofa.so/result?qbase64=%s&full=true&page=%d",
+			base64.StdEncoding.EncodeToString([]byte(query)), page)
+	}
+	return url
+}
+
+func (f *Fofa) parseHtml(query string, body []byte, page int) {
 	doc, err := htmlquery.Parse(bytes.NewReader(body))
 	if err != nil {
-		f.ErrChannel <- common.LogBuild("fofa.doip.parseIPHtml",
-			fmt.Sprintf("解析失败:%s:%s", ip, err.Error()), common.ALERT)
+		f.ErrChannel <- common.LogBuild("fofa.get.parseIPHtml",
+			fmt.Sprintf("解析失败:%s:%s", query, err.Error()), common.ALERT)
 		return
 	}
 	blocks := htmlquery.Find(doc, "//*[@class='right-list-view-item clearfix']")
 	if len(blocks) == 0 {
 		f.ErrChannel <- common.LogBuild("Fofa",
-			fmt.Sprintf("%s:完成第%d页解析(无信息，请检查登录session是否过期或有效)", ip, page), common.ALERT)
+			fmt.Sprintf("%s:完成第%d页解析(无信息，请检查登录session是否过期或有效)", query, page), common.ALERT)
 		return
 	}
 	for _, blk := range blocks {
 		node := ipNode{
-			Ip: ip,
+			Ip: query,
 		}
 		//获取超链接
 		items := htmlquery.Find(blk, "//*[@class='re-domain']/a[@href]")
@@ -128,5 +135,5 @@ func (f *Fofa) parseIPHtml(ip string, body []byte, page int) {
 		f.ipNodes = append(f.ipNodes, node)
 	}
 	f.ErrChannel <- common.LogBuild("Fofa",
-		fmt.Sprintf("%s:完成第%d页解析", ip, page), common.INFO)
+		fmt.Sprintf("%s:完成第%d页解析", query, page), common.INFO)
 }

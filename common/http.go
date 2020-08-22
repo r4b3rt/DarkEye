@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -20,6 +21,7 @@ type Http struct {
 	ContentType string
 	Referer     string
 	Agent       string
+	H           string
 	TimeOut     time.Duration
 }
 
@@ -45,6 +47,10 @@ func (m *Http) Http() ([]byte, error) {
 	req.Header.Add("User-Agent", m.Agent)
 	req.Header.Add("Accept-Encoding", "xzip")
 	req.Header.Add("Cookie", m.Cookie)
+	if m.H != "" {
+		h:=strings.Split(m.H, "=")
+		req.Header.Add(h[0], h[1])
+	}
 
 	resp, err := cli.Do(req)
 	if err != nil {

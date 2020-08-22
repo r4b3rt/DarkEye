@@ -18,7 +18,6 @@ var (
 		ALERT: "重要警告",
 	}
 	logFile = "dark_eye.log"
-	Stop    = int32(0)
 )
 
 func init() {
@@ -38,14 +37,14 @@ func TrimUseless(a string) string {
 	return a
 }
 
-func StopIt() {
-	atomic.StoreInt32(&Stop, 1)
+func StopIt(stop *int32) {
+	atomic.StoreInt32(stop, 1)
 }
 
-func StartIt() {
-	atomic.StoreInt32(&Stop, 0)
+func StartIt(stop *int32) {
+	atomic.StoreInt32(stop, 0)
 }
 
-func ShouldStop() bool {
-	return atomic.LoadInt32(&Stop) == 1
+func ShouldStop(stop *int32) bool {
+	return atomic.LoadInt32(stop) == 1
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/fofa"
+	"github.com/zsdevX/DarkEye/securitytrails"
 	"io/ioutil"
 	"path/filepath"
 )
@@ -20,8 +21,9 @@ func init() {
 }
 
 type config struct {
-	Fofa  fofa.Fofa `json:"fofa"`
-	Valid bool      `json:"valid"`
+	SecurityTrails securitytrails.SecurityTrails `json:"securitytrails"`
+	Fofa           fofa.Fofa                     `json:"fofa"`
+	Valid          bool                          `json:"valid"`
 }
 
 func loadCfg() error {

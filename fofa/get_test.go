@@ -6,9 +6,9 @@ import (
 	"fmt"
 )
 
-func Test_ip(t *testing.T) {
+func Test_get(t *testing.T) {
 	fofa := NewConfig()
-	fofa.Ip = "101.231.113.13"
+	fofa.Ip = "1.1.1.1"
 	common.Console = true
 
 	fofa.ErrChannel = make(chan string, 10)
@@ -20,3 +20,11 @@ func Test_ip(t *testing.T) {
 		fmt.Println(msg)
 	}
 }
+
+
+
+
+
+
+
+

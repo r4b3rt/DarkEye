@@ -5,42 +5,31 @@ import (
 	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/widgets"
 	"github.com/zsdevX/DarkEye/common"
-	"strconv"
 	"time"
 )
 
 var (
-	//fofa功能界面
-	windowFofa = &widgets.QMainWindow{}
+	//功能界面
+	windowSecurityTails = &widgets.QMainWindow{}
 )
 
-func registerFofa(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMainWindow) {
+func registerSecurityTrails(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMainWindow) {
 	window = widgets.NewQMainWindow(nil, 0)
 	//Input
-	ip := widgets.NewQLineEdit(nil)
-	ip.SetPlaceholderText("IP（Nmap格式）")
-	//ip.SetAlignment(core.Qt__AlignHCenter)
+	apiKey := widgets.NewQLineEdit(nil)
+	apiKey.SetPlaceholderText("apiKey")
+	apiKey.SetAlignment(core.Qt__AlignHCenter)
 
-	checkBox := widgets.NewQCheckBox2("fofa语法", nil)
-	checkBox.SetToolTip("采用Fofa语法填写条件")
-	checkBox.SetChecked(false)
-	checkBox.ConnectClicked(func(checked bool) {
-		if checked {
-			ip.SetPlaceholderText("fofa查询语法格式")
-		} else {
-			ip.SetPlaceholderText("IP（Nmap格式）")
-		}
-	})
+	dnsServer := widgets.NewQLineEdit(nil)
+	dnsServer.SetPlaceholderText("DNS服务器(格式:8.8.8.8:53)")
+	dnsServer.SetAlignment(core.Qt__AlignHCenter)
 
-	Interval := widgets.NewQLineEdit(nil)
-	Interval.SetToolTip("检索间隔（建议10秒）")
-	Interval.SetText("10")
-	Interval.SetAlignment(core.Qt__AlignHCenter)
+	queries := widgets.NewQLineEdit(nil)
+	queries.SetPlaceholderText("a.com,b.com,c.com")
+	queries.SetAlignment(core.Qt__AlignHCenter)
 
-	session := widgets.NewQLineEdit(nil)
-	session.SetPlaceholderText("Fofa session")
-	session.SetToolTip("不填写仅能获取一页fofa记录")
-	session.SetAlignment(core.Qt__AlignHCenter)
+	checkBox := widgets.NewQCheckBox2("解析DNS为IP", nil)
+	checkBox.SetChecked(true)
 
 	//Log
 	logC, runCtl, inputLog := getWindowCtl()
@@ -51,13 +40,13 @@ func registerFofa(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMain
 
 	widgetC := widgets.NewQWidget(nil, 0)
 	widgetC.SetLayout(widgets.NewQHBoxLayout())
-	widgetC.Layout().AddWidget(ip)
+	widgetC.Layout().AddWidget(queries)
 	widgetC.Layout().AddWidget(checkBox)
 
 	widgetD := widgets.NewQWidget(nil, 0)
 	widgetD.SetLayout(widgets.NewQHBoxLayout())
-	widgetD.Layout().AddWidget(Interval)
-	widgetD.Layout().AddWidget(session)
+	widgetD.Layout().AddWidget(apiKey)
+	widgetD.Layout().AddWidget(dnsServer)
 
 	widgetA := widgets.NewQWidget(nil, 0)
 	widgetA.SetLayout(widgets.NewQVBoxLayout())
@@ -84,21 +73,24 @@ func registerFofa(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMain
 	//Action
 	btnOpen.ConnectClicked(func(bool) {
 		//保存配置
-		mConfig.Fofa.Ip = ip.Text()
-		mConfig.Fofa.Interval, _ = strconv.Atoi(Interval.Text())
-		mConfig.Fofa.FofaSession = session.Text()
-		mConfig.Fofa.ErrChannel = logC
+		mConfig.SecurityTrails.Queries = queries.Text()
+		mConfig.SecurityTrails.ApiKey = apiKey.Text()
+		mConfig.SecurityTrails.DnsServer = dnsServer.Text()
+		mConfig.SecurityTrails.IpCheck = checkBox.IsChecked()
+
+		mConfig.SecurityTrails.ErrChannel = logC
 		if err := saveCfg(); err != nil {
 			logC <- common.LogBuild("UI", "保存配置失败:"+err.Error(), common.FAULT)
 			return
 		}
 		//启动流程
-		common.StartIt(&mConfig.Fofa.Stop)
+		common.StartIt(&mConfig.SecurityTrails.Stop)
 		go func() {
 			sysTray.TriggerSlot()
 		}()
+
 		go func() {
-			mConfig.Fofa.Run()
+			mConfig.SecurityTrails.Run()
 			btnStop.SetDisabled(true)
 			btnOpen.SetDisabled(false)
 			runCtl <- false
@@ -109,7 +101,7 @@ func registerFofa(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMain
 	})
 
 	btnStop.ConnectClicked(func(bool) {
-		common.StopIt(&mConfig.Fofa.Stop)
+		common.StopIt(&mConfig.SecurityTrails.Stop)
 		btnStop.SetDisabled(true)
 		//异步处理等待结束避免界面卡顿
 		go func() {

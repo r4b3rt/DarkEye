@@ -3,10 +3,8 @@ package fofa
 import (
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
-	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 )
 
 var (
@@ -17,29 +15,13 @@ func (f *Fofa) Run() {
 	//初始化用来存储结果
 	f.ipNodes = make([]ipNode, 0)
 
-	f.ErrChannel <- common.LogBuild("Fofa",
-		fmt.Sprintf("开始收集信息:IP范围%s,间隔%d秒", f.Ip, f.Interval),
-		common.INFO)
-	ips := strings.Split(f.Ip, ",")
-	for _, ip := range ips {
-		base, start, end, err := parseIP(ip)
-		if err != nil {
-			f.ErrChannel <- err.Error()
-			return
-		}
-		for {
-			if start > end {
-				break
-			}
-			f.doIp(fmt.Sprintf("%s.%d", base, start))
-			start++
-		}
+	if !f.FofaComma {
+		f.runIP()
+	} else {
+		f.runRaw()
 	}
-	saveFile := time.Now().Format("2006/1/2 15:04:05")
-	saveFile = strings.Replace(saveFile, " ", "_", -1)
-	saveFile = strings.Replace(saveFile, ":", "_", -1)
-	saveFile = strings.Replace(saveFile, "/", "_", -1) + ".csv"
-	saveFile = filepath.Join(common.BaseDir, saveFile)
+
+	saveFile := common.GenFileName("fofa")
 	logNumber := 0
 	for k, n := range f.ipNodes {
 		if k == 0 {
@@ -68,6 +50,33 @@ func (f *Fofa) Run() {
 			fmt.Sprintf("收集信息任务完成，有效数量%d, 已保存结果:%s", logNumber, saveFile), common.INFO)
 	}
 	return
+}
+
+func (f *Fofa) runRaw() {
+	f.ErrChannel <- common.LogBuild("Fofa",
+		fmt.Sprintf("开始收集信息:查询语法%s,间隔%d秒", f.Ip, f.Interval),
+		common.INFO)
+}
+
+func (f *Fofa) runIP() {
+	f.ErrChannel <- common.LogBuild("Fofa",
+		fmt.Sprintf("开始收集信息:IP范围%s,间隔%d秒", f.Ip, f.Interval),
+		common.INFO)
+	ips := strings.Split(f.Ip, ",")
+	for _, ip := range ips {
+		base, start, end, err := parseIP(ip)
+		if err != nil {
+			f.ErrChannel <- err.Error()
+			return
+		}
+		for {
+			if start > end {
+				break
+			}
+			f.get(fmt.Sprintf("%s.%d", base, start))
+			start++
+		}
+	}
 }
 
 func parseIP(ip string) (base string, start, end int, err error) {

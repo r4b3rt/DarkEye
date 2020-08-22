@@ -28,7 +28,7 @@ func registerSecurityTrails(sysTray *QSystemTrayIconWithCustomSlot) (window *wid
 	queries.SetPlaceholderText("a.com,b.com,c.com")
 	queries.SetAlignment(core.Qt__AlignHCenter)
 
-	checkBox := widgets.NewQCheckBox2("解析DNS为IP", nil)
+	checkBox := widgets.NewQCheckBox2("解析域名为IP", nil)
 	checkBox.SetChecked(true)
 
 	//Log

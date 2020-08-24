@@ -28,6 +28,9 @@ var (
 )
 
 func main() {
+	fmt.Println(common.Banner)
+	fmt.Println(common.ProgramVersion)
+	fmt.Print("----------------\n\n")
 	flag.Parse()
 
 	if *mHowTo {

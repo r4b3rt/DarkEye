@@ -1,18 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
+	"github.com/zsdevX/DarkEye/common"
 	"os"
-	"time"
 )
 
 var (
 	programName    = "DarkEye"
 	programDesc    = "白嫖神器"
-	programVersion = "1.0." + fmt.Sprintf("%d%d%d%d%d\nhttps://github.com/zsdevX/DarkEye\n大橘Oo0\n84500316@qq.com",
-		time.Now().Year(), time.Now().Month(), time.Now().Day(), time.Now().Hour(), time.Now().Minute())
 )
 
 func main() {
@@ -52,7 +49,7 @@ func sysTrayDaemon(sysTray *QSystemTrayIconWithCustomSlot, app *widgets.QApplica
 	sysTray.SetContextMenu(sysTrayMenu)
 
 	sysTray.ConnectTriggerSlot(func() {
-		sysTray.ShowMessage("信息", programVersion, widgets.QSystemTrayIcon__Information, 5000)
+		sysTray.ShowMessage("信息", common.ProgramVersion, widgets.QSystemTrayIcon__Information, 5000)
 	})
 
 	fofa.ConnectTriggered(func(bool) {
@@ -64,7 +61,7 @@ func sysTrayDaemon(sysTray *QSystemTrayIconWithCustomSlot, app *widgets.QApplica
 	})
 
 	about.ConnectTriggered(func(bool) {
-		information := programVersion
+		information := common.ProgramVersion
 		widgets.QMessageBox_Information(nil, "信息", information,
 			widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
 	})

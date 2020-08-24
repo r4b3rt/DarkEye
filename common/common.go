@@ -1,11 +1,13 @@
 package common
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync/atomic"
+	"time"
 )
 
 var (
@@ -18,6 +20,15 @@ var (
 		ALERT: "重要警告",
 	}
 	logFile = "dark_eye.log"
+	ProgramVersion = "1.0." + fmt.Sprintf("%d%d%d%d%d\nhttps://github.com/zsdevX/DarkEye\n大橘Oo0\n84500316@qq.com",
+		time.Now().Year(), time.Now().Month(), time.Now().Day(), time.Now().Hour(), time.Now().Minute())
+	Banner = `___.   .__       _________         __   
+\_ |__ |__| ____ \_   ___ \_____ _/  |_ 
+ | __ \|  |/ ___\/    \  \/\__  \\   __\
+ | \_\ \  / /_/  >     \____/ __ \|  |  
+ |___  /__\___  / \______  (____  /__|  
+     \/  /_____/         \/     \/`
+
 )
 
 func init() {

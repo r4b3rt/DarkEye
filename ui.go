@@ -11,7 +11,7 @@ import (
 var (
 	programName    = "DarkEye"
 	programDesc    = "白嫖神器"
-	programVersion = "1.0." + fmt.Sprintf("%d%d%d%d%d\n大橘Oo0\n84500316@qq.com",
+	programVersion = "1.0." + fmt.Sprintf("%d%d%d%d%d\nhttps://github.com/zsdevX/DarkEye\n大橘Oo0\n84500316@qq.com",
 		time.Now().Year(), time.Now().Month(), time.Now().Day(), time.Now().Hour(), time.Now().Minute())
 )
 

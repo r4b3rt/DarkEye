@@ -67,8 +67,8 @@ func (m *Http) Http() ([]byte, error) {
 	return b, nil
 }
 
-func IsAlive(ip, port string) bool {
-	c, err := net.DialTimeout("tcp", ip+":"+port, time.Second*2)
+func IsAlive(ip, port string, timeout int) bool {
+	c, err := net.DialTimeout("tcp", ip+":"+port, time.Millisecond*time.Duration(timeout))
 	if err != nil {
 		return false
 	}

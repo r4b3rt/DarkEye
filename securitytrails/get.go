@@ -59,6 +59,7 @@ func (s *SecurityTrails) get(query string) {
 		if s.IpCheck {
 			s.parseIP(&d)
 		}
+		s.parseHistory(&d)
 		s.dns = append(s.dns, d)
 		if common.ShouldStop(&s.Stop) {
 			break
@@ -118,4 +119,59 @@ func (s *SecurityTrails) parseIpLoc(ipi *ipInfo) {
 	}
 	_ = json.Unmarshal(body, ipi)
 	time.Sleep(time.Second * 1)
+}
+
+type DnsHistoryRecords struct {
+	Records []DnsHistory `json:"records"`
+}
+
+func (s *SecurityTrails) parseHistory(d *dnsInfo) {
+	//https://api.securitytrails.com/v1/history/${host}/dns/a
+	url := fmt.Sprintf("https://api.securitytrails.com/v1/history/%s/dns/a", d.domain)
+	userAgent := common.UserAgents[rand.Int()%len(common.UserAgents)]
+	req := common.Http{
+		Url:         url,
+		TimeOut:     time.Duration(5),
+		Method:      "GET",
+		Referer:     url,
+		H:           "apikey=" + s.ApiKey,
+		Agent:       userAgent,
+		ContentType: "application/json",
+	}
+	body, err := req.Http()
+	if err != nil {
+		s.ErrChannel <- common.LogBuild("securitytrails.get.parseHistory",
+			fmt.Sprintf("请求收集子域%s历史IP失败:%s", d.domain, err.Error()), common.ALERT)
+		return
+	}
+
+	rr := DnsHistoryRecords{}
+	if err = json.Unmarshal(body, &rr); err != nil {
+		s.ErrChannel <- common.LogBuild("securitytrails.get.parseHistory",
+			fmt.Sprintf("解析子域%s历史IP失败:%s", d.domain, err.Error()), common.ALERT)
+		return
+	}
+
+	history := ""
+	for k, v := range rr.Records {
+		if k != 0 {
+			history += "|"
+		}
+		history += "ip="
+		for j, ip := range v.Values {
+			if j != 0 {
+				history += "+"
+			}
+			history += ip.Ip
+		}
+		history += "&organizations="
+		for i, org := range v.Organizations {
+			if i != 0 {
+				history += "+"
+			}
+			history += org
+		}
+		history += "&first_seen=" + v.First_seen + "&last_seen=" + v.Last_seen
+	}
+	d.history = history
 }

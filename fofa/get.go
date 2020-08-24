@@ -35,16 +35,18 @@ func (f *Fofa) get(query string) {
 	pageRe, err := regexp.Compile(`>(\d*)</a> <a class="next_page" rel="next"`)
 	if err != nil {
 		f.ErrChannel <- common.LogBuild("fofa.get",
-			fmt.Sprintf("收集IP%s失败:为匹配到页码", query), common.FAULT)
+			fmt.Sprintf("收集IP%s失败:未匹配到页码", query), common.FAULT)
 		return
 	}
+	pageNr := 1
 	pageNum := pageRe.FindSubmatch(body)
 	if len(pageNum) < 2 {
 		f.ErrChannel <- common.LogBuild("fofa.get",
-			fmt.Sprintf("收集IP%s失败:匹配到错误页码", query), common.FAULT)
-		return
+			fmt.Sprintf("收集IP%s:仅为1页", query), common.FAULT)
+
+	} else {
+		pageNr, _ = strconv.Atoi(string(pageNum[1]))
 	}
-	pageNr, _ := strconv.Atoi(string(pageNum[1]))
 	//非授权的只能获取f.Pages=5页
 	if pageNr > f.Pages {
 		pageNr = f.Pages
@@ -58,7 +60,10 @@ func (f *Fofa) get(query string) {
 		if common.ShouldStop(&f.Stop) {
 			break
 		}
-		f.parseHtml(query, body, start)
+		if f.parseHtml(query, body, start) {
+			//解析页面遇到不可恢复的情况立刻终止，提高效率
+			break
+		}
 		//下一页
 		start += 1
 		if start > pageNr {
@@ -84,7 +89,8 @@ func (f *Fofa) genUrl(query string, page int) string {
 	return url
 }
 
-func (f *Fofa) parseHtml(query string, body []byte, page int) {
+func (f *Fofa) parseHtml(query string, body []byte, page int) (stop bool) {
+	stop = false
 	doc, err := htmlquery.Parse(bytes.NewReader(body))
 	if err != nil {
 		f.ErrChannel <- common.LogBuild("fofa.get.parseIPHtml",
@@ -95,6 +101,7 @@ func (f *Fofa) parseHtml(query string, body []byte, page int) {
 	if len(blocks) == 0 {
 		f.ErrChannel <- common.LogBuild("Fofa",
 			fmt.Sprintf("%s:完成第%d页解析(无信息，请检查登录session是否过期或有效)", query, page), common.ALERT)
+		stop = true
 		return
 	}
 	for _, blk := range blocks {
@@ -129,11 +136,12 @@ func (f *Fofa) parseHtml(query string, body []byte, page int) {
 		node.Port = common.TrimUseless(htmlquery.InnerText(items[0]))
 
 		//检查端口是否有效
-		node.Alive = common.IsAlive(node.Ip, node.Port)
+		node.Alive = common.IsAlive(node.Ip, node.Port, 2000)
 
 		//保存结果
 		f.ipNodes = append(f.ipNodes, node)
 	}
 	f.ErrChannel <- common.LogBuild("Fofa",
 		fmt.Sprintf("%s:完成第%d页解析", query, page), common.INFO)
+	return
 }

@@ -41,6 +41,10 @@ Usage of ./lowSpeedPortScan:
         端口之间的扫描间隔单位ms，也可用通过-test_speed自动计算 (default 2000)
   -speed_test
         检测防火墙限制频率
+     
+examples:        
+./lowSpeedPortScan -alive_port 8443 -ip f.u.c.k -port 1-65535 -speed_test -output result.txt
+        
  ```
         
 

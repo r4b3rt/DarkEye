@@ -27,7 +27,7 @@ func runApp() {
 	app.SetQuitOnLastWindowClosed(false)
 
 	windowFofa = registerFofa(sysTray)
-	windowFofa.Show()
+	windowFofa.Hide()
 
 	windowSecurityTails = registerSecurityTrails(sysTray)
 	windowSecurityTails.Hide()

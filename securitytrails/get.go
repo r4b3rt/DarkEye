@@ -24,6 +24,9 @@ type subResult struct {
 }
 
 func (s *SecurityTrails) get(query string) {
+	s.ErrChannel <- common.LogBuild("securitytrails",
+		fmt.Sprintf("开始收集子域%s", query), common.INFO)
+
 	url := fmt.Sprintf("https://api.securitytrails.com/v1/domain/%s/subdomains?children_only=false", query)
 	userAgent := common.UserAgents[rand.Int()%len(common.UserAgents)]
 	req := common.Http{
@@ -38,13 +41,14 @@ func (s *SecurityTrails) get(query string) {
 	body, err := req.Http()
 	if err != nil {
 		s.ErrChannel <- common.LogBuild("securitytrails.get",
-			fmt.Sprintf("收集子域%s发起请求失败:%s", query, err.Error()), common.ALERT)
+			fmt.Sprintf("收集子域%s发起请求失败（如果不是网络问题请检查api是否使用到期，如果到期大佬多申请几个账号吧）:%s", query, err.Error()), common.ALERT)
 		return
 	}
 	res := subResult{}
 	if err = json.Unmarshal(body, &res); err != nil {
 		s.ErrChannel <- common.LogBuild("securitytrails.get",
 			fmt.Sprintf("收集子域%s处理返回数据失败:%s", query, err.Error()), common.ALERT)
+		return
 	}
 	if res.Meta.Limit_reached {
 		s.ErrChannel <- common.LogBuild("securitytrails.get",

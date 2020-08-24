@@ -24,7 +24,13 @@ type subResult struct {
 }
 
 func (s *SecurityTrails) get(query string) {
-	s.ErrChannel <- common.LogBuild("securitytrails",
+	//查询ip历史信息太浪费api，大佬有需要在查吧。
+	s.ErrChannel <- common.LogBuild("SecurityTrails",
+		fmt.Sprintf("若需要查到域名历史信息请直接用如下命令:\n %s",
+			`curl --request GET --url "https://api.securitytrails.com/v1/history/${host}/dns/a" -H "apikey: ${you-api-key}" --header 'accept: application/json' `),
+		common.INFO)
+
+	s.ErrChannel <- common.LogBuild("SecurityTrails",
 		fmt.Sprintf("开始收集子域%s", query), common.INFO)
 
 	url := fmt.Sprintf("https://api.securitytrails.com/v1/domain/%s/subdomains?children_only=false", query)
@@ -40,18 +46,19 @@ func (s *SecurityTrails) get(query string) {
 	}
 	body, err := req.Http()
 	if err != nil {
-		s.ErrChannel <- common.LogBuild("securitytrails.get",
-			fmt.Sprintf("收集子域%s发起请求失败（如果不是网络问题请检查api是否使用到期，如果到期大佬多申请几个账号吧）:%s", query, err.Error()), common.ALERT)
+		s.ErrChannel <- common.LogBuild("SecurityTrails.get",
+			fmt.Sprintf("收集子域%s发起请求失败。\n 如果不是网络问题请检查api是否使用到期（返回429错误）,如果到期大佬多申请几个账号吧。\n错误码 :%s",
+				query, err.Error()), common.ALERT)
 		return
 	}
 	res := subResult{}
 	if err = json.Unmarshal(body, &res); err != nil {
-		s.ErrChannel <- common.LogBuild("securitytrails.get",
+		s.ErrChannel <- common.LogBuild("SecurityTrails.get",
 			fmt.Sprintf("收集子域%s处理返回数据失败:%s", query, err.Error()), common.ALERT)
 		return
 	}
 	if res.Meta.Limit_reached {
-		s.ErrChannel <- common.LogBuild("securitytrails.get",
+		s.ErrChannel <- common.LogBuild("SecurityTrails.get",
 			fmt.Sprintf("收集子域%s达到服务器允许上限", query), common.ALERT)
 	}
 
@@ -63,7 +70,6 @@ func (s *SecurityTrails) get(query string) {
 		if s.IpCheck {
 			s.parseIP(&d)
 		}
-		s.parseHistory(&d)
 		s.dns = append(s.dns, d)
 		if common.ShouldStop(&s.Stop) {
 			break
@@ -80,7 +86,7 @@ func (s *SecurityTrails) parseIP(d *dnsInfo) {
 	m1.SetQuestion(d.domain+".", dns.TypeA)
 	r, _, err := c.Exchange(m1, s.DnsServer)
 	if err != nil {
-		s.ErrChannel <- common.LogBuild("securitytrails.get.parseIP",
+		s.ErrChannel <- common.LogBuild("SecurityTrails.get.parseIP",
 			fmt.Sprintf("解析域名失败%s:%s", d.domain, err.Error()), common.ALERT)
 		return
 	}
@@ -100,7 +106,7 @@ func (s *SecurityTrails) parseIP(d *dnsInfo) {
 			d.ip = append(d.ip, ipi)
 		}
 	}
-	s.ErrChannel <- common.LogBuild("securitytrails",
+	s.ErrChannel <- common.LogBuild("SecurityTrails",
 		fmt.Sprintf("解析域名%s完成CNAME=%s,ip数量%d", d.domain, d.cname, len(d.ip)), common.INFO)
 }
 
@@ -117,65 +123,10 @@ func (s *SecurityTrails) parseIpLoc(ipi *ipInfo) {
 	}
 	body, err := req.Http()
 	if err != nil {
-		s.ErrChannel <- common.LogBuild("securitytrails.get.parseIP.parseIpLoc",
+		s.ErrChannel <- common.LogBuild("SecurityTrails.get.parseIP.parseIpLoc",
 			fmt.Sprintf("获取IP%s所在地失败%s", ipi.ip, err.Error()), common.ALERT)
 		return
 	}
 	_ = json.Unmarshal(body, ipi)
 	time.Sleep(time.Second * 1)
-}
-
-type DnsHistoryRecords struct {
-	Records []DnsHistory `json:"records"`
-}
-
-func (s *SecurityTrails) parseHistory(d *dnsInfo) {
-	//https://api.securitytrails.com/v1/history/${host}/dns/a
-	url := fmt.Sprintf("https://api.securitytrails.com/v1/history/%s/dns/a", d.domain)
-	userAgent := common.UserAgents[rand.Int()%len(common.UserAgents)]
-	req := common.Http{
-		Url:         url,
-		TimeOut:     time.Duration(5),
-		Method:      "GET",
-		Referer:     url,
-		H:           "apikey=" + s.ApiKey,
-		Agent:       userAgent,
-		ContentType: "application/json",
-	}
-	body, err := req.Http()
-	if err != nil {
-		s.ErrChannel <- common.LogBuild("securitytrails.get.parseHistory",
-			fmt.Sprintf("请求收集子域%s历史IP失败:%s", d.domain, err.Error()), common.ALERT)
-		return
-	}
-
-	rr := DnsHistoryRecords{}
-	if err = json.Unmarshal(body, &rr); err != nil {
-		s.ErrChannel <- common.LogBuild("securitytrails.get.parseHistory",
-			fmt.Sprintf("解析子域%s历史IP失败:%s", d.domain, err.Error()), common.ALERT)
-		return
-	}
-
-	history := ""
-	for k, v := range rr.Records {
-		if k != 0 {
-			history += "|"
-		}
-		history += "ip="
-		for j, ip := range v.Values {
-			if j != 0 {
-				history += "+"
-			}
-			history += ip.Ip
-		}
-		history += "&organizations="
-		for i, org := range v.Organizations {
-			if i != 0 {
-				history += "+"
-			}
-			history += org
-		}
-		history += "&first_seen=" + v.First_seen + "&last_seen=" + v.Last_seen
-	}
-	d.history = history
 }

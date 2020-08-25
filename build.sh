@@ -6,6 +6,11 @@ build_mac() {
     ${GOPATH}/bin/qtdeploy build darwin
 }
 
+build_linux() {
+    #docker pull therecipe/qt:linux
+    ${GOPATH}/bin/qtdeploy build linux
+}
+
 build_win() {
     ${GOPATH}/bin/rsrc -manifest DarkEye.manifest -ico qml/logo.ico -arch=386 -o DarkEye_windows.syso
     #docker pull therecipe/qt:windows_32_static
@@ -36,8 +41,11 @@ case "$1" in
     "win")
         build_win
         ;;
+    "linux")
+        build_linux
+        ;;
       *)
-        echo "./build.sh [mac|win]"
+        echo "./build.sh [mac|win|linux]"
         ;;
 esac
 clean

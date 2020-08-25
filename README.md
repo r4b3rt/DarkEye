@@ -8,6 +8,25 @@ DarkEye项目旨为收集目标信息。DarkEye从互联网（Securitytrails、f
 |系统 |状态|
 |--------------------------|----------------|
 |MacOs | 支持|
-|Linux | 开发中|
+|Linux | 支持|
 |Windows | 支持|
+
+
+安装
+===
+
+##### QT环境
+
+```bash
+参考: https://github.com/therecipe/qt
+```
+
+##### Build Windows/macOS/Linux
+
+```bash
+go get github.com/zsdevX/DarkEye
+./build mac
+./build linux
+./build win
+```
 

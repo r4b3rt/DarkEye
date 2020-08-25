@@ -14,13 +14,13 @@ import (
 
 var (
 	mPort       = flag.String("port", "1-65535", "端口格式参考Nmap")
-	mIp         = flag.String("ip", "127.0.0.1", "a.b.c.d（不做扫C，扫C自己想办法或使用nmap --scan-delay 1000ms, 不准")
+	mIp         = flag.String("ip", "127.0.0.1", "a.b.c.d（不做扫C，扫C自己想办法或使用nmap --scan-delay 1000ms但是不准")
 	mActivePort = flag.String("alive_port", "80", "已知开放的端口用来校正扫描")
-	mSpeed      = flag.Int("speed", 2000, "端口之间的扫描间隔单位ms，也可用通过-test_speed自动计算")
+	mSpeed      = flag.Int("speed", 2000, "端口之间的扫描间隔单位ms，也可用通过-speed_test")
 	mMinSpeed   = flag.Int("min_speed", 100, "自动计算的速率不能低于min_speed")
 	mTestSpeed  = flag.Bool("speed_test", false, "检测防火墙限制频率")
 	mOutputFile = flag.String("output", "result.txt", "结果保存到该文件")
-	mHowTo = flag.Bool("examples", false, "显示使用示例")
+	mHowTo      = flag.Bool("examples", false, "显示使用示例")
 )
 
 var (
@@ -203,5 +203,7 @@ func initParams() {
 	scanCfg.MinSpeed = *mMinSpeed
 	scanCfg.PortRange = *mPort
 	scanCfg.Test = *mTestSpeed
+	scanCfg.PortsScannedOpened = nil
+	scanCfg.PortsHaveBeenScanned = nil
 	_ = saveCfg()
 }

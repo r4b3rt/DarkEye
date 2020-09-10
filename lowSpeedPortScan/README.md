@@ -43,7 +43,7 @@ Usage of ./lowSpeedPortScan:
   -alive_port string
         已知开放的端口用来校正扫描 (default "0")
   -ip string
-        a.b.c.d（不做扫C，扫C自己想办法或使用nmap --scan-delay 1000ms但是不准 (default "127.0.0.1")
+        a.b.c.d
   -min_rate int
         自动计算的速率不能低于min_rate (default 100)
   -output string

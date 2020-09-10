@@ -11,7 +11,7 @@ import (
 
 var (
 	mPort       = flag.String("port", "1-65535", "端口格式参考Nmap")
-	mIp         = flag.String("ip", "127.0.0.1", "a.b.c.d（不做扫C，扫C自己想办法或使用nmap --scan-delay 1000ms但是不准")
+	mIp         = flag.String("ip", "127.0.0.1", "a.b.c.1-254")
 	mActivePort = flag.String("alive_port", "0", "已知开放的端口用来校正扫描")
 	mRate       = flag.Int("rate", 2000, "端口之间的扫描间隔单位ms，也可用通过-rate_test")
 	mMinRate    = flag.Int("min_rate", 100, "自动计算的速率不能低于min_rate")

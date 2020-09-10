@@ -23,27 +23,39 @@
 
 
 ```golang
-macbook:lowSpeedPortScan mac$ ./lowSpeedPortScan -h
+macdeMacBook-Pro:lowSpeedPortScan mac$ ./lowSpeedPortScan -h
+___.   .__       _________         __   
+\_ |__ |__| ____ \_   ___ \_____ _/  |_ 
+ | __ \|  |/ ___\/    \  \/\__  \\   __\
+ | \_\ \  / /_/  >     \____/ __ \|  |  
+ |___  /__\___  / \______  (____  /__|  
+     \/  /_____/         \/     \/
+1.0.20209102143
+https://github.com/zsdevX/DarkEye
+大橘Oo0
+84500316@qq.com
+Examples: 
+./lowSpeedPortScan -alive_port 8443 -ip f.u.c.k -port 1-65535 -rate_test -output result.txt
+./lowSpeedPortScan -ip f.u.c.k,f.u.c.1-254 -port 1-65535 -rate 200 -output result.txt
+----------------
+
 Usage of ./lowSpeedPortScan:
   -alive_port string
-        已知开放的端口用来校正扫描 (default "80")
-  -examples
-        显示使用示例
+        已知开放的端口用来校正扫描 (default "0")
   -ip string
-        a.b.c.d（不做扫C，扫C自己想办法或使用nmap --scan-delay 1000ms, 不准 (default "127.0.0.1")
-  -min_speed int
-        自动计算的速率不能低于min_speed (default 100)
+        a.b.c.d（不做扫C，扫C自己想办法或使用nmap --scan-delay 1000ms但是不准 (default "127.0.0.1")
+  -min_rate int
+        自动计算的速率不能低于min_rate (default 100)
   -output string
         结果保存到该文件 (default "result.txt")
   -port string
         端口格式参考Nmap (default "1-65535")
-  -speed int
-        端口之间的扫描间隔单位ms，也可用通过-test_speed自动计算 (default 2000)
-  -speed_test
-        检测防火墙限制频率
-     
-examples:        
-./lowSpeedPortScan -alive_port 8443 -ip f.u.c.k -port 1-65535 -speed_test -output result.txt
+  -rate int
+        端口之间的扫描间隔单位ms，也可用通过-rate_test (default 2000)
+  -rate_test
+        发包频率
+  -thread int
+        结果保存到该文件 (default 1)
         
  ```
         

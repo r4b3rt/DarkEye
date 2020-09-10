@@ -1,8 +1,8 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"github.com/k0kubun/go-ansi"
 	"github.com/schollz/progressbar"
 	"github.com/zsdevX/DarkEye/common"
 	"os"
@@ -13,77 +13,100 @@ import (
 )
 
 var (
-	mPort       = flag.String("port", "1-65535", "端口格式参考Nmap")
-	mIp         = flag.String("ip", "127.0.0.1", "a.b.c.d（不做扫C，扫C自己想办法或使用nmap --scan-delay 1000ms但是不准")
-	mActivePort = flag.String("alive_port", "80", "已知开放的端口用来校正扫描")
-	mSpeed      = flag.Int("speed", 2000, "端口之间的扫描间隔单位ms，也可用通过-speed_test")
-	mMinSpeed   = flag.Int("min_speed", 100, "自动计算的速率不能低于min_speed")
-	mTestSpeed  = flag.Bool("speed_test", false, "检测防火墙限制频率")
-	mOutputFile = flag.String("output", "result.txt", "结果保存到该文件")
-	mHowTo      = flag.Bool("examples", false, "显示使用示例")
+	Bar     = &progressbar.ProgressBar{}
+	BarDesc = make(chan *BarValue, 64)
 )
 
-var (
-	scanCfg = Scan{}
-)
+type BarValue struct {
+	Key   string
+	Value string
+}
 
-func main() {
-	fmt.Println(common.Banner)
-	fmt.Println(common.ProgramVersion)
-	fmt.Print("----------------\n\n")
-	flag.Parse()
+func NewBar(max int) *progressbar.ProgressBar {
+	bar := progressbar.NewOptions(max,
+		progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionThrottle(3000*time.Millisecond),
+		progressbar.OptionSetDescription("Loading ..."),
+		progressbar.OptionSetWriter(os.Stderr),
+		progressbar.OptionSetWidth(10),
+		progressbar.OptionShowCount(),
+		progressbar.OptionShowIts(),
+		progressbar.OptionOnCompletion(func() {
+			_, _ = fmt.Fprint(os.Stderr, "\nDONE")
+		}),
+		progressbar.OptionSpinnerType(14),
+		progressbar.OptionFullWidth(),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]=[reset]",
+			SaucerHead:    "[green]>[reset]",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}))
 
-	if *mHowTo {
-		fmt.Println("./lowSpeedPortScan -alive_port 8443 -ip f.u.c.k -port 1-65535 -speed_test -output result.txt")
-		return
+	_ = bar.RenderBlank()
+	return bar
+}
+
+func BarDescription() {
+	description := make(map[string]string, 0)
+	for {
+		desc := ""
+		i := 0
+		value := <-BarDesc
+		description[value.Key] = value.Value
+		for k, v := range description {
+			i++
+			desc += fmt.Sprintf("%d.%s:%s\n", i, k, v)
+		}
+		Bar.Describe(desc)
 	}
+}
 
-	if err := initConfig(); err != nil {
-		fmt.Println(err.Error())
-		os.Exit(0)
+func New(ip string) *Scan {
+	return &Scan{
+		Ip: ip,
 	}
-	s := &scanCfg
-	s.SpeedTest()
-	s.Run()
-	s.OutPut()
-	fmt.Println("完成:", filepath.Join(common.BaseDir, *mOutputFile))
 }
 
 func (s *Scan) Run() {
 	fromTo, tot := genFromTo(s.PortRange)
-
-	fmt.Println(fmt.Sprintf("开启检测共计%d个端口", tot))
-
-	bar := progressbar.Default(int64(tot), fmt.Sprintf("[0/0/%d] scanning", tot))
 	find := 0
 	blk := 0
 	for _, p := range fromTo {
 		i := p.from
 		for i <= p.to {
+			if len(s.PortsScannedOpened)  != 0 {
+				BarDesc <- &BarValue{
+					Value: fmt.Sprintf("[+%d/-%d/%d/%d/%dms] opened:[%s]",
+						find, blk, tot, i, s.Rate, genPortList(s.PortsScannedOpened)),
+					Key: s.Ip,
+				}
+			}
 			if _, ok := s.PortsHaveBeenScanned[i]; ok {
-				_ = bar.Add(1)
+				_ = Bar.Add(1)
 				continue
 			}
 			port := strconv.Itoa(int(i))
-			if common.IsAlive(s.Ip, port, s.Speed) {
+			if common.IsAlive(s.Ip, port, s.Rate) {
 				s.PortsScannedOpened = append(s.PortsScannedOpened, i)
 				find++
-				bar.Describe(fmt.Sprintf("[%d/%d/%d] opened:[%s]", find, blk, tot, genPortList(s.PortsScannedOpened)))
-				_ = saveCfg()
+				_ = s.saveCfg()
 			}
 			if !s.AliveTest() {
 				blk++
-				bar.Describe(fmt.Sprintf("[%d/%d/%d] opened:[%s]", find, blk, tot, genPortList(s.PortsScannedOpened)))
 				time.Sleep(time.Second * 5)
+				i++
 				continue
 			}
-			_ = bar.Add(1)
+			_ = Bar.Add(1)
 			s.PortsHaveBeenScanned[i] = true
 			i++
-			_ = saveCfg()
+			_ = s.saveCfg()
 		}
 	}
-	_ = saveCfg()
+	_ = s.saveCfg()
 }
 
 func genPortList(ports []int) string {
@@ -97,7 +120,7 @@ func genPortList(ports []int) string {
 	return portList
 }
 func (s *Scan) OutPut() {
-	filename := filepath.Join(common.BaseDir, *mOutputFile)
+	filename := filepath.Join(mBasedir, s.Ip+"."+*mOutputFile)
 	if len(s.PortsScannedOpened) == 0 {
 		_ = common.SaveFile(fmt.Sprintf("%s开放端口:无", s.Ip), filename)
 	} else {
@@ -131,9 +154,13 @@ func genFromTo(portRange string) ([]FromTo, int) {
 }
 
 func (s *Scan) AliveTest() bool {
+	//不校正
+	if s.ActivePort == "0" {
+		return true
+	}
 	maxRetries := 3
 	for maxRetries > 0 {
-		if common.IsAlive(s.Ip, s.ActivePort, s.DefaultSpeed) {
+		if common.IsAlive(s.Ip, s.ActivePort, s.Rate) {
 			return true
 		}
 		maxRetries --
@@ -141,69 +168,54 @@ func (s *Scan) AliveTest() bool {
 	return false
 }
 
-func (s *Scan) SpeedTest() error {
-	s.Speed = s.DefaultSpeed
+func (s *Scan) RateTest() error {
+	s.Rate = s.DefaultRate
 	if !s.Test {
-		s.Speed = s.DefaultSpeed
 		return nil
 	}
-	lastSpeed := 0
+	lastRate := 0
 	for {
 		if !s.AliveTest() {
-			if lastSpeed == 0 {
-				return fmt.Errorf("网络质量差,默认Speed太低,烦请大佬手动调高speed参数:-speed 3000ms或放弃目标")
+			if lastRate == 0 {
+				return fmt.Errorf("网络质量差,默认rate太低,烦请大佬手动调高rate参数:-rate 3000ms或放弃目标")
 			}
-			s.Speed = lastSpeed
+			s.Rate = lastRate
 			break
 		} else {
-			fmt.Println(fmt.Sprintf("[OK] Tested Speed: %dms", s.Speed))
-			if s.Speed <= s.MinSpeed {
+			fmt.Println(fmt.Sprintf("[OK] Tested Rate: %dms", s.Rate))
+			if s.Rate <= s.MinRate {
 				break
 			}
-			lastSpeed = s.Speed
-			s.Speed -= 50
-			time.Sleep(time.Millisecond * time.Duration(s.Speed))
+			lastRate = s.Rate
+			s.Rate -= 50
+			time.Sleep(time.Millisecond * time.Duration(s.Rate))
 		}
-	}
-	fmt.Println(fmt.Sprintf("测试频率为:%dms", s.Speed))
-	return nil
-}
-
-func initConfig() error {
-	_ = loadCfg()
-	if scanCfg.valid {
-		ans := ""
-		fmt.Printf("检测到已经保存上一次的扫描记录,是否继续使用（yes/no）: ")
-		n, _ := fmt.Scanln(&ans)
-		if n != 1 {
-			return fmt.Errorf("输入错误")
-		}
-		if ans == "no" {
-			initParams()
-		} else if ans == "yes" {
-		} else {
-			return fmt.Errorf("输入错误")
-		}
-	} else {
-		initParams()
-	}
-	if scanCfg.PortsHaveBeenScanned == nil {
-		scanCfg.PortsHaveBeenScanned = make(map[int]bool, 0)
-	}
-	if scanCfg.PortsScannedOpened == nil {
-		scanCfg.PortsScannedOpened = make([]int, 0)
 	}
 	return nil
 }
 
-func initParams() {
-	scanCfg.DefaultSpeed = *mSpeed
-	scanCfg.ActivePort = *mActivePort
-	scanCfg.Ip = *mIp
-	scanCfg.MinSpeed = *mMinSpeed
-	scanCfg.PortRange = *mPort
-	scanCfg.Test = *mTestSpeed
-	scanCfg.PortsScannedOpened = nil
-	scanCfg.PortsHaveBeenScanned = nil
-	_ = saveCfg()
+func (s *Scan) InitConfig() error {
+	_ = s.loadCfg()
+	if !s.valid {
+		s.initParams(s.Ip)
+	}
+	if s.PortsHaveBeenScanned == nil {
+		s.PortsHaveBeenScanned = make(map[int]bool, 0)
+	}
+	if s.PortsScannedOpened == nil {
+		s.PortsScannedOpened = make([]int, 0)
+	}
+	return nil
+}
+
+func (s *Scan) initParams(ip string) {
+	s.Ip = ip
+	s.DefaultRate = *mRate
+	s.ActivePort = *mActivePort
+	s.MinRate = *mMinRate
+	s.PortRange = *mPort
+	s.Test = *mTestRate
+	s.PortsScannedOpened = nil
+	s.PortsHaveBeenScanned = nil
+	_ = s.saveCfg()
 }

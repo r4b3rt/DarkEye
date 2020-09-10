@@ -38,7 +38,7 @@ func registerFofa(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMain
 	Interval.SetAlignment(core.Qt__AlignHCenter)
 
 	session := widgets.NewQLineEdit(nil)
-	session.SetPlaceholderText("Fofa session")
+	session.SetPlaceholderText("_fofapro_ars_session=xxx")
 	session.SetToolTip("不填写仅能获取一页fofa记录")
 	session.SetAlignment(core.Qt__AlignHCenter)
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/zsdevX/DarkEye/common"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -13,44 +14,46 @@ type FromTo struct {
 }
 
 type Scan struct {
-	Ip           string `json:"ip"`
-	PortRange    string `json:"port_range"`
-	ActivePort   string `json:"active_port"`
-	DefaultSpeed int    `json:"default_speed"`
-	MinSpeed     int    `json:"min_speed"`
-	Test         bool   `json:"speed_test"`
+	Ip          string `json:"ip"`
+	PortRange   string `json:"port_range"`
+	ActivePort  string `json:"active_port"`
+	DefaultRate int    `json:"default_rate"`
+	MinRate     int    `json:"min_rate"`
+	Test        bool   `json:"rate_test"`
 
-	Speed                int          `json:"speed"`
+	Rate                 int          `json:"rate"`
 	PortsHaveBeenScanned map[int]bool `json:"port_scanned"`
 	PortsScannedOpened   []int        `json:"ports_opened"`
 
-	valid  bool
+	valid bool
 }
 
 var (
-	mConfigFile = "lowspeedportscan.cfg"
+	mConfigFile = "scan.cfg"
+	mBasedir    = filepath.Join(common.BaseDir, "tmp")
 )
 
 func init() {
-	mConfigFile = filepath.Join(common.BaseDir, mConfigFile)
+	_ = os.Mkdir(mBasedir, 0700)
+	mConfigFile = filepath.Join(mBasedir, mConfigFile)
 }
 
-func loadCfg() error {
-	data, err := ioutil.ReadFile(mConfigFile)
+func (s *Scan) loadCfg() error {
+	data, err := ioutil.ReadFile(mConfigFile + "." + s.Ip)
 	if err != nil {
 		return err
 	}
-	if err := json.Unmarshal(data, &scanCfg); err != nil {
+	if err := json.Unmarshal(data, s); err != nil {
 		return err
 	}
-	scanCfg.valid = true
+	s.valid = true
 	return nil
 }
 
-func saveCfg() error {
-	data, err := json.Marshal(&scanCfg)
+func (s *Scan) saveCfg() error {
+	data, err := json.Marshal(s)
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(mConfigFile, data, 0700)
+	return ioutil.WriteFile(mConfigFile + "." + s.Ip, data, 0700)
 }

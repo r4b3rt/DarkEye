@@ -6,10 +6,6 @@ import (
 	"strings"
 )
 
-var (
-	fofaSessionTag = "_fofapro_ars_session"
-)
-
 func (f *Fofa) Run() {
 	//初始化用来存储结果
 	f.ipNodes = make([]ipNode, 0)
@@ -63,6 +59,9 @@ func (f *Fofa) runIP() {
 		common.INFO)
 	ips := strings.Split(f.Ip, ",")
 	for _, ip := range ips {
+		if common.ShouldStop(&f.Stop) {
+			break
+		}
 		base, start, end, err := common.ParseNmapIP(ip)
 		if err != nil {
 			f.ErrChannel <- err.Error()
@@ -70,6 +69,9 @@ func (f *Fofa) runIP() {
 		}
 		for {
 			if start > end {
+				break
+			}
+			if common.ShouldStop(&f.Stop) {
 				break
 			}
 			f.get(fmt.Sprintf("%s.%d", base, start))

@@ -19,8 +19,10 @@ func registerFofa(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMain
 	//Input
 	ip := widgets.NewQLineEdit(nil)
 	ip.SetPlaceholderText("IP（Nmap格式）")
+	ip.SetToolTip("1.1.1.1-254,2.2.2.2")
 	//ip.SetAlignment(core.Qt__AlignHCenter)
 
+	/*
 	checkBox := widgets.NewQCheckBox2("fofa语法", nil)
 	checkBox.SetToolTip("采用Fofa语法填写条件")
 	checkBox.SetChecked(false)
@@ -31,6 +33,7 @@ func registerFofa(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMain
 			ip.SetPlaceholderText("IP（Nmap格式）")
 		}
 	})
+	*/
 
 	Interval := widgets.NewQLineEdit(nil)
 	Interval.SetToolTip("检索间隔（建议10秒）")
@@ -52,7 +55,7 @@ func registerFofa(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMain
 	widgetC := widgets.NewQWidget(nil, 0)
 	widgetC.SetLayout(widgets.NewQHBoxLayout())
 	widgetC.Layout().AddWidget(ip)
-	widgetC.Layout().AddWidget(checkBox)
+	//	widgetC.Layout().AddWidget(checkBox)
 
 	widgetD := widgets.NewQWidget(nil, 0)
 	widgetD.SetLayout(widgets.NewQHBoxLayout())

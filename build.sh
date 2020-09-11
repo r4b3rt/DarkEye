@@ -4,11 +4,13 @@ export GO111MODULE=off
 
 build_mac() {
     ${GOPATH}/bin/qtdeploy build darwin
+    cd lowSpeedPortScan && ./build.sh mac && mv lowSpeedPortScan ../dist/
 }
 
 build_linux() {
     #docker pull therecipe/qt:linux
     ${GOPATH}/bin/qtdeploy build linux
+    cd lowSpeedPortScan && ./build.sh linux && mv lowSpeedPortScan ../dist/
 }
 
 build_win() {
@@ -22,6 +24,7 @@ build_win() {
     else
         echo "Build Success"
     fi
+    cd lowSpeedPortScan && ./build.sh win && mv lowSpeedPortScan.exe ../dist/
 }
 
 clean() {

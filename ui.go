@@ -26,14 +26,14 @@ func runApp() {
 	sysTray := NewQSystemTrayIconWithCustomSlot(nil)
 	app.SetQuitOnLastWindowClosed(false)
 
+	sysTrayDaemon(sysTray, app)
+	sysTray.Show()
+
 	windowFofa = registerFofa(sysTray)
 	windowFofa.Hide()
 
 	windowSecurityTails = registerSecurityTrails(sysTray)
 	windowSecurityTails.Hide()
-
-	sysTrayDaemon(sysTray, app)
-	sysTray.Show()
 	app.Exec()
 }
 

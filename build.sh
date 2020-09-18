@@ -14,7 +14,7 @@ build_linux() {
 }
 
 build_win() {
-    ${GOPATH}/bin/rsrc -manifest DarkEye.manifest -ico qml/logo.ico -arch=386 -o DarkEye_windows.syso
+    ${GOPATH}/bin/rsrc -manifest DarrmkEye.manifest -ico qml/logo.ico -arch=386 -o DarkEye_windows.syso
     #docker pull therecipe/qt:windows_32_static
     qtdeploy -docker build windows_32_static
 

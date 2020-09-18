@@ -6,6 +6,7 @@ import (
 	"github.com/miekg/dns"
 	"github.com/zsdevX/DarkEye/common"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -84,7 +85,11 @@ func (s *SecurityTrails) parseIP(d *dnsInfo) {
 	}
 	m1 := &dns.Msg{}
 	m1.SetQuestion(d.domain+".", dns.TypeA)
-	r, _, err := c.Exchange(m1, s.DnsServer)
+	server := s.DnsServer
+	if !strings.Contains(server, ":") {
+		server = server + ":53"
+	}
+	r, _, err := c.Exchange(m1, server)
 	if err != nil {
 		s.ErrChannel <- common.LogBuild("SecurityTrails.get.parseIP",
 			fmt.Sprintf("解析域名失败%s:%s", d.domain, err.Error()), common.ALERT)

@@ -27,10 +27,18 @@ func (f *Fofa) get(query string) {
 	//获取首页面
 	body, err := req.Http()
 	if err != nil {
+		errMsg := err.Error()
+		if errMsg == "Bad status 429" {
+			errMsg = "fofa session过期，需要重新登录获取"
+		}
 		f.ErrChannel <- common.LogBuild("fofa.get",
-			fmt.Sprintf("%s: %s", query, err.Error()), common.ALERT)
+			fmt.Sprintf("%s: %s", query, errMsg), common.ALERT)
 		return
 	}
+	defer func() {
+		//学做人，防止fofa封
+		time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))
+	}()
 	//获取页数
 	pageRe, err := regexp.Compile(`>(\d*)</a> <a class="next_page" rel="next"`)
 	if err != nil {

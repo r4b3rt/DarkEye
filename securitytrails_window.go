@@ -19,10 +19,16 @@ func registerSecurityTrails(sysTray *QSystemTrayIconWithCustomSlot) (window *wid
 	apiKey := widgets.NewQLineEdit(nil)
 	apiKey.SetPlaceholderText("apiKey")
 	apiKey.SetAlignment(core.Qt__AlignHCenter)
+	if mConfig.SecurityTrails.ApiKey != "" {
+		apiKey.SetText(mConfig.SecurityTrails.ApiKey)
+	}
 
 	dnsServer := widgets.NewQLineEdit(nil)
 	dnsServer.SetPlaceholderText("DNS服务器(格式:8.8.8.8:53)")
 	dnsServer.SetAlignment(core.Qt__AlignHCenter)
+	if mConfig.SecurityTrails.DnsServer != "" {
+		dnsServer.SetText(mConfig.SecurityTrails.DnsServer)
+	}
 
 	queries := widgets.NewQLineEdit(nil)
 	queries.SetPlaceholderText("a.com,b.com,c.com")

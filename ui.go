@@ -29,11 +29,14 @@ func runApp() {
 	sysTrayDaemon(sysTray, app)
 	sysTray.Show()
 
-	windowFofa = registerFofa(sysTray)
+	windowFofa = registerFofa()
 	windowFofa.Hide()
 
-	windowSecurityTails = registerSecurityTrails(sysTray)
+	windowSecurityTails = registerSecurityTrails()
 	windowSecurityTails.Hide()
+
+	sysTray.TriggerSlot()
+
 	app.Exec()
 }
 

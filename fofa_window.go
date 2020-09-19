@@ -14,7 +14,7 @@ var (
 	windowFofa = &widgets.QMainWindow{}
 )
 
-func registerFofa(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMainWindow) {
+func registerFofa() (window *widgets.QMainWindow) {
 	window = widgets.NewQMainWindow(nil, 0)
 	//Input
 	ip := widgets.NewQLineEdit(nil)
@@ -85,9 +85,6 @@ func registerFofa(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMain
 		}
 		//启动流程
 		common.StartIt(&mConfig.Fofa.Stop)
-		go func() {
-			sysTray.TriggerSlot()
-		}()
 		go func() {
 			mConfig.Fofa.Run()
 			btnStop.SetDisabled(true)

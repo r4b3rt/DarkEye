@@ -10,6 +10,9 @@ type dnsInfo struct {
 	domain string
 	ip     []ipInfo
 	cname  string
+	//
+	title     string
+	server    string
 }
 
 type SecurityTrails struct {

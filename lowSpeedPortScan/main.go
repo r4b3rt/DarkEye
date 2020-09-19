@@ -16,7 +16,7 @@ var (
 	mRate       = flag.Int("rate", 2000, "端口之间的扫描间隔单位ms，也可用通过-rate_test")
 	mMinRate    = flag.Int("min_rate", 100, "自动计算的速率不能低于min_rate")
 	mTestRate   = flag.Bool("rate_test", false, "发包频率")
-	mOutputFile = flag.String("output", "result.txt", "结果保存到该文件")
+	mOutputFile = flag.String("output", "result.csv", "结果保存到该文件")
 	mThread     = flag.Int("thread", 1, "结果保存到该文件")
 )
 

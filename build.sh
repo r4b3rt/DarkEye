@@ -4,17 +4,24 @@ export GO111MODULE=off
 
 build_mac() {
     ${GOPATH}/bin/qtdeploy build darwin
-    cd lowSpeedPortScan && ./build.sh mac && mv lowSpeedPortScan ../dist/
+    if [[ ! -e deploy/darwin ]]; then
+       echo "Build Failed"
+       return
+    else
+        mv deploy/darwin/DarkEye.app dist/
+        echo "Build Success"
+    fi
+    cd lowSpeedPortScan && ./build.sh mac && mv lowSpeedPortScan ../dist/lowSpeedPortScan.mac
 }
 
 build_linux() {
     #docker pull therecipe/qt:linux
-    ${GOPATH}/bin/qtdeploy build linux
-    cd lowSpeedPortScan && ./build.sh linux && mv lowSpeedPortScan ../dist/
+    #${GOPATH}/bin/qtdeploy build linux
+    cd lowSpeedPortScan && ./build.sh linux && mv lowSpeedPortScan ../dist/lowSpeedPortScan.linux64
 }
 
 build_win() {
-    ${GOPATH}/bin/rsrc -manifest DarrmkEye.manifest -ico qml/logo.ico -arch=386 -o DarkEye_windows.syso
+    ${GOPATH}/bin/rsrc -manifest DarkEye.manifest -ico qml/logo.ico -arch=386 -o DarkEye_windows.syso
     #docker pull therecipe/qt:windows_32_static
     qtdeploy -docker build windows_32_static
 
@@ -22,6 +29,7 @@ build_win() {
        echo "Build Failed"
        return
     else
+        mv deploy/windows/DarkEye.exe dist/
         echo "Build Success"
     fi
     cd lowSpeedPortScan && ./build.sh win && mv lowSpeedPortScan.exe ../dist/

@@ -16,9 +16,9 @@ var (
 )
 
 func LogBuild(module string, logCt string, level int) string {
-	return fmt.Sprintf("%s: %s [%s] %s",
-		time.Now().Format("2006/1/2 15:04:05"),
+	return fmt.Sprintf("%s [%s] %s %s",
 		logDesc[level],
 		module,
+		time.Now().Format("2006/1/2 15:04:05"),
 		logCt)
 }

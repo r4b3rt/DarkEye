@@ -13,6 +13,12 @@ type FromTo struct {
 	to   int
 }
 
+type PortInfo struct {
+	Port   int
+	Server string
+	Title  string
+}
+
 type Scan struct {
 	Ip          string `json:"ip"`
 	PortRange   string `json:"port_range"`
@@ -23,7 +29,7 @@ type Scan struct {
 
 	Rate                 int          `json:"rate"`
 	PortsHaveBeenScanned map[int]bool `json:"port_scanned"`
-	PortsScannedOpened   []int        `json:"ports_opened"`
+	PortsScannedOpened   []PortInfo   `json:"ports_opened"`
 
 	valid bool
 }
@@ -55,5 +61,5 @@ func (s *Scan) saveCfg() error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(mConfigFile + "." + s.Ip, data, 0700)
+	return ioutil.WriteFile(mConfigFile+"."+s.Ip, data, 0700)
 }

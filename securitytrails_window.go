@@ -13,7 +13,7 @@ var (
 	windowSecurityTails = &widgets.QMainWindow{}
 )
 
-func registerSecurityTrails(sysTray *QSystemTrayIconWithCustomSlot) (window *widgets.QMainWindow) {
+func registerSecurityTrails() (window *widgets.QMainWindow) {
 	window = widgets.NewQMainWindow(nil, 0)
 	//Input
 	apiKey := widgets.NewQLineEdit(nil)
@@ -91,9 +91,6 @@ func registerSecurityTrails(sysTray *QSystemTrayIconWithCustomSlot) (window *wid
 		}
 		//启动流程
 		common.StartIt(&mConfig.SecurityTrails.Stop)
-		go func() {
-			sysTray.TriggerSlot()
-		}()
 
 		go func() {
 			mConfig.SecurityTrails.Run()

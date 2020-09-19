@@ -29,7 +29,7 @@ func (f *Fofa) get(query string) {
 	if err != nil {
 		errMsg := err.Error()
 		if errMsg == "Bad status 429" {
-			errMsg = "fofa session过期，需要重新登录获取"
+			errMsg = "fofa session过期，请大佬重新登录从Cookie中获取_fofapro_ars_session=xxx"
 		}
 		f.ErrChannel <- common.LogBuild("fofa.get",
 			fmt.Sprintf("%s: %s", query, errMsg), common.ALERT)
@@ -49,10 +49,7 @@ func (f *Fofa) get(query string) {
 	pageNr := 1
 	pageNum := pageRe.FindSubmatch(body)
 	if len(pageNum) < 1 {
-		f.ErrChannel <- common.LogBuild("fofa.get.pageNum",
-			fmt.Sprintf("%s: 无资产", query), common.ALERT)
-		return
-
+		pageNr = 0
 	} else {
 		pageNr, _ = strconv.Atoi(string(pageNum[1]))
 	}
@@ -107,7 +104,7 @@ func (f *Fofa) parseHtml(query string, body []byte, page int) (stop bool) {
 	}
 	blocks := htmlquery.Find(doc, "//*[@class='right-list-view-item clearfix']")
 	if len(blocks) == 0 {
-		f.ErrChannel <- common.LogBuild("Fofa",
+		f.ErrChannel <- common.LogBuild("fofa",
 			fmt.Sprintf("%s: 完成第%d页解析(无信息)", query, page), common.INFO)
 		stop = true
 		return
@@ -149,7 +146,7 @@ func (f *Fofa) parseHtml(query string, body []byte, page int) (stop bool) {
 		//保存结果
 		f.ipNodes = append(f.ipNodes, node)
 	}
-	f.ErrChannel <- common.LogBuild("fofa.parseHtml",
+	f.ErrChannel <- common.LogBuild("fofa",
 		fmt.Sprintf("%s: 完成第%d页解析", query, page), common.INFO)
 	return
 }

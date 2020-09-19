@@ -17,7 +17,7 @@ func (s *SecurityTrails) Run() {
 	logNumber := 0
 	for k, n := range s.dns {
 		if k == 0 {
-			_ = common.SaveFile("域名,CNAME,IP", saveFile)
+			_ = common.SaveFile("域名,CNAME,中间件,标题,IP", saveFile)
 		}
 		ipi := ""
 		for i, ip := range n.ip {
@@ -26,10 +26,13 @@ func (s *SecurityTrails) Run() {
 			}
 			ipi += fmt.Sprintf("%s_%s_%s", ip.ip, ip.RegionName, ip.Isp)
 		}
-		line := fmt.Sprintf("%s,%s,%s",
+		line := fmt.Sprintf("%s,%s,%s,%s,%s",
 			n.domain,
 			n.cname,
-			ipi)
+			common.TrimUseless(n.server),
+			common.TrimUseless(n.title),
+			ipi,
+		)
 
 		if err := common.SaveFile(line, saveFile); err != nil {
 			s.ErrChannel <- common.LogBuild("SecurityTrails",

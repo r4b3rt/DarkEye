@@ -24,3 +24,14 @@ func Test_get(t *testing.T) {
 		fmt.Println(msg)
 	}
 }
+
+//go test
+func Test_parseTag(t *testing.T) {
+	d := dnsInfo{
+		domain: "ooxx.com",
+	}
+	s := SecurityTrails{
+	}
+	s.parseTag(&d)
+	fmt.Println(d)
+}

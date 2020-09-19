@@ -71,11 +71,21 @@ func (s *SecurityTrails) get(query string) {
 		if s.IpCheck {
 			s.parseIP(&d)
 		}
+		s.parseTag(&d)
+
 		s.dns = append(s.dns, d)
 		if common.ShouldStop(&s.Stop) {
 			break
 		}
 	}
+}
+
+func (s *SecurityTrails) parseTag(d *dnsInfo) {
+	//if len(d.ip) == 0 {
+	//	return
+	//}
+	d.server, d.title = common.GetHttpTitle(d.domain)
+	return
 }
 
 func (s *SecurityTrails) parseIP(d *dnsInfo) {

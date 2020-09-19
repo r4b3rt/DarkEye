@@ -9,12 +9,14 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
 var (
-	Bar     = &progressbar.ProgressBar{}
-	BarDesc = make(chan *BarValue, 64)
+	Bar       = &progressbar.ProgressBar{}
+	BarDesc   = make(chan *BarValue, 64)
+	mFileSync = sync.RWMutex{}
 )
 
 type BarValue struct {
@@ -77,7 +79,7 @@ func (s *Scan) Run() {
 	for _, p := range fromTo {
 		i := p.from
 		for i <= p.to {
-			if len(s.PortsScannedOpened)  != 0 {
+			if len(s.PortsScannedOpened) != 0 {
 				BarDesc <- &BarValue{
 					Value: fmt.Sprintf("[+%d/-%d/%d/%d/%dms] opened:[%s]",
 						find, blk, tot, i, s.Rate, genPortList(s.PortsScannedOpened)),
@@ -90,7 +92,10 @@ func (s *Scan) Run() {
 			}
 			port := strconv.Itoa(int(i))
 			if common.IsAlive(s.Ip, port, s.Rate) {
-				s.PortsScannedOpened = append(s.PortsScannedOpened, i)
+				pi := PortInfo{}
+				pi.Port = i
+				pi.Server, pi.Title = common.GetHttpTitle(s.Ip + ":" + port)
+				s.PortsScannedOpened = append(s.PortsScannedOpened, pi)
 				find++
 				_ = s.saveCfg()
 			}
@@ -109,24 +114,24 @@ func (s *Scan) Run() {
 	_ = s.saveCfg()
 }
 
-func genPortList(ports []int) string {
+func genPortList(ports []PortInfo) string {
 	portList := ""
 	for k, p := range ports {
 		if k != 0 {
 			portList += " "
 		}
-		portList += strconv.Itoa(p)
+		portList += strconv.Itoa(p.Port)
 	}
 	return portList
 }
 func (s *Scan) OutPut() {
-	filename := filepath.Join(mBasedir, s.Ip+"."+*mOutputFile)
-	if len(s.PortsScannedOpened) == 0 {
-		_ = common.SaveFile(fmt.Sprintf("%s开放端口:无", s.Ip), filename)
-	} else {
-		for _, p := range s.PortsScannedOpened {
-			_ = common.SaveFile(fmt.Sprintf("%s开放端口:%d", s.Ip, p), filename)
-		}
+	mFileSync.Lock()
+	defer mFileSync.Unlock()
+	filename := filepath.Join(mBasedir, *mOutputFile)
+	_ = common.SaveFile(fmt.Sprintf("IP,端口,中间件,标题"), filename)
+
+	for _, p := range s.PortsScannedOpened {
+		_ = common.SaveFile(fmt.Sprintf("%s,%d,%s,%s", s.Ip, p.Port, p.Server, p.Title), filename)
 	}
 }
 
@@ -203,7 +208,7 @@ func (s *Scan) InitConfig() error {
 		s.PortsHaveBeenScanned = make(map[int]bool, 0)
 	}
 	if s.PortsScannedOpened == nil {
-		s.PortsScannedOpened = make([]int, 0)
+		s.PortsScannedOpened = make([]PortInfo, 0)
 	}
 	return nil
 }

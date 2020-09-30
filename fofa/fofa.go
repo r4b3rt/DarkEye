@@ -1,8 +1,10 @@
 package fofa
 
 import (
+	"encoding/csv"
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
+	"os"
 	"strings"
 )
 
@@ -17,26 +19,26 @@ func (f *Fofa) Run() {
 	}
 
 	saveFile := common.GenFileName("fofa")
+	file, err := os.Create(saveFile)
+	if err != nil {
+		_, _ = fmt.Fprint(os.Stderr, "初始化失败", err.Error())
+		return
+	}
+	defer file.Close()
+	_, _ = file.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
+	w := csv.NewWriter(file)
+	_ = w.Write([]string{"端口有效", "IP", "PORT", "网址", "标题", "中间件", "指纹"})
+
 	logNumber := 0
-	for k, n := range f.ipNodes {
-		if k == 0 {
-			_ = common.SaveFile("端口存活,IP,PORT,网址,标题,中间件,指纹", saveFile)
+	for _, n := range f.ipNodes {
+		alive := "失效"
+		if n.Alive {
+			alive = "有效"
 		}
-		line := fmt.Sprintf("%v,%s,%s,%s,%s,%s,%s",
-			n.Alive,
-			n.Ip,
-			n.Port,
-			n.Domain,
-			common.TrimUseless(n.Title),
-			common.TrimUseless(n.Server),
-			n.Finger)
-		if err := common.SaveFile(line, saveFile); err != nil {
-			f.ErrChannel <- common.LogBuild("fofa",
-				fmt.Sprintf("收集信息任务失败，无法保存结果:%s", saveFile), common.FAULT)
-			return
-		}
+		_ = w.Write([]string{alive, n.Ip, n.Port, n.Domain, n.Title, n.Server, n.Finger})
 		logNumber++
 	}
+	w.Flush()
 	if logNumber == 0 {
 		f.ErrChannel <- common.LogBuild("fofa",
 			fmt.Sprintf("收集信息任务完成，未有结果"), common.INFO)

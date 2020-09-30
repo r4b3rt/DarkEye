@@ -32,6 +32,7 @@ func loadCfg() error {
 		if !mConfig.Valid {
 			mConfig.Valid = true
 			mConfig.Fofa = fofa.NewConfig()
+			mConfig.SecurityTrails = securitytrails.NewConfig()
 		}
 	}()
 	data, err := ioutil.ReadFile(mConfigFile)

@@ -5,6 +5,7 @@ import (
 	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/widgets"
 	"github.com/zsdevX/DarkEye/common"
+	"github.com/zsdevX/DarkEye/fofa"
 	"strconv"
 	"time"
 )
@@ -75,6 +76,7 @@ func registerFofa() (window *widgets.QMainWindow) {
 	//Action
 	btnOpen.ConnectClicked(func(bool) {
 		//保存配置
+		mConfig.Fofa = fofa.NewConfig()
 		mConfig.Fofa.Ip = ip.Text()
 		mConfig.Fofa.Interval, _ = strconv.Atoi(Interval.Text())
 		mConfig.Fofa.FofaSession = session.Text()

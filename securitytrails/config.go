@@ -11,8 +11,8 @@ type dnsInfo struct {
 	ip     []ipInfo
 	cname  string
 	//
-	title     string
-	server    string
+	title  string
+	server string
 }
 
 type SecurityTrails struct {
@@ -24,4 +24,8 @@ type SecurityTrails struct {
 
 	ErrChannel chan string `json:"-"`
 	Stop       int32       `json:"-"`
+}
+
+func NewConfig() SecurityTrails {
+	return SecurityTrails{}
 }

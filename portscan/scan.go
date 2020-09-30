@@ -1,12 +1,12 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"github.com/k0kubun/go-ansi"
 	"github.com/schollz/progressbar"
 	"github.com/zsdevX/DarkEye/common"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -51,21 +51,6 @@ func NewBar(max int) *progressbar.ProgressBar {
 	return bar
 }
 
-func BarDescription() {
-	description := make(map[string]string, 0)
-	for {
-		desc := ""
-		i := 0
-		value := <-BarDesc
-		description[value.Key] = value.Value
-		for k, v := range description {
-			i++
-			desc += fmt.Sprintf("%d.%s:%s\n", i, k, v)
-		}
-		Bar.Describe(desc)
-	}
-}
-
 func New(ip string) *Scan {
 	return &Scan{
 		Ip: ip,
@@ -73,34 +58,28 @@ func New(ip string) *Scan {
 }
 
 func (s *Scan) Run() {
-	fromTo, tot := genFromTo(s.PortRange)
-	find := 0
-	blk := 0
+	fromTo, _ := genFromTo(s.PortRange)
 	for _, p := range fromTo {
 		i := p.from
 		for i <= p.to {
-			if len(s.PortsScannedOpened) != 0 {
-				BarDesc <- &BarValue{
-					Value: fmt.Sprintf("[+%d/-%d/%d/%d/%dms] opened:[%s]",
-						find, blk, tot, i, s.Rate, genPortList(s.PortsScannedOpened)),
-					Key: s.Ip,
-				}
-			}
 			if _, ok := s.PortsHaveBeenScanned[i]; ok {
 				_ = Bar.Add(1)
 				continue
 			}
 			port := strconv.Itoa(int(i))
-			if common.IsAlive(s.Ip, port, s.Rate) {
+			if common.IsAlive(s.Ip, port, s.TimeOut) {
 				pi := PortInfo{}
 				pi.Port = i
-				pi.Server, pi.Title = common.GetHttpTitle(s.Ip + ":" + port)
+				if s.Title {
+					pi.Server, pi.Title = common.GetHttpTitle("http", s.Ip+":"+port)
+					if pi.Server == "" && pi.Title == "" {
+						pi.Server, pi.Title = common.GetHttpTitle("https", s.Ip+":"+port)
+					}
+				}
+				fmt.Println("[", s.Ip, port, "Opened", "]", pi.Server, pi.Title)
 				s.PortsScannedOpened = append(s.PortsScannedOpened, pi)
-				find++
-				_ = s.saveCfg()
 			}
 			if !s.AliveTest() {
-				blk++
 				time.Sleep(time.Second * 5)
 				i++
 				continue
@@ -108,31 +87,20 @@ func (s *Scan) Run() {
 			_ = Bar.Add(1)
 			s.PortsHaveBeenScanned[i] = true
 			i++
-			_ = s.saveCfg()
 		}
 	}
-	_ = s.saveCfg()
 }
 
-func genPortList(ports []PortInfo) string {
-	portList := ""
-	for k, p := range ports {
-		if k != 0 {
-			portList += " "
-		}
-		portList += strconv.Itoa(p.Port)
-	}
-	return portList
-}
-func (s *Scan) OutPut() {
+func (s *Scan) OutPut(f *os.File) {
 	mFileSync.Lock()
 	defer mFileSync.Unlock()
-	filename := filepath.Join(mBasedir, *mOutputFile)
-	_ = common.SaveFile(fmt.Sprintf("IP,端口,中间件,标题"), filename)
+
+	w := csv.NewWriter(f)
 
 	for _, p := range s.PortsScannedOpened {
-		_ = common.SaveFile(fmt.Sprintf("%s,%d,%s,%s", s.Ip, p.Port, p.Server, p.Title), filename)
+		_ = w.Write([]string{s.Ip, strconv.Itoa(p.Port), p.Server, p.Title})
 	}
+	w.Flush()
 }
 
 func genFromTo(portRange string) ([]FromTo, int) {
@@ -165,7 +133,7 @@ func (s *Scan) AliveTest() bool {
 	}
 	maxRetries := 3
 	for maxRetries > 0 {
-		if common.IsAlive(s.Ip, s.ActivePort, s.Rate) {
+		if common.IsAlive(s.Ip, s.ActivePort, s.TimeOut) {
 			return true
 		}
 		maxRetries --
@@ -173,8 +141,8 @@ func (s *Scan) AliveTest() bool {
 	return false
 }
 
-func (s *Scan) RateTest() error {
-	s.Rate = s.DefaultRate
+func (s *Scan) TimeOutTest() error {
+	s.TimeOut = s.DefaultTimeOut
 	if !s.Test {
 		return nil
 	}
@@ -182,28 +150,25 @@ func (s *Scan) RateTest() error {
 	for {
 		if !s.AliveTest() {
 			if lastRate == 0 {
-				return fmt.Errorf("网络质量差,默认rate太低,烦请大佬手动调高rate参数:-rate 3000ms或放弃目标")
+				return fmt.Errorf("网络质量差,默认timeout太低,默认timeout太低:-timeout 3000ms或放弃目标")
 			}
-			s.Rate = lastRate
+			s.TimeOut = lastRate
 			break
 		} else {
-			fmt.Println(fmt.Sprintf("[OK] Tested Rate: %dms", s.Rate))
-			if s.Rate <= s.MinRate {
+			fmt.Println(fmt.Sprintf("[OK] 测试超时: %dms", s.TimeOut))
+			if s.TimeOut <= s.MinTimeOut {
 				break
 			}
-			lastRate = s.Rate
-			s.Rate -= 50
-			time.Sleep(time.Millisecond * time.Duration(s.Rate))
+			lastRate = s.MinTimeOut
+			s.TimeOut -= 50
+			time.Sleep(time.Millisecond * time.Duration(s.TimeOut))
 		}
 	}
 	return nil
 }
 
 func (s *Scan) InitConfig() error {
-	_ = s.loadCfg()
-	if !s.valid {
-		s.initParams(s.Ip)
-	}
+	s.initParams(s.Ip)
 	if s.PortsHaveBeenScanned == nil {
 		s.PortsHaveBeenScanned = make(map[int]bool, 0)
 	}
@@ -215,12 +180,10 @@ func (s *Scan) InitConfig() error {
 
 func (s *Scan) initParams(ip string) {
 	s.Ip = ip
-	s.DefaultRate = *mRate
+	s.DefaultTimeOut = *mTimeOut
 	s.ActivePort = *mActivePort
-	s.MinRate = *mMinRate
+	s.MinTimeOut = mMinTimeOut
 	s.PortRange = *mPort
-	s.Test = *mTestRate
-	s.PortsScannedOpened = nil
-	s.PortsHaveBeenScanned = nil
-	_ = s.saveCfg()
+	s.Test = *mTestTimeOut
+	s.Title = *mTitle
 }

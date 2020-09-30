@@ -81,10 +81,10 @@ func (s *SecurityTrails) get(query string) {
 }
 
 func (s *SecurityTrails) parseTag(d *dnsInfo) {
-	//if len(d.ip) == 0 {
-	//	return
-	//}
-	d.server, d.title = common.GetHttpTitle(d.domain)
+	d.server, d.title = common.GetHttpTitle("http", d.domain)
+	if d.server == "" && d.title == "" {
+		d.server, d.title = common.GetHttpTitle("https", d.domain)
+	}
 	return
 }
 

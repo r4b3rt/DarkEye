@@ -12,10 +12,7 @@ func Test_SpeedTest(t *testing.T) {
 	}
 	fmt.Println(s)
 	s.ActivePort = "80"
-	s.Rate = 300
-	//if err := s.RateTest(); err != nil {
-	//	t.Fatal(err.Error())
-	//}
+	s.TimeOut = 300
 	s.Run()
 }
 

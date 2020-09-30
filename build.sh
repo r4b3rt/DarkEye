@@ -11,13 +11,13 @@ build_mac() {
         mv deploy/darwin/DarkEye.app dist/
         echo "Build Success"
     fi
-    cd lowSpeedPortScan && ./build.sh mac && mv lowSpeedPortScan ../dist/lowSpeedPortScan.mac
+    cd portscan && ./build.sh mac && mv portscan ../dist/portscan.mac
 }
 
 build_linux() {
     #docker pull therecipe/qt:linux
     #${GOPATH}/bin/qtdeploy build linux
-    cd lowSpeedPortScan && ./build.sh linux && mv lowSpeedPortScan ../dist/lowSpeedPortScan.linux64
+    cd portscan && ./build.sh linux && mv portscan ../dist/portscan.linux64
 }
 
 build_win() {
@@ -32,7 +32,7 @@ build_win() {
         mv deploy/windows/DarkEye.exe dist/
         echo "Build Success"
     fi
-    cd lowSpeedPortScan && ./build.sh win && mv lowSpeedPortScan.exe ../dist/
+    cd portscan && ./build.sh win && mv portscan.exe ../dist/
 }
 
 clean() {
@@ -42,6 +42,8 @@ clean() {
     rm -f *.cpp
     rm -rf darwin
     rm -rf windows
+    rm -rf portscan/portscan
+    rm -rf portscan/tmp
 }
 
 clean

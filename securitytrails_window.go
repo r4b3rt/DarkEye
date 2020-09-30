@@ -5,6 +5,7 @@ import (
 	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/widgets"
 	"github.com/zsdevX/DarkEye/common"
+	"github.com/zsdevX/DarkEye/securitytrails"
 	"time"
 )
 
@@ -79,6 +80,7 @@ func registerSecurityTrails() (window *widgets.QMainWindow) {
 	//Action
 	btnOpen.ConnectClicked(func(bool) {
 		//保存配置
+		mConfig.SecurityTrails = securitytrails.NewConfig()
 		mConfig.SecurityTrails.Queries = queries.Text()
 		mConfig.SecurityTrails.ApiKey = apiKey.Text()
 		mConfig.SecurityTrails.DnsServer = dnsServer.Text()

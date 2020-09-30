@@ -9,7 +9,7 @@ import (
 func ParseNmapIP(ip string) (base string, start, end int, err error) {
 	fromTo := strings.Split(ip, "-")
 	ipStart := fromTo[0]
-	err = fmt.Errorf(LogBuild("common.func", "IP格式错误(eg. 1.1.1.1-3", FAULT))
+	err = fmt.Errorf(LogBuild("common.func", "IP格式错误(eg. 1.1.1.1-3)", FAULT))
 
 	tIp := strings.Split(ipStart, ".")
 	if len(tIp) != 4 {

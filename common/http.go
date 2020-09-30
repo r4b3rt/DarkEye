@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/antchfx/htmlquery"
+	"golang.org/x/text/encoding/simplifiedchinese"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -92,7 +93,12 @@ func (m *Http) Http() ([]byte, error) {
 }
 
 func IsAlive(ip, port string, timeout int) bool {
-	c, err := net.DialTimeout("tcp", ip+":"+port, time.Millisecond*time.Duration(timeout))
+	ctx, cancel := context.WithCancel(context.TODO()) // or parant context
+	_ = time.AfterFunc(time.Duration(timeout)*time.Millisecond, func() {
+		cancel()
+	})
+	d := net.Dialer{}
+	c, err := d.DialContext(ctx, "tcp", ip+":"+port)
 	if err != nil {
 		return false
 	}
@@ -100,8 +106,8 @@ func IsAlive(ip, port string, timeout int) bool {
 	return true
 }
 
-func GetHttpTitle(domain string) (server string, title string) {
-	url := fmt.Sprintf("http://%s", domain)
+func GetHttpTitle(proto, domain string) (server, title string) {
+	url := fmt.Sprintf(proto+"://%s", domain)
 	userAgent := UserAgents[0]
 	req := Http{
 		Url:     url,
@@ -123,5 +129,12 @@ func GetHttpTitle(domain string) (server string, title string) {
 	if len(t) != 0 {
 		title = htmlquery.InnerText(t[0])
 	}
+	if !ISUtf8([]byte(title)) {
+		if message, err := simplifiedchinese.GBK.NewDecoder().String(title); err == nil {
+			 title = message
+		}
+	}
+	title = TrimUseless(title)
+
 	return
 }

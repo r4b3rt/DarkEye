@@ -21,9 +21,9 @@ DarkEye项目旨为收集目标信息。DarkEye从互联网（SecurityTrails、f
 |敏感接口 | 爬取网站（含js、html、xml、json等）贪婪搜索返回内容中任何位置可能存在的接口路径|
 |端口扫描 | 支持扫C段，单IP扫描、**支持获取标题和中间件**、支持端口范围和指定端口扫描、**互联网绕过防火墙频率限制扫描**（绕过防火墙限制扫描目前仅支持单IP）|
 
-![avatar](screenshot/portscan.jpg)
+![avatar](screenshot/portscan.png)
 
-![avatar](screenshot/darkeye.jpg)
+![avatar](screenshot/darkeye.png)
 
 
 功能使用

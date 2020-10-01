@@ -4,4 +4,4 @@ dist
 DarkEye.iml
 deploy
 .idea
-.qrc
+*.qrc

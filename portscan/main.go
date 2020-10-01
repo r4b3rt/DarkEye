@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 )
@@ -18,7 +17,6 @@ var (
 	mTimeOut     = flag.Int("timeout", 2000, "扫描过程中每个端口的timeout时间；可以用-timeout_test参数来自动确认")
 	mTestTimeOut = flag.Bool("timeout_test", false, "自动获取超时时间，互联网环境建议使用")
 	mThread      = flag.Int("thread", 1, "仅扫描多个IP时有效，该参数可以控制每个线程扫描IP个数")
-	mOutputFile  = flag.String("output", "result.csv", "结果保存到该文件")
 	mTitle       = flag.Bool("title", false, "获取标题，http/https有效")
 	mMinTimeOut  = 100 //ms
 )
@@ -62,7 +60,7 @@ func Start() {
 	wg := sync.WaitGroup{}
 	wg.Add(*mThread)
 	//先创建文件，创建失败结束
-	f, err := os.Create(filepath.Join(mBasedir, common.GenFileName(*mOutputFile)))
+	f, err := os.Create(common.GenFileName("port_scan"))
 	if err != nil {
 		_, _ = fmt.Fprint(os.Stderr, "初始化失败", err.Error())
 		return
@@ -106,8 +104,9 @@ func Run(file *os.File, wg *sync.WaitGroup, id int) {
 func help() {
 	fmt.Println(common.Banner)
 	fmt.Println(common.ProgramVersion)
-	fmt.Println("Examples: ")
-	fmt.Println("./portscan -alive_port 8443 -ip f.u.c.k -port 1-65535 -timeout_test -output result.csv")
-	fmt.Println("./portscan -ip f.u.c.k,f.u.c.1-254 -port 1-65535 -timeout 200 -output result.csv")
+	fmt.Println("Example1: ")
+	fmt.Println("./portscan -alive_port 8443 -ip f.u.c.k -port 1-65535 -timeout_test")
+	fmt.Println("Example2: ")
+	fmt.Println("./portscan -ip f.u.c.k,f.u.c.1-254 -port 1-65535")
 	fmt.Print("----------------\n\n")
 }

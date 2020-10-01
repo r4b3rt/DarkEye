@@ -4,12 +4,12 @@ import (
 	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
 	"github.com/zsdevX/DarkEye/common"
+	"github.com/zsdevX/DarkEye/ui"
 	"os"
 )
 
 var (
-	programName    = "DarkEye"
-	programDesc    = "白嫖神器"
+	programName = "DarkEye"
 )
 
 func main() {
@@ -17,36 +17,42 @@ func main() {
 }
 
 func runApp() {
+	//加载配置
+	_ = loadCfg()
+
 	app := widgets.NewQApplication(len(os.Args), os.Args)
 	app.SetWindowIcon(gui.NewQIcon5(":/qml/logo.ico"))
-
-	//加载配置
-	loadCfg()
-
-	sysTray := NewQSystemTrayIconWithCustomSlot(nil)
 	app.SetQuitOnLastWindowClosed(false)
-
-	sysTrayDaemon(sysTray, app)
+	//初始化窗口
+	mainWin := ui.NewMainWindow(nil)
+	//初始化数据
+	initMainWin(mainWin)
+	//托盘图标初始化
+	sysTray := NewQSystemTrayIconWithCustomSlot(nil)
+	sysTrayDaemon(sysTray, mainWin, app)
+	//显示
 	sysTray.Show()
-
-	windowFofa = registerFofa()
-	windowFofa.Hide()
-
-	windowSecurityTails = registerSecurityTrails()
-	windowSecurityTails.Hide()
-
+	mainWin.Show()
+	//通知
 	sysTray.TriggerSlot()
-
-	app.Exec()
+	widgets.QApplication_Exec()
 }
 
-func sysTrayDaemon(sysTray *QSystemTrayIconWithCustomSlot, app *widgets.QApplication) {
+func initMainWin(mainWin *ui.MainWindow) {
+	//FoFa
+	LoadFoFa(mainWin)
+	//SecurityTrails
+	LoadSecurityTrails(mainWin)
+	//Spider
+	LoadSpider(mainWin)
+}
+
+func sysTrayDaemon(sysTray *QSystemTrayIconWithCustomSlot, mainWin *ui.MainWindow, app *widgets.QApplication) {
 	sysTray.SetIcon(gui.NewQIcon5(":/qml/logo.png"))
-	sysTray.SetToolTip(programDesc)
+	sysTray.SetToolTip("白嫖神器")
 
 	sysTrayMenu := widgets.NewQMenu(nil)
-	fofa := sysTrayMenu.AddAction("资产搜索神器")
-	securitytrails := sysTrayMenu.AddAction("域名搜索神器")
+	fucker := sysTrayMenu.AddAction("信息收集神器")
 	about := sysTrayMenu.AddAction("关于")
 	quit := sysTrayMenu.AddAction("退出")
 	sysTray.SetContextMenu(sysTrayMenu)
@@ -55,12 +61,8 @@ func sysTrayDaemon(sysTray *QSystemTrayIconWithCustomSlot, app *widgets.QApplica
 		sysTray.ShowMessage("信息", common.ProgramVersion, widgets.QSystemTrayIcon__Information, 5000)
 	})
 
-	fofa.ConnectTriggered(func(bool) {
-		windowFofa.Show()
-	})
-
-	securitytrails.ConnectTriggered(func(bool) {
-		windowSecurityTails.Show()
+	fucker.ConnectTriggered(func(bool) {
+		mainWin.Show()
 	})
 
 	about.ConnectTriggered(func(bool) {
@@ -82,23 +84,15 @@ type QSystemTrayIconWithCustomSlot struct {
 	_ func() `slot:"triggerSlot"`
 }
 
-type CustomEditor struct {
-	widgets.QTextEdit
-	_ func(string) `signal:"updateTextFromGoroutine,auto(this.QTextEdit.Append)"`
-}
-
-func getWindowCtl() (chan string, chan bool, *CustomEditor) {
+func logChannel(view *widgets.QTextEdit) (chan string, chan bool) {
 	logC := make(chan string, 128)
 	runCtl := make(chan bool, 1)
-
-	logP := NewCustomEditor(nil)
-	logP.SetReadOnly(true)
-
+	view.SetReadOnly(true)
 	go func() {
 		for {
 			log := <-logC
-			logP.UpdateTextFromGoroutine(log)
+			view.Append(log)
 		}
 	}()
-	return logC, runCtl, logP
+	return logC, runCtl
 }

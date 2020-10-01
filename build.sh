@@ -3,7 +3,7 @@ go env -w GOPROXY=https://goproxy.cn,direct
 export GO111MODULE=off
 
 build_mac() {
-    ${GOPATH}/bin/qtdeploy build darwin
+    ${GOPATH}/bin/qtdeploy  -uic=false build darwin
     if [[ ! -e deploy/darwin ]]; then
        echo "Build Failed"
        return
@@ -23,7 +23,7 @@ build_linux() {
 build_win() {
     ${GOPATH}/bin/rsrc -manifest DarkEye.manifest -ico qml/logo.ico -arch=386 -o DarkEye_windows.syso
     #docker pull therecipe/qt:windows_32_static
-    qtdeploy -docker build windows_32_static
+    qtdeploy  -uic=false -docker build windows_32_static
 
     if [[ ! -e deploy/windows ]]; then
        echo "Build Failed"

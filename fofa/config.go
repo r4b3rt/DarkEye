@@ -24,7 +24,7 @@ type Fofa struct {
 
 func NewConfig() Fofa {
 	return Fofa{
-		Interval: 10,
+		Interval: 6,
 		Pages:    5,
 	}
 }

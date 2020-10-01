@@ -13,26 +13,17 @@ import (
 )
 
 func (f *Fofa) get(query string) {
-	url := f.genUrl(query, 1)
 	cookie := f.FofaSession
 	userAgent := common.UserAgents[rand.Int()%len(common.UserAgents)]
 	req := common.Http{
 		Agent:   userAgent,
 		Cookie:  cookie,
-		Url:     url,
 		TimeOut: time.Duration(5 + f.Interval),
 		Method:  "GET",
-		Referer: url,
 	}
 	//获取首页面
-	body, err := req.Http()
+	body, err := f.fetchBody(&req, query, 1)
 	if err != nil {
-		errMsg := err.Error()
-		if errMsg == "Bad status 429" {
-			errMsg = "fofa session过期，请大佬重新登录从Cookie中获取_fofapro_ars_session=xxx"
-		}
-		f.ErrChannel <- common.LogBuild("fofa.get",
-			fmt.Sprintf("%s: %s", query, errMsg), common.ALERT)
 		return
 	}
 	defer func() {
@@ -74,14 +65,32 @@ func (f *Fofa) get(query string) {
 		if start > pageNr {
 			break
 		}
-		req.Url = f.genUrl(query, start)
-		body, err = req.Http()
+		body, err = f.fetchBody(&req, query, start)
 		if err != nil {
-			f.ErrChannel <- common.LogBuild("fofa.get.page",
-				fmt.Sprintf("%s: %s", query, err.Error()), common.ALERT)
 			return
 		}
 	}
+}
+
+func (f *Fofa) fetchBody(req *common.Http, query string, page int) (body []byte, err error) {
+	req.Url = f.genUrl(query, page)
+	retry := 3
+	for retry > 0 {
+		body, err = req.Http()
+		if err != nil {
+			errMsg := err.Error()
+			if errMsg == "Bad status 429" {
+				f.ErrChannel <- common.LogBuild("fofa.get",
+					fmt.Sprintf("fofa session过期，请大佬重新登录从Cookie中获取'_fofapro_ars_session=xxx'"), common.FAULT)
+				return
+			}
+			f.ErrChannel <- common.LogBuild("fofa.get",
+				fmt.Sprintf("因网络质量问题%s获取信息失败，倒计时3次（第%d次):%s", query, retry, errMsg), common.ALERT)
+			retry--
+			continue
+		}
+	}
+	return
 }
 
 func (f *Fofa) genUrl(query string, page int) string {

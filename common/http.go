@@ -83,7 +83,7 @@ func (m *Http) Http() ([]byte, error) {
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf(fmt.Sprintf("Bad status %d", resp.StatusCode))
 	}
-	m.ResponseServer = resp.Header.Get("Server ")
+	m.ResponseServer = resp.Header.Get("Server")
 	m.ResponseServer += resp.Header.Get("X-Powered-By")
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

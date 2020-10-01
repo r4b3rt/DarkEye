@@ -27,5 +27,7 @@ type SecurityTrails struct {
 }
 
 func NewConfig() SecurityTrails {
-	return SecurityTrails{}
+	return SecurityTrails{
+		IpCheck: true,
+	}
 }

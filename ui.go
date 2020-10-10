@@ -72,7 +72,7 @@ func sysTrayDaemon(sysTray *QSystemTrayIconWithCustomSlot, mainWin *ui.MainWindo
 	})
 
 	quit.ConnectTriggered(func(bool) {
-		if widgets.QMessageBox_Information(nil, "信息", "客官清走，欢迎白嫖",
+		if widgets.QMessageBox_Information(nil, "信息", "客官再见，欢迎白嫖",
 			widgets.QMessageBox__Ok, widgets.QMessageBox__Cancel) == widgets.QMessageBox__Ok {
 			app.Quit()
 		}

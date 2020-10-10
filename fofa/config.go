@@ -15,7 +15,6 @@ type Fofa struct {
 	Ip          string `json:"ip"`
 	FofaSession string `json:"fofa_session"`
 	Pages       int    `json:"pages"`
-	FofaComma   bool   `json:"fofa_comma"`
 
 	ipNodes    []ipNode
 	ErrChannel chan string `json:"-"`

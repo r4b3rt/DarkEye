@@ -6,11 +6,6 @@ import (
 	"path/filepath"
 )
 
-type FromTo struct {
-	from int
-	to   int
-}
-
 type PortInfo struct {
 	Port   int
 	Server string
@@ -18,19 +13,21 @@ type PortInfo struct {
 }
 
 type Scan struct {
+	//需配置参数
 	Ip             string `json:"ip"`
 	PortRange      string `json:"port_range"`
 	ActivePort     string `json:"active_port"`
 	DefaultTimeOut int    `json:"default_timeout"`
 	MinTimeOut     int    `json:"min_timeout"`
 	Test           bool   `json:"rate_test"`
-
+	//任务执行结果
 	TimeOut              int          `json:"timeout"`
 	PortsHaveBeenScanned map[int]bool `json:"port_scanned"`
 	PortsScannedOpened   []PortInfo   `json:"ports_opened"`
 	Title                bool         `json:"title"`
-
-	valid bool
+	//用于回显示
+	Callback    func(a ...interface{}) `json:"-"`
+	BarCallback func()                 `json:"-"`
 }
 
 var (

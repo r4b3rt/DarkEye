@@ -1,10 +1,8 @@
 package securitytrails
 
 import (
-	"encoding/csv"
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
-	"os"
 	"strings"
 )
 
@@ -14,21 +12,16 @@ func (s *SecurityTrails) Run() {
 	for _, q := range queries {
 		s.get(q)
 	}
-
-	saveFile := common.GenFileName("dns")
-	logNumber := 0
-
-	//先创建文件，创建失败结束
-	f, err := os.Create(saveFile)
+	w, file, fileName, err := common.CreateCSV("dns",
+		[]string{"域名", "CNAME", "中间件", "标题", "IP"})
 	if err != nil {
-		_, _ = fmt.Fprint(os.Stderr, "初始化失败", err.Error())
+		s.ErrChannel <- common.LogBuild("fofa",
+			fmt.Sprintf("创建记录文件失败:"+err.Error()), common.INFO)
 		return
 	}
-	defer f.Close()
-	_, _ = f.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
-	w := csv.NewWriter(f)
-	_ = w.Write([]string{"域名", "CNAME", "中间件", "标题", "IP"})
+	defer file.Close()
 
+	logNumber := 0
 	for _, n := range s.dns {
 		ipi := ""
 		for i, ip := range n.ip {
@@ -46,6 +39,6 @@ func (s *SecurityTrails) Run() {
 			fmt.Sprintf("收集信息任务完成，未有结果"), common.INFO)
 	} else {
 		s.ErrChannel <- common.LogBuild("SecurityTrails",
-			fmt.Sprintf("收集信息任务完成，有效数量%d, 已保存结果:%s", logNumber, saveFile), common.INFO)
+			fmt.Sprintf("收集信息任务完成，有效数量%d, 已保存结果:%s", logNumber, fileName), common.INFO)
 	}
 }

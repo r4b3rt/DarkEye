@@ -1,33 +1,24 @@
 package fofa
 
 import (
-	"encoding/csv"
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
-	"os"
 	"strings"
 )
 
 func (f *Fofa) Run() {
 	//初始化用来存储结果
 	f.ipNodes = make([]ipNode, 0)
+	f.runIP()
 
-	if !f.FofaComma {
-		f.runIP()
-	} else {
-		f.runRaw()
-	}
-
-	saveFile := common.GenFileName("fofa")
-	file, err := os.Create(saveFile)
+	w, file, fileName, err := common.CreateCSV("fofa",
+		[]string{"端口有效", "IP", "PORT", "网址", "标题", "中间件", "指纹"})
 	if err != nil {
-		_, _ = fmt.Fprint(os.Stderr, "初始化失败", err.Error())
+		f.ErrChannel <- common.LogBuild("fofa",
+			fmt.Sprintf("创建记录文件失败:"+err.Error()), common.INFO)
 		return
 	}
 	defer file.Close()
-	_, _ = file.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
-	w := csv.NewWriter(file)
-	_ = w.Write([]string{"端口有效", "IP", "PORT", "网址", "标题", "中间件", "指纹"})
 
 	logNumber := 0
 	for _, n := range f.ipNodes {
@@ -44,7 +35,7 @@ func (f *Fofa) Run() {
 			fmt.Sprintf("收集信息任务完成，未有结果"), common.INFO)
 	} else {
 		f.ErrChannel <- common.LogBuild("fofa",
-			fmt.Sprintf("收集信息任务完成，有效数量%d, 已保存结果:%s", logNumber, saveFile), common.INFO)
+			fmt.Sprintf("收集信息任务完成，有效数量%d, 已保存结果:%s", logNumber, fileName), common.INFO)
 	}
 	return
 }
@@ -64,7 +55,7 @@ func (f *Fofa) runIP() {
 		if common.ShouldStop(&f.Stop) {
 			break
 		}
-		base, start, end, err := common.ParseNmapIP(ip)
+		base, start, end, err := common.GetIPRange(ip)
 		if err != nil {
 			f.ErrChannel <- err.Error()
 			return

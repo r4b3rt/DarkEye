@@ -10,6 +10,13 @@ import (
 )
 
 func (sp *Spider) Run() {
+	sp.findInterface()
+	if sp.SearchEnable {
+		sp.Search()
+	}
+}
+
+func (sp *Spider) findInterface() {
 	allowDomain := ""
 	if sp.LocalLink {
 		url, err := url.Parse(sp.Url)

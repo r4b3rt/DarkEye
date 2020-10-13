@@ -15,13 +15,14 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 	mainWindow.Spider_resp_filter.SetText(mConfig.Spider.ResponseFilter)
 	mainWindow.Spider_resp_rule.SetText(mConfig.Spider.ResponseMatchRule)
 	mainWindow.Spider_node_url.SetText(mConfig.Spider.RequestMatchRule)
+	mainWindow.Search_key.SetText(mConfig.Spider.SearchAPIKey)
+	mainWindow.Search_query.SetText(mConfig.Spider.Query)
 
 	//默认隐藏高级选项
 	mainWindow.Spider_resp_filter.Hide()
 	mainWindow.Spider_resp_filter_label.Hide()
 	mainWindow.Spider_resp_rule_label.Hide()
 	mainWindow.Spider_resp_rule.Hide()
-	mainWindow.Spider_comma_test_url.Hide()
 
 	mainWindow.Spider_adv_checkbox.ConnectClicked(func(checked bool) {
 		if checked {
@@ -29,13 +30,11 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 			mainWindow.Spider_resp_filter_label.Show()
 			mainWindow.Spider_resp_rule_label.Show()
 			mainWindow.Spider_resp_rule.Show()
-			mainWindow.Spider_comma_test_url.Show()
 		} else {
 			mainWindow.Spider_resp_filter.Hide()
 			mainWindow.Spider_resp_filter_label.Hide()
 			mainWindow.Spider_resp_rule_label.Hide()
 			mainWindow.Spider_resp_rule.Hide()
-			mainWindow.Spider_comma_test_url.Hide()
 		}
 	})
 
@@ -48,6 +47,10 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 		mConfig.Spider.Url = mainWindow.Spider_url.Text()
 		mConfig.Spider.RequestMatchRule = mainWindow.Spider_node_url.Text()
 		mConfig.Spider.Cookie = mainWindow.Spider_cookie.Text()
+		mConfig.Spider.Query = mainWindow.Search_query.Text()
+		mConfig.Spider.SearchAPIKey = mainWindow.Search_key.Text()
+		mConfig.Spider.SearchEnable = mainWindow.Search_enable.IsChecked()
+
 		if mainWindow.Spider_adv_checkbox.IsChecked() {
 			mConfig.Spider.ResponseFilter = mainWindow.Spider_resp_filter.Text()
 			mConfig.Spider.ResponseMatchRule = mainWindow.Spider_resp_rule.Text()

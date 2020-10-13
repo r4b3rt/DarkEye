@@ -96,10 +96,6 @@ func (f *Fofa) fetchBody(req *common.Http, query string, page int) (body []byte,
 func (f *Fofa) genUrl(query string, page int) string {
 	url := fmt.Sprintf("https://fofa.so/result?qbase64=%s&full=true&page=%d",
 		base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("ip=%s", query))), page)
-	if f.FofaComma {
-		url = fmt.Sprintf("https://fofa.so/result?qbase64=%s&full=true&page=%d",
-			base64.StdEncoding.EncodeToString([]byte(query)), page)
-	}
 	return url
 }
 

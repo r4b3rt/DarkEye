@@ -19,5 +19,8 @@ func Test_Spider(t *testing.T) {
 	}()
 
 	sp.Run()
+}
 
+func Test_Search(t *testing.T) {
+	Search()
 }

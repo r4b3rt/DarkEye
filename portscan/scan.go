@@ -9,7 +9,17 @@ import (
 
 func New(ip string) *Scan {
 	return &Scan{
-		Ip: ip,
+		Ip:                   ip,
+		DefaultTimeOut:       3000,
+		ActivePort:           "80",
+		MinTimeOut:           300,
+		PortRange:            "80-8080,22,23",
+		Test:                 false,
+		Title:                true,
+		PortsHaveBeenScanned: make(map[int]bool, 0),
+		PortsScannedOpened:   make([]PortInfo, 0),
+		Callback:             callback,
+		BarCallback:          barCallback,
 	}
 }
 
@@ -22,24 +32,12 @@ func (s *Scan) Run() {
 				s.BarCallback()
 				continue
 			}
-			port := strconv.Itoa(int(i))
-			if common.IsAlive(s.Ip, port, s.TimeOut) {
-				pi := PortInfo{}
-				pi.Port = i
-				if s.Title {
-					pi.Server, pi.Title = common.GetHttpTitle("http", s.Ip+":"+port)
-					if pi.Server == "" && pi.Title == "" {
-						pi.Server, pi.Title = common.GetHttpTitle("https", s.Ip+":"+port)
-					}
-				}
-				if s.Callback != nil {
-					s.Callback(s.Ip, port, "Opened", pi.Server, pi.Title)
-				}
-				s.PortsScannedOpened = append(s.PortsScannedOpened, pi)
-			}
-			if !s.AliveTest() {
-				time.Sleep(time.Second * 5)
-				i++
+			//检查端口是否有效
+			s.Check(i)
+			if !s.IsFireWallNotForbidden() {
+				//被防火墙策略限制探测，等待恢复期（恢复期比较傻，需要优化）。
+				time.Sleep(time.Second * 10)
+				//恢复后从中断的端口重新检测
 				continue
 			}
 			s.BarCallback()
@@ -49,7 +47,25 @@ func (s *Scan) Run() {
 	}
 }
 
-func (s *Scan) AliveTest() bool {
+func (s *Scan) Check(p int) {
+	port := strconv.Itoa(int(p))
+	if common.IsAlive(s.Ip, port, s.TimeOut) {
+		pi := PortInfo{}
+		pi.Port = p
+		if s.Title {
+			pi.Server, pi.Title = common.GetHttpTitle("http", s.Ip+":"+port)
+			if pi.Server == "" && pi.Title == "" {
+				pi.Server, pi.Title = common.GetHttpTitle("https", s.Ip+":"+port)
+			}
+		}
+		if s.Callback != nil {
+			s.Callback(s.Ip, port, "Opened", pi.Server, pi.Title)
+		}
+		s.PortsScannedOpened = append(s.PortsScannedOpened, pi)
+	}
+}
+
+func (s *Scan) IsFireWallNotForbidden() bool {
 	//为0不矫正
 	if s.ActivePort == "0" {
 		return true
@@ -71,7 +87,7 @@ func (s *Scan) TimeOutTest() error {
 	}
 	lastRate := 0
 	for {
-		if !s.AliveTest() {
+		if !s.IsFireWallNotForbidden() {
 			if lastRate == 0 {
 				return fmt.Errorf("网络质量差,默认timeout太低,默认timeout太低:-timeout 3000ms或放弃目标")
 			}
@@ -90,19 +106,10 @@ func (s *Scan) TimeOutTest() error {
 	return nil
 }
 
-func (s *Scan) InitConfig() error {
-	s.DefaultTimeOut = *mTimeOut
-	s.ActivePort = *mActivePort
-	s.MinTimeOut = mMinTimeOut
-	s.PortRange = *mPort
-	s.Test = *mTestTimeOut
-	s.Title = *mTitle
+func callback(a ...interface{}) {
+	fmt.Println(a)
+}
 
-	if s.PortsHaveBeenScanned == nil {
-		s.PortsHaveBeenScanned = make(map[int]bool, 0)
-	}
-	if s.PortsScannedOpened == nil {
-		s.PortsScannedOpened = make([]PortInfo, 0)
-	}
-	return nil
+func barCallback() {
+	fmt.Println("Bar callback")
 }

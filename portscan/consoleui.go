@@ -72,13 +72,7 @@ func Start() {
 			if start > end {
 				break
 			}
-			s := New(fmt.Sprintf("%s.%d", base, start))
-			s.Callback = myCallback
-			s.BarCallback = myBarCallback
-			if err := s.InitConfig(); err != nil {
-				fmt.Println(s.Ip, err.Error())
-				os.Exit(0)
-			}
+			s := NewScan(fmt.Sprintf("%s.%d", base, start))
 			_, t := common.GetPortRange(s.PortRange)
 			tot += t
 			mScans = append(mScans, s)
@@ -100,6 +94,22 @@ func Start() {
 		i++
 	}
 	wg.Wait()
+}
+
+func NewScan(ip string) *Scan {
+	return &Scan{
+		Ip:                   ip,
+		DefaultTimeOut:       *mTimeOut,
+		ActivePort:           *mActivePort,
+		MinTimeOut:           mMinTimeOut,
+		PortRange:            *mPort,
+		Test:                 *mTestTimeOut,
+		Title:                *mTitle,
+		PortsHaveBeenScanned: make(map[int]bool, 0),
+		PortsScannedOpened:   make([]PortInfo, 0),
+		Callback:             myCallback,
+		BarCallback:          myBarCallback,
+	}
 }
 
 func Run(file *os.File, wg *sync.WaitGroup, id int) {

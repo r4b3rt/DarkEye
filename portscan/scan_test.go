@@ -7,9 +7,6 @@ import (
 
 func Test_SpeedTest(t *testing.T) {
 	s := New("192.168.1.1")
-	if err := s.InitConfig(); err != nil {
-		t.Fatal(err.Error())
-	}
 	fmt.Println(s)
 	s.ActivePort = "80"
 	s.TimeOut = 300

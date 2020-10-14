@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	mPort        = flag.String("port", "1-65535", "端口格式参考Nmap")
+	mPort        = flag.String("port", "", "端口格式参考Nmap,默认为常用端口")
 	mIp          = flag.String("ip", "127.0.0.1", "a.b.c.1-254")
 	mActivePort  = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
 	mTimeOut     = flag.Int("timeout", 2000, "扫描过程中每个端口的timeout时间；可以用-timeout_test参数来自动确认")
@@ -97,12 +97,16 @@ func Start() {
 }
 
 func NewScan(ip string) *Scan {
+	portList := PortList
+	if *mPort != "" {
+		portList = *mPort
+	}
 	return &Scan{
 		Ip:                   ip,
 		DefaultTimeOut:       *mTimeOut,
 		ActivePort:           *mActivePort,
 		MinTimeOut:           mMinTimeOut,
-		PortRange:            *mPort,
+		PortRange:            portList,
 		Test:                 *mTestTimeOut,
 		Title:                *mTitle,
 		PortsHaveBeenScanned: make(map[int]bool, 0),

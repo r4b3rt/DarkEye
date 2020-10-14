@@ -22,5 +22,4 @@ func Test_Spider(t *testing.T) {
 }
 
 func Test_Search(t *testing.T) {
-	Search()
 }

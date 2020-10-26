@@ -15,15 +15,15 @@ import (
 )
 
 var (
-	mPort        = flag.String("port", "", "端口格式参考Nmap,默认为常用端口")
-	mIp          = flag.String("ip", "127.0.0.1", "a.b.c.1-254")
-	mActivePort  = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
-	mTimeOut     = flag.Int("timeout", 2000, "扫描过程中每个端口的timeout时间；可以用-timeout_test参数来自动确认")
-	mTestTimeOut = flag.Bool("timeout_test", false, "自动获取超时时间，互联网环境建议使用")
-	mThread      = flag.Int("thread", 1, "仅扫描多个IP时有效，该参数可以控制每个线程扫描IP个数")
-	mTitle       = flag.Bool("title", false, "获取标题，http/https有效")
-	mExamples    = flag.Bool("examples", false, "使用示例")
-	mMinTimeOut  = 100 //ms
+	mPort                = flag.String("port", "", "端口格式参考Nmap,默认为常用端口")
+	mIp                  = flag.String("ip", "127.0.0.1", "a.b.c.1-254")
+	mActivePort          = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
+	mTimeOut             = flag.Int("timeout", 2000, "扫描过程中每个端口的timeout时间；可以用-timeout_test参数来自动确认")
+	mTestTimeOut         = flag.Bool("timeout_test", false, "自动获取超时时间，互联网环境建议使用")
+	mThread              = flag.Int("thread", 1, "该参数可以控制每个线程扫描IP个数")
+	mTitle               = flag.Bool("title", false, "获取标题，http/https有效")
+	mPortRangeThresHolds = flag.Int("port-range-thresholds", 1000, "端口范围大于阀值会触发多线程扫描，线程数通过mThread获取")
+	mMinTimeOut          = 100 //ms
 )
 
 var (
@@ -42,11 +42,14 @@ type BarValue struct {
 
 func main() {
 	fmt.Println(common.Banner)
-	if *mExamples {
+	if len(os.Args) == 1 {
 		help()
 		return
 	}
 	flag.Parse()
+	if !*mTitle {
+		fmt.Println("***未开启指纹功能***", "查看帮助如何开启./portscan -h")
+	}
 	Start()
 }
 
@@ -102,17 +105,18 @@ func NewScan(ip string) *Scan {
 		portList = *mPort
 	}
 	return &Scan{
-		Ip:                   ip,
-		DefaultTimeOut:       *mTimeOut,
-		ActivePort:           *mActivePort,
-		MinTimeOut:           mMinTimeOut,
-		PortRange:            portList,
-		Test:                 *mTestTimeOut,
-		Title:                *mTitle,
-		PortsHaveBeenScanned: make(map[int]bool, 0),
-		PortsScannedOpened:   make([]PortInfo, 0),
-		Callback:             myCallback,
-		BarCallback:          myBarCallback,
+		Ip:                  ip,
+		DefaultTimeOut:      *mTimeOut,
+		ActivePort:          *mActivePort,
+		MinTimeOut:          mMinTimeOut,
+		PortRange:           portList,
+		Test:                *mTestTimeOut,
+		Title:               *mTitle,
+		PortsScannedOpened:  make([]PortInfo, 0),
+		Callback:            myCallback,
+		BarCallback:         myBarCallback,
+		PortRangeThresholds: *mPortRangeThresHolds,
+		ThreadNumber:        *mThread,
 	}
 }
 
@@ -120,10 +124,8 @@ func Run(file *os.File, wg *sync.WaitGroup, id int) {
 	i := 0
 	max := len(mScans)
 	defer wg.Done()
-	for {
-		if (*mThread*i)+id >= max {
-			break
-		}
+	for (*mThread*i)+id < max {
+
 		s := mScans[*mThread*i+id]
 		_ = s.TimeOutTest()
 		if len(mScans) != 1 {
@@ -148,11 +150,11 @@ func OutPut(f *os.File, s *Scan) {
 }
 
 func myCallback(a ...interface{}) {
-	fmt.Println(a)
+	fmt.Println(a...)
 }
 
-func myBarCallback() {
-	_ = Bar.Add(1)
+func myBarCallback(i int) {
+	_ = Bar.Add(i)
 }
 
 func NewBar(max int) *progressbar.ProgressBar {
@@ -186,5 +188,5 @@ func help() {
 	fmt.Println("Example1: ")
 	fmt.Println("./portscan -alive_port 8443 -ip f.u.c.k -port 1-65535 -timeout_test")
 	fmt.Println("Example2: ")
-	fmt.Println("./portscan -ip f.u.c.k,f.u.c.1-254 -port 1-65535 -title")
+	fmt.Println("./portscan -ip f.u.c.k,f.u.c.1-254 -port 1-65535 -title -thread 16 -timeout 200")
 }

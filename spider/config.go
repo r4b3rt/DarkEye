@@ -40,5 +40,6 @@ func NewConfig() Spider {
 		ResponseMatchRule: base64.StdEncoding.EncodeToString([]byte(`(\"|\')[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|](\"|\')|(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]`)),
 		//对提取的数据过滤，去掉匹配的数据
 		ResponseFilter: base64.StdEncoding.EncodeToString([]byte(`(text/css|text/javascript|text/css|\.css|text/html)`)),
+		Query:          "site:ooxx.com filetype:txt",
 	}
 }

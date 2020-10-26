@@ -8,6 +8,7 @@ build_mac() {
        echo "Build Failed"
        return
     else
+        rm -rf dist/DarkEye.app
         mv deploy/darwin/DarkEye.app dist/
         echo "Build Success"
     fi

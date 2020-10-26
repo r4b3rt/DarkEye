@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -13,60 +14,81 @@ var (
 
 func New(ip string) *Scan {
 	return &Scan{
-		Ip:                   ip,
-		DefaultTimeOut:       3000,
-		ActivePort:           "80",
-		MinTimeOut:           300,
-		PortRange:            PortList,
-		Test:                 false,
-		Title:                true,
-		PortsHaveBeenScanned: make(map[int]bool, 0),
-		PortsScannedOpened:   make([]PortInfo, 0),
-		Callback:             callback,
-		BarCallback:          barCallback,
+		Ip:                 ip,
+		DefaultTimeOut:     3000,
+		ActivePort:         "80",
+		MinTimeOut:         300,
+		PortRange:          PortList,
+		Test:               false,
+		Title:              true,
+		PortsScannedOpened: make([]PortInfo, 0),
+		Callback:           callback,
+		BarCallback:        barCallback,
 	}
 }
 
 func (s *Scan) Run() {
 	fromTo, _ := common.GetPortRange(s.PortRange)
 	for _, p := range fromTo {
-		i := p.From
-		for i <= p.To {
-			if _, ok := s.PortsHaveBeenScanned[i]; ok {
-				s.BarCallback()
-				continue
+		if p.To-p.From > s.PortRangeThresholds {
+			wg := sync.WaitGroup{}
+			wg.Add(s.ThreadNumber)
+			inc := (p.To - p.From) / s.ThreadNumber
+			i := 0
+			f := p.From
+			for i < s.ThreadNumber {
+				//端口扫描任务
+				go func(a, b int) {
+					defer wg.Done()
+					s._run(a, b)
+				}(f, f+inc)
+
+				f += inc + 1
+				i++
+				if i == s.ThreadNumber-1 {
+					inc = p.To - f
+				}
 			}
-			//检查端口是否有效
-			s.Check(i)
-			if !s.IsFireWallNotForbidden() {
-				//被防火墙策略限制探测，等待恢复期（恢复期比较傻，需要优化）。
-				time.Sleep(time.Second * 10)
-				//恢复后从中断的端口重新检测
-				continue
-			}
-			s.BarCallback()
-			s.PortsHaveBeenScanned[i] = true
-			i++
+			wg.Wait()
+		} else {
+			s._run(p.From, p.To)
 		}
 	}
 }
 
-func (s *Scan) Check(p int) {
-	port := strconv.Itoa(int(p))
-	if common.IsAlive(s.Ip, port, s.TimeOut) {
-		pi := PortInfo{}
-		pi.Port = p
-		if s.Title {
-			pi.Server, pi.Title = common.GetHttpTitle("http", s.Ip+":"+port)
-			if pi.Server == "" && pi.Title == "" {
-				pi.Server, pi.Title = common.GetHttpTitle("https", s.Ip+":"+port)
-			}
+func (s *Scan) _run(from, to int) {
+	for from <= to {
+		//检查端口是否有效
+		s.Check(from)
+		if !s.IsFireWallNotForbidden() {
+			//被防火墙策略限制探测，等待恢复期（恢复期比较傻，需要优化）。
+			time.Sleep(time.Second * 10)
+			//恢复后从中断的端口重新检测
+			continue
 		}
-		if s.Callback != nil {
-			s.Callback(s.Ip, port, "Opened", pi.Server, pi.Title)
-		}
-		s.PortsScannedOpened = append(s.PortsScannedOpened, pi)
+		from++
 	}
+}
+
+func (s *Scan) Check(p int) {
+	s.BarCallback(1)
+	port := strconv.Itoa(int(p))
+	if !common.IsAlive(s.Ip, port, s.TimeOut) {
+		return
+	}
+	pi := PortInfo{}
+	pi.Port = p
+	if s.Title {
+		pi.Server, pi.Title = common.GetHttpTitle("http", s.Ip+":"+port)
+		if pi.Server == "" && pi.Title == "" {
+			pi.Server, pi.Title = common.GetHttpTitle("https", s.Ip+":"+port)
+		}
+	}
+
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.PortsScannedOpened = append(s.PortsScannedOpened, pi)
+	s.Callback(s.Ip, port, "Opened", pi.Server, pi.Title)
 }
 
 func (s *Scan) IsFireWallNotForbidden() bool {
@@ -111,9 +133,9 @@ func (s *Scan) TimeOutTest() error {
 }
 
 func callback(a ...interface{}) {
-	fmt.Println(a)
+	fmt.Println(a...)
 }
 
-func barCallback() {
+func barCallback(i int) {
 	fmt.Println("Bar callback")
 }

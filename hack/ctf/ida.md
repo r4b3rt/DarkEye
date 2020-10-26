@@ -13,11 +13,18 @@ for b in GetManyBytes(address, length):
 
 ## Display memory
 ```
-address=0x600B00
-length=182
+address=0x00403020
+length=64
 for b in GetManyBytes(address, length): 
     print(hex(ord(b))), 
     print(","),
+```
+
+## Display memory2
+```
+address=0x402150
+for i in range(0,42*4,4):
+	print Dword(address+i),
 ```
 
 ## DumpMemory

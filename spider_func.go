@@ -62,7 +62,7 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 		}
 		//启动流程
 		mainWindow.Spider_start.SetEnabled(false)
-		mainWindow.Spider_stop.SetEnabled(false)
+		mainWindow.Spider_stop.SetEnabled(true)
 		common.StartIt(&mConfig.Spider.Stop)
 		go func() {
 			mConfig.Spider.Run()

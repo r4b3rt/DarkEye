@@ -1,11 +1,6 @@
 package main
 
-import (
-	"github.com/zsdevX/DarkEye/common"
-	"os"
-	"path/filepath"
-	"sync"
-)
+import "sync"
 
 type PortInfo struct {
 	Port   int
@@ -33,12 +28,4 @@ type Scan struct {
 	}) `json:"-"`
 	BarCallback func(i int) `json:"-"`
 	lock        sync.RWMutex
-}
-
-var (
-	mBasedir = filepath.Join(common.BaseDir, "tmp")
-)
-
-func init() {
-	_ = os.Mkdir(mBasedir, 0700)
 }

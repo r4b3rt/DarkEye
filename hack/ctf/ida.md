@@ -13,8 +13,8 @@ for b in GetManyBytes(address, length):
 
 ## Display memory
 ```
-address=0x00403020
-length=64
+address=0x000000C420031F02
+length=14
 for b in GetManyBytes(address, length): 
     print(hex(ord(b))), 
     print(","),

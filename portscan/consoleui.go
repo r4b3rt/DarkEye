@@ -22,7 +22,7 @@ var (
 	mTestTimeOut         = flag.Bool("timeout_test", false, "自动获取超时时间，互联网环境建议使用")
 	mThread              = flag.Int("thread", 1, "该参数可以控制每个线程扫描IP个数")
 	mTitle               = flag.Bool("title", false, "获取标题，http/https有效")
-	mPortRangeThresHolds = flag.Int("port-range-thresholds", 1000, "端口范围大于阀值会触发多线程扫描，线程数通过mThread获取")
+	mPortRangeThreadHolds = flag.Int("port-range-thresholds", 1000, "端口范围大于阀值会触发多线程扫描，线程数通过mThread获取")
 	mMinTimeOut          = 100 //ms
 )
 
@@ -49,6 +49,9 @@ func main() {
 	flag.Parse()
 	if !*mTitle {
 		fmt.Println("***未开启指纹功能***", "查看帮助如何开启./portscan -h")
+	}
+	if *mThread == 1 {
+		fmt.Println("***当前为单进程模式***", "查看帮助如何开始多线程模式./portscan -h")
 	}
 	Start()
 }
@@ -115,7 +118,7 @@ func NewScan(ip string) *Scan {
 		PortsScannedOpened:  make([]PortInfo, 0),
 		Callback:            myCallback,
 		BarCallback:         myBarCallback,
-		PortRangeThresholds: *mPortRangeThresHolds,
+		PortRangeThresholds: *mPortRangeThreadHolds,
 		ThreadNumber:        *mThread,
 	}
 }
@@ -164,21 +167,14 @@ func NewBar(max int) *progressbar.ProgressBar {
 		progressbar.OptionThrottle(3000*time.Millisecond),
 		progressbar.OptionSetDescription("Loading ..."),
 		progressbar.OptionSetWriter(os.Stderr),
-		progressbar.OptionSetWidth(10),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowIts(),
 		progressbar.OptionOnCompletion(func() {
-			_, _ = fmt.Fprint(os.Stderr, "\nDONE")
+			_, _ = fmt.Fprint(os.Stderr, "\n扫描任务完成")
 		}),
 		progressbar.OptionSpinnerType(14),
 		progressbar.OptionFullWidth(),
-		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "[green]=[reset]",
-			SaucerHead:    "[green]>[reset]",
-			SaucerPadding: " ",
-			BarStart:      "[",
-			BarEnd:        "]",
-		}))
+	)
 
 	_ = bar.RenderBlank()
 	return bar
@@ -188,5 +184,5 @@ func help() {
 	fmt.Println("Example1: ")
 	fmt.Println("./portscan -alive_port 8443 -ip f.u.c.k -port 1-65535 -timeout_test")
 	fmt.Println("Example2: ")
-	fmt.Println("./portscan -ip f.u.c.k,f.u.c.1-254 -port 1-65535 -title -thread 16 -timeout 200")
+	fmt.Println("./portscan -ip f.u.c.k,f.u.c.1-254 -port 1-65535 -title -thread 16 -timeout 200 -thread 16")
 }

@@ -74,23 +74,27 @@ func (f *Fofa) get(query string) {
 
 func (f *Fofa) fetchBody(req *common.Http, query string, page int) (body []byte, err error) {
 	req.Url = f.genUrl(query, page)
-	retry := 3
-	for retry > 0 {
+	retry := 0
+	for {
 		body, err = req.Http()
 		if err != nil {
 			errMsg := err.Error()
 			if errMsg == "Bad status 429" {
+				retry++
 				f.ErrChannel <- common.LogBuild("fofa.get",
-					fmt.Sprintf("fofa session过期，请大佬重新登录从Cookie中获取'_fofapro_ars_session=xxx'"), common.FAULT)
-				return
+					fmt.Sprintf("%s: 提取信息失败，失败原因fofa session过期或刷新过快, 尝试等待1分钟重试, 当前尝试次数%d次",
+						req.Url, retry), common.FAULT)
+				time.Sleep(time.Second * 60)
+			} else {
+				retry++
+				f.ErrChannel <- common.LogBuild("fofa.get",
+					fmt.Sprintf("因网络质量问题%s获取信息失败 尝试次数（第%d次):%s", query, retry, errMsg), common.ALERT)
+				time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))
 			}
-			f.ErrChannel <- common.LogBuild("fofa.get",
-				fmt.Sprintf("因网络质量问题%s获取信息失败，倒计时3次（第%d次):%s", query, retry, errMsg), common.ALERT)
-			retry--
 			continue
 		}
+		return
 	}
-	return
 }
 
 func (f *Fofa) genUrl(query string, page int) string {

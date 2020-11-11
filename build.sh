@@ -1,4 +1,4 @@
-go env -w GOPROXY=https://goproxy.cn,direct
+#go env -w GOPROXY=https://goproxy.cn,direct
 #GOOS=windows GOARCH=386 go build -ldflags="-s -w"
 export GO111MODULE=off
 
@@ -16,9 +16,16 @@ build_mac() {
 }
 
 build_linux() {
-    #docker pull therecipe/qt:linux
-    #${GOPATH}/bin/qtdeploy build linux
-    cd portscan && ./build.sh linux && mv portscan ../dist/portscan.linux64
+     os=`uname`
+     if [[ "$os" == "Linux" ]]; then
+            #docker run -idt -v /Volumes/dev/gosrc:/Volumes/dev/src therecipe/qt:linux
+            #docker exec -it qt-linux-docker bash
+            #export PATH=$PATH:/opt/Qt5.13.0/5.13.0/gcc_64/bin
+            #export GOPATH=/Volumes/dev/src
+            qtdeploy  -uic=false build linux
+            mv deploy/linux/DarkEye dist/
+     fi
+    # cd portscan && ./build.sh linux && mv portscan ../dist/portscan.linux64
 }
 
 build_win() {

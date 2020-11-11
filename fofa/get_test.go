@@ -1,15 +1,14 @@
 package fofa
 
 import (
-	"github.com/zsdevX/DarkEye/common"
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func Test_get(t *testing.T) {
 	fofa := NewConfig()
-	fofa.Ip = "1.1.1.1"
-	common.Console = true
+	//fofa.Interval = 10
+	fofa.Ip = "121.199.9.246"
 
 	fofa.ErrChannel = make(chan string, 10)
 
@@ -20,11 +19,3 @@ func Test_get(t *testing.T) {
 		fmt.Println(msg)
 	}
 }
-
-
-
-
-
-
-
-

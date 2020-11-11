@@ -29,7 +29,7 @@ func LoadFoFa(mainWindow *ui.MainWindow) {
 		}
 		//启动流程
 		mainWindow.Fofa_start.SetEnabled(false)
-		mainWindow.Fofa_stop.SetEnabled(false)
+		mainWindow.Fofa_stop.SetEnabled(true)
 		common.StartIt(&mConfig.Fofa.Stop)
 		go func() {
 			mConfig.Fofa.Run()

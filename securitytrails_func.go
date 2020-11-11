@@ -32,7 +32,7 @@ func LoadSecurityTrails(mainWindow *ui.MainWindow) {
 		}
 		//启动流程
 		mainWindow.St_start.SetEnabled(false)
-		mainWindow.St_stop.SetEnabled(false)
+		mainWindow.St_stop.SetEnabled(true)
 		common.StartIt(&mConfig.SecurityTrails.Stop)
 		go func() {
 			mConfig.SecurityTrails.Run()

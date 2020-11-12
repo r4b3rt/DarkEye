@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/therecipe/qt/widgets"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/spider"
 	"github.com/zsdevX/DarkEye/ui"
@@ -12,31 +13,9 @@ import (
 func LoadSpider(mainWindow *ui.MainWindow) {
 	mainWindow.Spider_deps.SetText(strconv.Itoa(mConfig.Spider.MaxDeps))
 	mainWindow.Spider_url.SetText(mConfig.Spider.Url)
-	mainWindow.Spider_resp_filter.SetText(mConfig.Spider.ResponseFilter)
-	mainWindow.Spider_resp_rule.SetText(mConfig.Spider.ResponseMatchRule)
 	mainWindow.Spider_node_url.SetText(mConfig.Spider.RequestMatchRule)
 	mainWindow.Search_key.SetText(mConfig.Spider.SearchAPIKey)
 	mainWindow.Search_query.SetText(mConfig.Spider.Query)
-
-	//默认隐藏高级选项
-	mainWindow.Spider_resp_filter.Hide()
-	mainWindow.Spider_resp_filter_label.Hide()
-	mainWindow.Spider_resp_rule_label.Hide()
-	mainWindow.Spider_resp_rule.Hide()
-
-	mainWindow.Spider_adv_checkbox.ConnectClicked(func(checked bool) {
-		if checked {
-			mainWindow.Spider_resp_filter.Show()
-			mainWindow.Spider_resp_filter_label.Show()
-			mainWindow.Spider_resp_rule_label.Show()
-			mainWindow.Spider_resp_rule.Show()
-		} else {
-			mainWindow.Spider_resp_filter.Hide()
-			mainWindow.Spider_resp_filter_label.Hide()
-			mainWindow.Spider_resp_rule_label.Hide()
-			mainWindow.Spider_resp_rule.Hide()
-		}
-	})
 
 	logC, runCtl := logChannel(mainWindow.Spider_log)
 	//Action
@@ -51,10 +30,6 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 		mConfig.Spider.SearchAPIKey = mainWindow.Search_key.Text()
 		mConfig.Spider.SearchEnable = mainWindow.Search_enable.IsChecked()
 
-		if mainWindow.Spider_adv_checkbox.IsChecked() {
-			mConfig.Spider.ResponseFilter = mainWindow.Spider_resp_filter.Text()
-			mConfig.Spider.ResponseMatchRule = mainWindow.Spider_resp_rule.Text()
-		}
 		mConfig.Spider.ErrChannel = logC
 		if err := saveCfg(); err != nil {
 			logC <- common.LogBuild("UI", "保存配置失败:"+err.Error(), common.FAULT)
@@ -62,6 +37,7 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 		}
 		//启动流程
 		mainWindow.Spider_start.SetEnabled(false)
+		mainWindow.Spider_import_urls.SetEnabled(false)
 		mainWindow.Spider_stop.SetEnabled(true)
 		common.StartIt(&mConfig.Spider.Stop)
 		go func() {
@@ -92,10 +68,26 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 					break
 				}
 			}
+			mainWindow.Spider_import_urls.SetEnabled(true)
 			mainWindow.Spider_start.SetEnabled(true)
 			mainWindow.Spider_stop.SetText("停止")
 		}()
 	})
 
+	mainWindow.Spider_import_urls.ConnectClicked(func(bool) {
+		qFile := widgets.NewQFileDialog2(nil, "选择url列表文件", ".", "")
+		f := qFile.GetOpenFileName(nil, "文件", ".", "", "", widgets.QFileDialog__ReadOnly)
+		if f == "" {
+			return
+		}
+		defer qFile.Close()
+		urls, err := common.ImportFiles(f, mainWindow.Spider_url.Text())
+		if err != nil {
+			logC <- common.LogBuild("UI", "加载文件失败"+err.Error(), common.ALERT)
+			return
+		}
+		mainWindow.Spider_url.SetText(urls)
+		logC <- common.LogBuild("UI", "批量导入完成", common.INFO)
+	})
 	return
 }

@@ -1,7 +1,9 @@
 package common
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -55,5 +57,33 @@ func GetPortRange(portRange string) ([]FromTo, int) {
 		tot += 1 + to - from
 	}
 	return res, tot
+}
+
+func ImportFiles(f, cnt string) ( string,  error) {
+	file, err := os.Open(f)
+	r := ""
+	if err != nil {
+		return r, err
+	}
+	defer file.Close()
+	r = cnt
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		one := scanner.Text()
+		if strings.HasPrefix(one, "#") {
+			continue
+		}
+		one = strings.TrimSpace(one)
+		one = strings.Trim(one, "\r\n")
+		if one == "" {
+			continue
+		}
+		if r == "" {
+			r += one
+		} else {
+			r += "," + one
+		}
+	}
+	return r, nil
 }
 

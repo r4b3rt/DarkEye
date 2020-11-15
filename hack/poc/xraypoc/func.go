@@ -1,13 +1,38 @@
 package xraypoc
 
 import (
+	"bytes"
+	"fmt"
+	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/hack/poc/xraypoc/celtypes"
 	"net/url"
+	"strings"
+	"time"
 )
 
 func myReverseCheck(reverse *xraypoc_celtypes.Reverse, timeout int64) bool {
-	//todo
-	return true
+	if reverse.ReverseCheckUrl == "" {
+		return false
+	}
+	time.Sleep(time.Second * time.Duration(timeout))
+	filter := strings.Split(reverse.Domain, ".")[0]
+	if len(filter) >= 20 { //filter长度限制
+		filter = string([]byte(filter)[:20])
+	}
+	apiUrl := fmt.Sprintf("%s%s", reverse.ReverseCheckUrl, filter)
+	req := common.HttpRequest{
+		Method:  "GET",
+		Url:     apiUrl,
+		TimeOut: 10,
+	}
+	response, err := req.Go()
+	if err != nil {
+		return false
+	}
+	if !bytes.Contains(response.Body, []byte(`"data": []`)) {
+		return true
+	}
+	return false
 }
 
 func UrlConvertString(url *xraypoc_celtypes.UrlType) (myUrl string) {

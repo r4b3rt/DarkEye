@@ -34,4 +34,5 @@ message Reverse {
   string domain = 2;
   string ip = 3;
   bool is_domain_name_server = 4;
+  string reverse_check_url = 5;
 }

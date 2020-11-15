@@ -8,6 +8,7 @@ import (
 	"github.com/schollz/progressbar"
 	"github.com/zsdevX/DarkEye/common"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -53,6 +54,7 @@ func main() {
 	if *mThread == 1 {
 		fmt.Println("***当前为单进程模式***", "查看帮助如何开始多线程模式./portscan -h")
 	}
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	Start()
 }
 

@@ -1,6 +1,7 @@
 package poc
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/google/cel-go/cel"
 	"github.com/zsdevX/DarkEye/common"
@@ -76,7 +77,7 @@ func (p *Poc) loadParamsPrepare(newLib *xraypoc.CustomLib, myUrl string, poc *xr
 		newLib.UpdateOptions(k, xraypoc.ConvertDeclType(v))
 		//预处理
 		if v == "newReverse()" {
-			params[k], err = p.newReverse()
+			params[k], err = p.newReverse(base64.StdEncoding.EncodeToString([]byte(myUrl + poc.Name)))
 			if err != nil {
 				return nil, err
 			}
@@ -156,13 +157,18 @@ func trySearch(re string, body []byte) map[string]string {
 	return nil
 }
 
-func (p *Poc) newReverse() (*xraypoc_celtypes.Reverse, error) {
-	url, err := xraypoc.StringConvertUrl(p.ReverseUrl)
+func (p *Poc) newReverse(tagFilter string) (*xraypoc_celtypes.Reverse, error) {
+	tagReverseUrl := fmt.Sprintf("http://%s.%s", tagFilter, p.ReverseUrl)
+	urlType, err := xraypoc.StringConvertUrl(tagReverseUrl)
 	if err != nil {
 		return nil, err
 	}
 	return &xraypoc_celtypes.Reverse{
-		Url: url,
+		Url:                urlType,
+		Domain:             urlType.Domain,
+		Ip:                 "",
+		IsDomainNameServer: p.ReverseUseDomain,
+		ReverseCheckUrl:    p.ReverseCheckUrl,
 	}, nil
 }
 
@@ -180,9 +186,9 @@ func tryReq(myUrl string, rule *xraypoc.Rules) (xraypoc_celtypes.Response, error
 		return xraypoc_celtypes.Response{}, err
 	}
 	return xraypoc_celtypes.Response{
-		Body:    response.Body,
-		Status:  response.Status,
-		Headers: response.ResponseHeaders,
-		ContentType:response.ContentType,
+		Body:        response.Body,
+		Status:      response.Status,
+		Headers:     response.ResponseHeaders,
+		ContentType: response.ContentType,
 	}, err
 }

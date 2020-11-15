@@ -20,6 +20,8 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 	logC, runCtl := logChannel(mainWindow.Spider_log)
 	//Action
 	mainWindow.Spider_start.ConnectClicked(func(bool) {
+		//清空
+		mainWindow.Spider_log.Clear()
 		//保存配置
 		mConfig.Spider = spider.NewConfig()
 		mConfig.Spider.MaxDeps, _ = strconv.Atoi(mainWindow.Spider_deps.Text())
@@ -76,12 +78,11 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 
 	mainWindow.Spider_import_urls.ConnectClicked(func(bool) {
 		qFile := widgets.NewQFileDialog2(nil, "选择url列表文件", ".", "")
-		f := qFile.GetOpenFileName(nil, "文件", ".", "", "", widgets.QFileDialog__ReadOnly)
-		if f == "" {
+		fn := qFile.GetOpenFileName(nil, "文件", ".", "", "", widgets.QFileDialog__ReadOnly)
+		if fn == "" {
 			return
 		}
-		defer qFile.Close()
-		urls, err := common.ImportFiles(f, mainWindow.Spider_url.Text())
+		urls, err := common.ImportFiles(fn, mainWindow.Spider_url.Text())
 		if err != nil {
 			logC <- common.LogBuild("UI", "加载文件失败"+err.Error(), common.ALERT)
 			return

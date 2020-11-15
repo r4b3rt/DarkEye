@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/fofa"
+	"github.com/zsdevX/DarkEye/hack/poc"
 	"github.com/zsdevX/DarkEye/securitytrails"
 	"github.com/zsdevX/DarkEye/spider"
 	"io/ioutil"
@@ -25,6 +26,7 @@ type config struct {
 	SecurityTrails securitytrails.SecurityTrails `json:"securitytrails"`
 	Fofa           fofa.Fofa                     `json:"fofa"`
 	Spider         spider.Spider                 `json:"spider"`
+	Poc            poc.Poc                       `json:"poc"`
 	Valid          bool                          `json:"valid"`
 }
 
@@ -36,6 +38,7 @@ func loadCfg() error {
 			mConfig.Fofa = fofa.NewConfig()
 			mConfig.SecurityTrails = securitytrails.NewConfig()
 			mConfig.Spider = spider.NewConfig()
+			mConfig.Poc = poc.NewConfig()
 		}
 	}()
 	data, err := ioutil.ReadFile(mConfigFile)

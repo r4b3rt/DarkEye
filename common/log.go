@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 )
 
 const (
@@ -15,9 +14,9 @@ var (
 	Console = false
 	logDesc = []string{
 		0:     "None",
-		INFO:  "[!]",
-		FAULT: color.HiRedString("[x]"),
-		ALERT: color.HiGreenString("[√]"),
+		INFO:  `[!]`,
+		FAULT: `<font color="red">[x]</font>`,
+		ALERT: `<font color="green">[√]</font>`,
 	}
 	logFile = "dark_eye.log"
 )

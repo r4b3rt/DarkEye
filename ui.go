@@ -45,6 +45,8 @@ func initMainWin(mainWin *ui.MainWindow) {
 	LoadSecurityTrails(mainWin)
 	//Spider
 	LoadSpider(mainWin)
+	//poc
+	LoadPoc(mainWin)
 }
 
 func sysTrayDaemon(sysTray *QSystemTrayIconWithCustomSlot, mainWin *ui.MainWindow, app *widgets.QApplication) {

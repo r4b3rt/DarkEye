@@ -9,6 +9,10 @@ import (
 )
 
 func (p *Poc) Check() {
+	defer func() {
+		p.ErrChannel <- common.LogBuild("poc",
+			fmt.Sprintf("POC检查结束"), common.INFO)
+	}()
 	fi, err := os.Stat(p.FileName)
 	if err != nil {
 		p.ErrChannel <- common.LogBuild("poc",
@@ -39,6 +43,9 @@ func (p *Poc) Check() {
 			if rdi.IsDir() {
 				continue
 			}
+			if common.ShouldStop(&p.Stop) {
+				break
+			}
 			if strings.HasSuffix(rdi.Name(), "yml") {
 				p.CheckByFileName(filepath.Join(p.FileName, rdi.Name()))
 			}
@@ -49,6 +56,9 @@ func (p *Poc) Check() {
 func (p *Poc) CheckByFileName(pocName string) {
 	urls := strings.Split(p.Urls, ",")
 	for _, myUrl := range urls {
+		if common.ShouldStop(&p.Stop) {
+			break
+		}
 		myUrl = strings.TrimSpace(strings.TrimRight(myUrl, "/"))
 		result, err := p.doCheck(pocName, myUrl)
 		if err != nil {

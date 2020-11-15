@@ -24,10 +24,7 @@ func (f *Fofa) get(query string) {
 		Method:  "GET",
 	}
 	//获取首页面
-	body, err := f.fetchBody(&req, query, 1)
-	if err != nil {
-		return
-	}
+	body := f.fetchBody(&req, query, 1)
 	defer func() {
 		//学做人，防止fofa封
 		time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))
@@ -67,17 +64,20 @@ func (f *Fofa) get(query string) {
 		if start > pageNr {
 			break
 		}
-		body, err = f.fetchBody(&req, query, start)
+		body = f.fetchBody(&req, query, start)
 		if err != nil {
 			return
 		}
 	}
 }
 
-func (f *Fofa) fetchBody(req *common.HttpRequest, query string, page int) (body []byte, err error) {
+func (f *Fofa) fetchBody(req *common.HttpRequest, query string, page int) (body []byte) {
 	req.Url = f.genUrl(query, page)
 	retry := 0
 	for {
+		if common.ShouldStop(&f.Stop) {
+			break
+		}
 		response, err := req.Go()
 		if err != nil {
 			retry++
@@ -97,8 +97,9 @@ func (f *Fofa) fetchBody(req *common.HttpRequest, query string, page int) (body 
 			}
 		}
 		body = response.Body
-		return
+		break
 	}
+	return
 }
 
 func (f *Fofa) genUrl(query string, page int) string {

@@ -1,11 +1,11 @@
 # DarkEye
 
-DarkEye项目旨为收集目标信息。DarkEye从互联网（SecurityTrails、fofa、github等）收集情报或目标公开的接口信息，仅做汇总并不做分析，本项目不具备攻击性，漏洞的利用主要依靠人或其它工具来支撑。
+DarkEye项目旨为收集目标信息。DarkEye从互联网（SecurityTrails、fofa、google）收集情报或目标公开的接口信息，仅做汇总并不做分析，本项目不具备攻击性，漏洞的利用主要依靠人或其它工具来支撑。
 
 TODO LIST
 ===
 ```$xslt
-* 增加poc检测框架，爬页面时自动匹配
+* 增加POC检测被动模式
 ```
 
 支持平台
@@ -26,9 +26,14 @@ TODO LIST
 |敏感接口 | 爬取网站（含js、html、xml、json等）贪婪搜索返回内容中任何位置可能存在的接口路径; 敏感路径分级; 数据保存为csv|
 |端口扫描 | 支持扫IP，IP范围扫描、**支持获取标题和中间件**、支持端口范围和指定端口扫描（默认为常用端口）、**绕过防火墙频率限制扫描（仅支持单IP）**;收集结果自动保存为csv格式|
 
-![avatar](screenshot/portscan.png)
-
-![avatar](screenshot/darkeye.png)
+功能截图
+===
+端口扫描
+![avatar](screenshot/portscan.jpg)
+主界面
+![avatar](screenshot/darkeye.jpg)
+POC扫描
+![avatar](screenshot/pocscan.jpg)
 
 
 功能使用

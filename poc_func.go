@@ -35,7 +35,7 @@ func LoadPoc(mainWindow *ui.MainWindow) {
 		}
 		//启动流程
 		mainWindow.Poc_start.SetEnabled(false)
-		mainWindow.Poc_stop.SetEnabled(false)
+		mainWindow.Poc_stop.SetEnabled(true)
 		common.StartIt(&mConfig.Poc.Stop)
 		go func() {
 			mConfig.Poc.Check()
@@ -86,13 +86,12 @@ func LoadPoc(mainWindow *ui.MainWindow) {
 	})
 
 	mainWindow.Poc_import_file.ConnectClicked(func(bool) {
-		qFile := widgets.NewQFileDialog2(nil, "选择POC文件夹", "", "")
+		qFile := widgets.NewQFileDialog2(nil, "选择POC列表文件夹", "", "")
 		qFile.SetFileMode(widgets.QFileDialog__DirectoryOnly)
-		fn := qFile.GetOpenFileName(nil, "POC 文件夹", ".", "", "", widgets.QFileDialog__ReadOnly)
-		if fn == "" {
+		if qFile.Exec() != int(widgets.QDialog__Accepted) {
 			return
 		}
-		mainWindow.Poc_file.SetText(fn)
+		mainWindow.Poc_file.SetText(qFile.SelectedFiles()[0])
 		logC <- common.LogBuild("UI", "设置完成", common.INFO)
 	})
 	return

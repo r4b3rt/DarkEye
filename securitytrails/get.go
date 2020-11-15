@@ -36,16 +36,17 @@ func (s *SecurityTrails) get(query string) {
 
 	url := fmt.Sprintf("https://api.securitytrails.com/v1/domain/%s/subdomains?children_only=false", query)
 	userAgent := common.UserAgents[rand.Int()%len(common.UserAgents)]
-	req := common.Http{
-		Url:         url,
-		TimeOut:     time.Duration(5),
-		Method:      "GET",
-		Referer:     url,
-		H:           "apikey=" + s.ApiKey,
-		Agent:       userAgent,
-		ContentType: "application/json",
+	req := common.HttpRequest{
+		Url:     url,
+		TimeOut: time.Duration(5),
+		Method:  "GET",
+		Headers: map[string]string{
+			"User-Agent":   userAgent,
+			"apikey":       s.ApiKey,
+			"Content-Type": "application/json",
+		},
 	}
-	body, err := req.Http()
+	response, err := req.Go()
 	if err != nil {
 		s.ErrChannel <- common.LogBuild("SecurityTrails.get",
 			fmt.Sprintf("收集子域%s发起请求失败。\n 如果不是网络问题请检查api是否使用到期（返回429错误）,如果到期大佬多申请几个账号吧。\n错误码 :%s",
@@ -53,7 +54,7 @@ func (s *SecurityTrails) get(query string) {
 		return
 	}
 	res := subResult{}
-	if err = json.Unmarshal(body, &res); err != nil {
+	if err = json.Unmarshal(response.Body, &res); err != nil {
 		s.ErrChannel <- common.LogBuild("SecurityTrails.get",
 			fmt.Sprintf("收集子域%s处理返回数据失败:%s", query, err.Error()), common.ALERT)
 		return
@@ -128,20 +129,21 @@ func (s *SecurityTrails) parseIP(d *dnsInfo) {
 func (s *SecurityTrails) parseIpLoc(ipi *ipInfo) {
 	url := fmt.Sprintf("http://ip-api.com/json/%s?lang=zh-CN", ipi.ip)
 	userAgent := common.UserAgents[0]
-	req := common.Http{
-		Url:         url,
-		TimeOut:     time.Duration(5),
-		Method:      "GET",
-		Referer:     url,
-		Agent:       userAgent,
-		ContentType: "application/json",
+	req := common.HttpRequest{
+		Url:     url,
+		TimeOut: time.Duration(5),
+		Method:  "GET",
+		Headers: map[string]string{
+			"User-Agent":   userAgent,
+			"Content-Type": "application/json",
+		},
 	}
-	body, err := req.Http()
+	response, err := req.Go()
 	if err != nil {
 		s.ErrChannel <- common.LogBuild("SecurityTrails.get.parseIP.parseIpLoc",
 			fmt.Sprintf("获取IP%s所在地失败%s", ipi.ip, err.Error()), common.ALERT)
 		return
 	}
-	_ = json.Unmarshal(body, ipi)
+	_ = json.Unmarshal(response.Body, ipi)
 	time.Sleep(time.Second * 1)
 }

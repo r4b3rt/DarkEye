@@ -15,9 +15,11 @@ import (
 func (f *Fofa) get(query string) {
 	cookie := f.FofaSession
 	userAgent := common.UserAgents[rand.Int()%len(common.UserAgents)]
-	req := common.Http{
-		Agent:   userAgent,
-		Cookie:  cookie,
+	req := common.HttpRequest{
+		Headers: map[string]string{
+			"User-Agent": userAgent,
+			"Cookie":     cookie,
+		},
 		TimeOut: time.Duration(5 + f.Interval),
 		Method:  "GET",
 	}
@@ -72,27 +74,29 @@ func (f *Fofa) get(query string) {
 	}
 }
 
-func (f *Fofa) fetchBody(req *common.Http, query string, page int) (body []byte, err error) {
+func (f *Fofa) fetchBody(req *common.HttpRequest, query string, page int) (body []byte, err error) {
 	req.Url = f.genUrl(query, page)
 	retry := 0
 	for {
-		body, err = req.Http()
+		response, err := req.Go()
 		if err != nil {
-			errMsg := err.Error()
-			if errMsg == "Bad status 429" {
+			retry++
+			f.ErrChannel <- common.LogBuild("fofa.get",
+				fmt.Sprintf("因网络质量问题%s获取信息失败 尝试次数（第%d次):%s",
+					query, retry, err.Error()), common.ALERT)
+			time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))
+			continue
+		} else {
+			if response.Status == 429 {
 				retry++
 				f.ErrChannel <- common.LogBuild("fofa.get",
 					fmt.Sprintf("%s: 提取信息失败，失败原因fofa session过期或刷新过快, 尝试等待1分钟重试, 当前尝试次数%d次",
 						req.Url, retry), common.FAULT)
 				time.Sleep(time.Second * 60)
-			} else {
-				retry++
-				f.ErrChannel <- common.LogBuild("fofa.get",
-					fmt.Sprintf("因网络质量问题%s获取信息失败 尝试次数（第%d次):%s", query, retry, errMsg), common.ALERT)
-				time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))
+				continue
 			}
-			continue
 		}
+		body = response.Body
 		return
 	}
 }

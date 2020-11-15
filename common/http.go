@@ -2,43 +2,39 @@ package common
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
 	"github.com/antchfx/htmlquery"
 	"golang.org/x/text/encoding/simplifiedchinese"
+	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/cookiejar"
-	"net/url"
-	"strings"
 	"time"
 )
 
-type Http struct {
-	Method         string
-	Url            string
-	Data           []byte
-	Cookie         string
-	Origin         string
-	ContentType    string
-	Referer        string
-	Agent          string
-	H              string
-	TimeOut        time.Duration
-	ResponseServer string
+type HttpRequest struct {
+	Method  string
+	Url     string
+	Body    []byte
+	Headers map[string]string
+
+	NoFollowRedirect bool
+	TimeOut          time.Duration
 }
 
-func defaultCheckRedirect(req *http.Request, via []*http.Request) error {
-	if len(via) >= 10 {
-		return errors.New("stopped after 64 redirects")
-	}
-	return nil
+type HttpResponse struct {
+	Status          int32
+	ResponseHeaders map[string]string
+	Body            []byte
+	ContentType     string
 }
 
-func (m *Http) Http() ([]byte, error) {
+func (m *HttpRequest) Go() (*HttpResponse, error) {
 	ctx, cancel := context.WithCancel(context.TODO()) // or parant context
 	_ = time.AfterFunc(m.TimeOut*time.Second, func() {
 		cancel()
@@ -52,44 +48,36 @@ func (m *Http) Http() ([]byte, error) {
 		CheckRedirect: defaultCheckRedirect,
 		Jar:           jar,
 	}
-	req, _ := http.NewRequest(m.Method, m.Url, bytes.NewReader(m.Data))
+	if m.NoFollowRedirect {
+		cli.CheckRedirect = noCheckRedirect
+	}
+	req, err := http.NewRequest(m.Method, m.Url, bytes.NewReader(m.Body))
+	if err != nil {
+		return nil, err
+	}
 	req = req.WithContext(ctx)
-	if m.Method == "POST" {
-		req.Header.Add("Content-Type", m.ContentType)
+	for k, v := range m.Headers {
+		req.Header.Set(k, v)
 	}
-	if m.Origin != "" {
-		req.Header.Add("Origin", m.Origin)
-	}
-	if m.Referer == "" {
-		v, _ := url.Parse(m.Url)
-		m.Referer = v.Scheme + "://" + v.Host
-	}
-	req.Header.Add("Referer", m.Referer)
-	req.Header.Add("User-Agent", m.Agent)
-	req.Header.Add("Accept-Encoding", "xzip")
-	if m.Cookie != "" {
-		req.Header.Add("Cookie", m.Cookie)
-	}
-	if m.H != "" {
-		h := strings.Split(m.H, "=")
-		req.Header.Add(h[0], h[1])
-	}
-
 	resp, err := cli.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf(fmt.Sprintf("Bad status %d", resp.StatusCode))
+	response := HttpResponse{
+		Status:          int32(resp.StatusCode),
+		ResponseHeaders: make(map[string]string),
+		ContentType:resp.Header.Get("Content-Type"),
 	}
-	m.ResponseServer = resp.Header.Get("Server")
-	m.ResponseServer += resp.Header.Get("X-Powered-By")
-	b, err := ioutil.ReadAll(resp.Body)
+	for k := range resp.Header {
+		response.ResponseHeaders[k] = resp.Header.Get(k)
+	}
+	body, err := getRespBody(resp)
 	if err != nil {
 		return nil, err
 	}
-	return b, nil
+	response.Body = body
+	return &response, nil
 }
 
 func IsAlive(ip, port string, timeout int) bool {
@@ -109,19 +97,20 @@ func IsAlive(ip, port string, timeout int) bool {
 func GetHttpTitle(proto, domain string) (server, title string) {
 	url := fmt.Sprintf(proto+"://%s", domain)
 	userAgent := UserAgents[0]
-	req := Http{
+	req := HttpRequest{
 		Url:     url,
 		TimeOut: time.Duration(5),
 		Method:  "GET",
-		Referer: url,
-		Agent:   userAgent,
+		Headers: map[string]string{
+			"User-Agent": userAgent,
+		},
 	}
-	body, err := req.Http()
+	response, err := req.Go()
 	if err != nil {
 		return
 	}
-	server = req.ResponseServer
-	doc, err := htmlquery.Parse(bytes.NewReader(body))
+	server = response.ResponseHeaders["Server"] + response.ResponseHeaders["X-Powered-By"]
+	doc, err := htmlquery.Parse(bytes.NewReader(response.Body))
 	if err != nil {
 		return
 	}
@@ -131,10 +120,50 @@ func GetHttpTitle(proto, domain string) (server, title string) {
 	}
 	if !ISUtf8([]byte(title)) {
 		if message, err := simplifiedchinese.GBK.NewDecoder().String(title); err == nil {
-			 title = message
+			title = message
 		}
 	}
 	title = TrimUseless(title)
 
 	return
+}
+
+func defaultCheckRedirect(req *http.Request, via []*http.Request) error {
+	if len(via) >= 10 {
+		return errors.New("reach max 10 redirects")
+	}
+	return nil
+}
+
+func noCheckRedirect(req *http.Request, via []*http.Request) error {
+	if len(via) >= 0 {
+		return errors.New("forbidden redirects")
+	}
+	return nil
+}
+
+func getRespBody(resp *http.Response) ([]byte, error) {
+	var body []byte
+	if resp.Header.Get("Content-Encoding") == "gzip" {
+		gr, _ := gzip.NewReader(resp.Body)
+		defer gr.Close()
+		for {
+			buf := make([]byte, 1024)
+			n, err := gr.Read(buf)
+			if err != nil && err != io.EOF {
+				return nil, err
+			}
+			if n == 0 {
+				break
+			}
+			body = append(body, buf...)
+		}
+	} else {
+		raw, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		body = raw
+	}
+	return body, nil
 }

@@ -1,3 +1,4 @@
+testpoc
 *.syso
 .DS_Store
 dist
@@ -5,3 +6,4 @@ DarkEye.iml
 deploy
 .idea
 *.qrc
+http.pb.go

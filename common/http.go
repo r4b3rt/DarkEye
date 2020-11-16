@@ -80,10 +80,6 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 	for _,ck := range resp.Cookies() {
 		response.ResponseHeaders["Set-Cookie"] += ck.String() + ";"
 	}
-
-	if resp == nil {
-		return nil, nil
-	}
 	body, err := getRespBody(resp)
 	if err != nil {
 		return nil, err

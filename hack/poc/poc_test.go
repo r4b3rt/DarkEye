@@ -9,7 +9,7 @@ func Test_CheckPoc(t *testing.T) {
 	poc := Poc{
 		//FileName: "/Users/mac/Desktop/tmp/xray/pocs",
 		FileName: "testpoc/fuck.yml",
-		Urls:     "http://wx.shgmc.net:8080/cmiims/a/login",
+		Urls:     "http://oooxx/cmiims/a/login",
 	}
 	poc.ErrChannel = make(chan string, 10)
 

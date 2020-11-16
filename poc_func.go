@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/therecipe/qt/widgets"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/hack/poc"
 	"github.com/zsdevX/DarkEye/ui"
-	"time"
 )
 
 func LoadPoc(mainWindow *ui.MainWindow) {
@@ -47,26 +45,8 @@ func LoadPoc(mainWindow *ui.MainWindow) {
 
 	mainWindow.Poc_stop.ConnectClicked(func(bool) {
 		common.StopIt(&mConfig.Poc.Stop)
-		mainWindow.Poc_stop.SetDisabled(true)
-		//异步处理等待结束避免界面卡顿
 		go func() {
-			sec := 0
-			stop := false
-			tick := time.NewTicker(time.Second)
-			for {
-				select {
-				case <-runCtl:
-					stop = true
-				case <-tick.C:
-					sec ++
-					mainWindow.Poc_stop.SetText(fmt.Sprintf("等待%d秒", 60-sec))
-				}
-				if stop {
-					break
-				}
-			}
-			mainWindow.Poc_start.SetEnabled(true)
-			mainWindow.Poc_stop.SetText("停止")
+			gracefulStop(mainWindow.Fofa_start, mainWindow.Fofa_stop, runCtl)
 		}()
 	})
 

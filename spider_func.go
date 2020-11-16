@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"github.com/therecipe/qt/widgets"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/spider"
 	"github.com/zsdevX/DarkEye/ui"
 	"strconv"
-	"time"
 )
 
 func LoadSpider(mainWindow *ui.MainWindow) {
@@ -39,7 +37,6 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 		}
 		//启动流程
 		mainWindow.Spider_start.SetEnabled(false)
-		mainWindow.Spider_import_urls.SetEnabled(false)
 		mainWindow.Spider_stop.SetEnabled(true)
 		common.StartIt(&mConfig.Spider.Stop)
 		go func() {
@@ -52,28 +49,11 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 
 	mainWindow.Spider_stop.ConnectClicked(func(bool) {
 		common.StopIt(&mConfig.Spider.Stop)
-		mainWindow.Spider_stop.SetDisabled(true)
-		//异步处理等待结束避免界面卡顿
+
 		go func() {
-			sec := 0
-			stop := false
-			tick := time.NewTicker(time.Second)
-			for {
-				select {
-				case <-runCtl:
-					stop = true
-				case <-tick.C:
-					sec ++
-					mainWindow.Spider_stop.SetText(fmt.Sprintf("等待%d秒", 60-sec))
-				}
-				if stop {
-					break
-				}
-			}
-			mainWindow.Spider_import_urls.SetEnabled(true)
-			mainWindow.Spider_start.SetEnabled(true)
-			mainWindow.Spider_stop.SetText("停止")
+			gracefulStop(mainWindow.Spider_start, mainWindow.Spider_stop, runCtl)
 		}()
+
 	})
 
 	mainWindow.Spider_import_urls.ConnectClicked(func(bool) {

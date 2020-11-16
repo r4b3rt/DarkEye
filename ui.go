@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/ui"
 	"os"
+	"time"
 )
 
 var (
@@ -79,6 +81,29 @@ func sysTrayDaemon(sysTray *QSystemTrayIconWithCustomSlot, mainWin *ui.MainWindo
 			app.Quit()
 		}
 	})
+}
+
+//外部应使用goroutine调用
+func gracefulStop(start, stop *widgets.QPushButton, runCtl chan bool) {
+	//终止任务时避免卡顿
+	sec := 0
+	jumpOut := false
+	tick := time.NewTicker(time.Second)
+	stop.SetDisabled(true)
+	for {
+		select {
+		case <-runCtl:
+			jumpOut = true
+		case <-tick.C:
+			sec ++
+			stop.SetText(fmt.Sprintf("等待%d秒", 60-sec))
+		}
+		if jumpOut {
+			break
+		}
+	}
+	start.SetEnabled(true)
+	stop.SetText("停止")
 }
 
 type QSystemTrayIconWithCustomSlot struct {

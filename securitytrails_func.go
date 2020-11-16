@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/securitytrails"
 	"github.com/zsdevX/DarkEye/ui"
-	"time"
 )
 
 func LoadSecurityTrails(mainWindow *ui.MainWindow) {
@@ -44,27 +42,10 @@ func LoadSecurityTrails(mainWindow *ui.MainWindow) {
 
 	mainWindow.St_stop.ConnectClicked(func(bool) {
 		common.StopIt(&mConfig.SecurityTrails.Stop)
-		mainWindow.St_stop.SetDisabled(true)
-		//异步处理等待结束避免界面卡顿
 		go func() {
-			sec := 0
-			stop := false
-			tick := time.NewTicker(time.Second)
-			for {
-				select {
-				case <-runCtl:
-					stop = true
-				case <-tick.C:
-					sec ++
-					mainWindow.St_stop.SetText(fmt.Sprintf("等待%d秒", 60-sec))
-				}
-				if stop {
-					break
-				}
-			}
-			mainWindow.St_start.SetEnabled(true)
-			mainWindow.St_stop.SetText("停止")
+			gracefulStop(mainWindow.St_start, mainWindow.St_stop, runCtl)
 		}()
+
 	})
 
 	mainWindow.St_clear.ConnectClicked(func(bool) {

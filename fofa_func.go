@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/fofa"
 	"github.com/zsdevX/DarkEye/ui"
 	"strconv"
-	"time"
 )
 
 func LoadFoFa(mainWindow *ui.MainWindow) {
@@ -41,27 +39,11 @@ func LoadFoFa(mainWindow *ui.MainWindow) {
 
 	mainWindow.Fofa_stop.ConnectClicked(func(bool) {
 		common.StopIt(&mConfig.Fofa.Stop)
-		mainWindow.Fofa_stop.SetDisabled(true)
-		//异步处理等待结束避免界面卡顿
+
 		go func() {
-			sec := 0
-			stop := false
-			tick := time.NewTicker(time.Second)
-			for {
-				select {
-				case <-runCtl:
-					stop = true
-				case <-tick.C:
-					sec ++
-					mainWindow.Fofa_stop.SetText(fmt.Sprintf("等待%d秒", 60-sec))
-				}
-				if stop {
-					break
-				}
-			}
-			mainWindow.Fofa_start.SetEnabled(true)
-			mainWindow.Fofa_stop.SetText("停止")
+			gracefulStop(mainWindow.Fofa_start, mainWindow.Fofa_stop, runCtl)
 		}()
+
 	})
 
 	mainWindow.Fofa_clear.ConnectClicked(func(bool) {

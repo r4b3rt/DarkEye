@@ -25,7 +25,7 @@ build_linux() {
             qtdeploy  -uic=false build linux
             mv deploy/linux/DarkEye dist/
      fi
-    # cd portscan && ./build.sh linux && mv portscan ../dist/portscan.linux64
+     cd portscan && ./build.sh linux && mv portscan ../dist/portscan.linux64
 }
 
 build_win() {

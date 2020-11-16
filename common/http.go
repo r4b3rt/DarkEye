@@ -14,6 +14,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/cookiejar"
+	"strings"
 	"time"
 )
 
@@ -61,16 +62,27 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 	}
 	resp, err := cli.Do(req)
 	if err != nil {
-		return nil, err
+		if !strings.Contains(err.Error(), "forbidden redirects") {
+			return nil, err
+		}
 	}
 	defer resp.Body.Close()
 	response := HttpResponse{
 		Status:          int32(resp.StatusCode),
 		ResponseHeaders: make(map[string]string),
-		ContentType:resp.Header.Get("Content-Type"),
+		ContentType:     resp.Header.Get("Content-Type"),
 	}
 	for k := range resp.Header {
-		response.ResponseHeaders[k] = resp.Header.Get(k)
+		if k != "Set-Cookie"{
+			response.ResponseHeaders[k] = resp.Header.Get(k)
+		}
+	}
+	for _,ck := range resp.Cookies() {
+		response.ResponseHeaders["Set-Cookie"] += ck.String() + ";"
+	}
+
+	if resp == nil {
+		return nil, nil
 	}
 	body, err := getRespBody(resp)
 	if err != nil {
@@ -130,7 +142,7 @@ func GetHttpTitle(proto, domain string) (server, title string) {
 
 func defaultCheckRedirect(req *http.Request, via []*http.Request) error {
 	if len(via) >= 10 {
-		return errors.New("reach max 10 redirects")
+		return errors.New("forbidden redirects(10)")
 	}
 	return nil
 }

@@ -25,7 +25,8 @@ TODO LIST
 |收集子域 | 通过**SecurityTrails**收集子域名，并扩展支持提取**域名解析的ip、cname、地域、标题**; 需要使用key建议官网申请2-3个（50个域名/1key）;收集的结果自动保存为csv格式|
 |敏感接口 | 爬取网站（含js、html、xml、json等）贪婪搜索返回内容中任何位置可能存在的接口路径; 敏感路径分级; 数据保存为csv|
 |端口扫描 | 支持扫IP，IP范围扫描、**支持获取标题和中间件**、支持端口范围和指定端口扫描（默认为常用端口）、**绕过防火墙频率限制扫描（仅支持单IP）**;收集结果自动保存为csv格式|
-|POC扫描 | 支持xray poc格式 https://github.com/chaitin/xray/tree/master/pocs|
+|POC扫描 | 支持xray poc格式 https://github.com/chaitin/xray/tree/master/pocs｜https://github.com/Laura0xiaoshizi/xray_pocs|
+
 
 功能截图
 ===

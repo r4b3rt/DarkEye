@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
-	"github.com/zsdevX/DarkEye/hack/poc/xraypoc/celtypes"
+	"github.com/zsdevX/DarkEye/poc/xraypoc/celtypes"
 	"net/url"
 	"strings"
 	"time"

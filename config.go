@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/fofa"
-	"github.com/zsdevX/DarkEye/hack/poc"
+	"github.com/zsdevX/DarkEye/poc"
 	"github.com/zsdevX/DarkEye/securitytrails"
 	"github.com/zsdevX/DarkEye/spider"
 	"io/ioutil"

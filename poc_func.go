@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/therecipe/qt/widgets"
 	"github.com/zsdevX/DarkEye/common"
-	"github.com/zsdevX/DarkEye/hack/poc"
+	"github.com/zsdevX/DarkEye/poc"
 	"github.com/zsdevX/DarkEye/ui"
 )
 

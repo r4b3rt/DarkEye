@@ -2,6 +2,11 @@
 #GOOS=windows GOARCH=386 go build -ldflags="-s -w"
 export GO111MODULE=off
 
+build_hackTools() {
+    os=$1
+    cd hacktools/portscan && ./build.sh mac && mv portscan ../../dist/portscan.${os}
+}
+
 build_mac() {
     ${GOPATH}/bin/qtdeploy  -uic=false build darwin
     if [[ ! -e deploy/darwin ]]; then
@@ -12,7 +17,7 @@ build_mac() {
         mv deploy/darwin/DarkEye.app dist/
         echo "Build Success"
     fi
-    cd portscan && ./build.sh mac && mv portscan ../dist/portscan.mac
+    build_hackTools "mac"
 }
 
 build_linux() {
@@ -25,7 +30,7 @@ build_linux() {
             qtdeploy  -uic=false build linux
             mv deploy/linux/DarkEye dist/
      fi
-     cd portscan && ./build.sh linux && mv portscan ../dist/portscan.linux64
+     build_hackTools "linux"
 }
 
 build_win() {
@@ -40,7 +45,7 @@ build_win() {
         mv deploy/windows/DarkEye.exe dist/
         echo "Build Success"
     fi
-    cd portscan && ./build.sh win && mv portscan.exe ../dist/
+     build_hackTools "windows"
 }
 
 clean() {
@@ -50,8 +55,8 @@ clean() {
     rm -f *.cpp
     rm -rf darwin
     rm -rf windows
-    rm -rf portscan/portscan
-    rm -rf portscan/tmp
+    rm -rf hacktools/portscan/portscan
+    rm -rf hacktools/portscan/tmp
 }
 
 clean

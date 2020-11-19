@@ -11,7 +11,7 @@ import (
 	"github.com/google/cel-go/common/types/ref"
 	"github.com/google/cel-go/interpreter/functions"
 	"github.com/zsdevX/DarkEye/common"
-	"github.com/zsdevX/DarkEye/hack/poc/xraypoc/celtypes"
+	"github.com/zsdevX/DarkEye/poc/xraypoc/celtypes"
 	"google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 	"math/rand"
 	"net/url"

@@ -9,7 +9,7 @@ import (
 
 func Test_get(t *testing.T) {
 	s := SecurityTrails{
-		ApiKey:    "v94C1s0xgSR21tbSJsOV9G5rk6vpMuf3",
+		ApiKey:    "**************",
 		Queries:   "baidu.com",
 		DnsServer: "192.168.1.1:53",
 		IpCheck:   true,

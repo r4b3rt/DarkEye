@@ -9,9 +9,26 @@ import (
 )
 
 func (p *Poc) Check() {
+	p.Results = make([]PocResult, 0)
 	defer func() {
+		w, file, fileName, err := common.CreateCSV("poc",
+			[]string{"Url", "POC"})
+		if err != nil {
+			p.ErrChannel <- common.LogBuild("poc",
+				fmt.Sprintf("创建记录文件失败:"+err.Error()), common.FAULT)
+			return
+		}
+		defer file.Close()
+
+		logNumber := 0
+		for _, n := range p.Results {
+			_ = w.Write([]string{n.Url, n.PocName})
+			logNumber++
+		}
+		w.Flush()
+
 		p.ErrChannel <- common.LogBuild("poc",
-			fmt.Sprintf("POC检查结束"), common.INFO)
+			fmt.Sprintf("POC检查结束 发现问题%d个,保存文件路径:%s", len(p.Results), fileName), common.ALERT)
 	}()
 	fi, err := os.Stat(p.FileName)
 	if err != nil {
@@ -68,6 +85,10 @@ func (p *Poc) CheckByFileName(pocName string) {
 		infoLevel := common.INFO
 		if result {
 			infoLevel = common.ALERT
+			p.Results = append(p.Results, PocResult{
+				PocName: filepath.Base(pocName),
+				Url:     myUrl,
+			})
 		}
 		p.ErrChannel <- common.LogBuild("poc",
 			fmt.Sprintf("%s %s:%v", myUrl, filepath.Base(pocName), result), infoLevel)

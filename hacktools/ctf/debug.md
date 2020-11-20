@@ -1,47 +1,6 @@
-#全局
-关闭地址随机化: 
-```
-echo 0 >/proc/sys/kernel/randomize_va_space
-```
- 
-## Demo
-```
-from pwn import *
+# Debug
 
- sh = process('./pwn')
-# sh = remote('x.x.x.x',110)
-
-sh.send()
-sh.interactive()
-```
-
-## 通信API
-```
-context.log_level = "debug"
-send(payload) 发送payload
-sendline(payload) 发送payload，并进行换行（末尾\n）
-sendafter(some_string, payload) 接收到 some_string 后, 发送你的 payload
-recvn(N) 接受 N(数字) 字符
-recvline() 接收一行输出
-recvlines(N) 接收 N(数字) 行输出
-recvuntil(some_string) 接收到 some_string 为止
-```
-
-## 地址API
-```
->>> e = ELF('/bin/cat')
->>> print hex(e.address)  # 文件装载的基地址
-0x400000
->>> print hex(e.symbols['write']) # 函数地址
-0x401680
->>> print hex(e.got['write']) # GOT表的地址
-0x60b070
->>> print hex(e.plt['write']) # PLT的地址
-0x401680
->>> print hex(e.search('/bin/sh').next())# 字符串/bin/sh的地址
-```
-
-## Debug
+## Gdb
 ```
 打印指令
 查看内存指令x：
@@ -66,7 +25,7 @@ x /10xd $rdi //从rdi指向的地址向后打印10个单元，每个单元4字�
 x /10i 0x123456 //常用，从0x123456处向后显示十条汇编指令
 ```
 
-### Debug tips
+### Debug attach tips
 ```
 attach进程sigsegment错误不退出
 catch fork

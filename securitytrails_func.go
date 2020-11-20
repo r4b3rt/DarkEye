@@ -50,6 +50,7 @@ func LoadSecurityTrails(mainWindow *ui.MainWindow) {
 
 	mainWindow.St_clear.ConnectClicked(func(bool) {
 		mainWindow.St_log.Clear()
+		mainWindow.St_log.SetText("")
 	})
 	return
 }

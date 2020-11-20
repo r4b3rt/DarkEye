@@ -48,6 +48,7 @@ func LoadFoFa(mainWindow *ui.MainWindow) {
 
 	mainWindow.Fofa_clear.ConnectClicked(func(bool) {
 		mainWindow.Fofa_log.Clear()
+		mainWindow.Fofa_log.SetText("")
 	})
 	return
 }

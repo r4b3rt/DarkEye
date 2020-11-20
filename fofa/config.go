@@ -7,7 +7,7 @@ type ipNode struct {
 	Server string
 	Finger string
 	Port   string
-	Alive  bool
+	Alive  int
 }
 
 type Fofa struct {

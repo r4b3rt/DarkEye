@@ -1,5 +1,10 @@
 package poc
 
+type PocResult struct {
+	PocName string
+	Url     string
+}
+
 type Poc struct {
 	FileName string
 	Urls     string
@@ -11,6 +16,7 @@ type Poc struct {
 
 	ErrChannel chan string `json:"-"`
 	Stop       int32       `json:"-"`
+	Results    []PocResult `json:"-"`
 }
 
 func NewConfig() Poc {

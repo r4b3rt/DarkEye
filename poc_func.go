@@ -19,6 +19,7 @@ func LoadPoc(mainWindow *ui.MainWindow) {
 	mainWindow.Poc_start.ConnectClicked(func(bool) {
 		//清空
 		mainWindow.Poc_log.Clear()
+		mainWindow.Poc_log.SetText("")
 		//保存配置
 		mConfig.Poc = poc.NewConfig()
 		mConfig.Poc.Urls = mainWindow.Poc_url.Text()

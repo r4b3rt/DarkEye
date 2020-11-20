@@ -80,7 +80,7 @@ func (s *Scan) _run(from, to int) {
 func (s *Scan) Check(p int) {
 	s.BarCallback(1)
 	port := strconv.Itoa(int(p))
-	if !common.IsAlive(s.Ip, port, s.TimeOut) {
+	if common.IsAlive(s.Ip, port, s.TimeOut) != common.Alive {
 		return
 	}
 	pi := PortInfo{}
@@ -105,7 +105,7 @@ func (s *Scan) IsFireWallNotForbidden() bool {
 	}
 	maxRetries := 3
 	for maxRetries > 0 {
-		if common.IsAlive(s.Ip, s.ActivePort, s.TimeOut) {
+		if common.IsAlive(s.Ip, s.ActivePort, s.TimeOut) == common.Alive {
 			return true
 		}
 		maxRetries --

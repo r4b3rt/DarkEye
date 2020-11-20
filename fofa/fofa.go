@@ -23,8 +23,10 @@ func (f *Fofa) Run() {
 	logNumber := 0
 	for _, n := range f.ipNodes {
 		alive := "失效"
-		if n.Alive {
+		if n.Alive == common.Alive {
 			alive = "有效"
+		} else if n.Alive == common.TimeOut {
+			alive = "超时"
 		}
 		_ = w.Write([]string{alive, n.Ip, n.Port, n.Domain, n.Title, n.Server, n.Finger})
 		logNumber++

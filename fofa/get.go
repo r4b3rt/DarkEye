@@ -33,7 +33,7 @@ func (f *Fofa) get(query string) {
 	pageRe, err := regexp.Compile(`>(\d*)</a> <a class="next_page" rel="next"`)
 	if err != nil {
 		f.ErrChannel <- common.LogBuild("fofa.get",
-			fmt.Sprintf("%s: 无页码", query), common.ALERT)
+			fmt.Sprintf("%s: 无页码", query), common.FAULT)
 		return
 	}
 	pageNr := 1
@@ -83,7 +83,7 @@ func (f *Fofa) fetchBody(req *common.HttpRequest, query string, page int) (body 
 			retry++
 			f.ErrChannel <- common.LogBuild("fofa.get",
 				fmt.Sprintf("因网络质量问题%s获取信息失败 尝试次数（第%d次):%s",
-					query, retry, err.Error()), common.ALERT)
+					query, retry, err.Error()), common.FAULT)
 			time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))
 			continue
 		} else {
@@ -113,7 +113,7 @@ func (f *Fofa) parseHtml(query string, body []byte, page int) (stop bool) {
 	doc, err := htmlquery.Parse(bytes.NewReader(body))
 	if err != nil {
 		f.ErrChannel <- common.LogBuild("fofa.get.parseIPHtml",
-			fmt.Sprintf("%s: %s", query, err.Error()), common.ALERT)
+			fmt.Sprintf("%s: %s", query, err.Error()), common.FAULT)
 		return
 	}
 	blocks := htmlquery.Find(doc, "//*[@class='right-list-view-item clearfix']")
@@ -155,7 +155,7 @@ func (f *Fofa) parseHtml(query string, body []byte, page int) (stop bool) {
 		node.Port = common.TrimUseless(htmlquery.InnerText(items[0]))
 
 		//检查端口是否有效
-		node.Alive = common.IsAlive(node.Ip, node.Port, 2000)
+		node.Alive = common.IsAlive(node.Ip, node.Port, 5000)
 
 		//保存结果
 		f.ipNodes = append(f.ipNodes, node)

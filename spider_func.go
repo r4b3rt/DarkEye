@@ -20,6 +20,7 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 	mainWindow.Spider_start.ConnectClicked(func(bool) {
 		//清空
 		mainWindow.Spider_log.Clear()
+		mainWindow.Spider_log.SetText("")
 		//保存配置
 		mConfig.Spider = spider.NewConfig()
 		mConfig.Spider.MaxDeps, _ = strconv.Atoi(mainWindow.Spider_deps.Text())

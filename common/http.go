@@ -18,6 +18,12 @@ import (
 	"time"
 )
 
+const (
+	Die     = 1
+	Alive   = 2
+	TimeOut = 3
+)
+
 type HttpRequest struct {
 	Method  string
 	Url     string
@@ -73,11 +79,11 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 		ContentType:     resp.Header.Get("Content-Type"),
 	}
 	for k := range resp.Header {
-		if k != "Set-Cookie"{
+		if k != "Set-Cookie" {
 			response.ResponseHeaders[k] = resp.Header.Get(k)
 		}
 	}
-	for _,ck := range resp.Cookies() {
+	for _, ck := range resp.Cookies() {
 		response.ResponseHeaders["Set-Cookie"] += ck.String() + ";"
 	}
 	body, err := getRespBody(resp)
@@ -88,7 +94,7 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 	return &response, nil
 }
 
-func IsAlive(ip, port string, timeout int) bool {
+func IsAlive(ip, port string, timeout int) int {
 	ctx, cancel := context.WithCancel(context.TODO()) // or parant context
 	_ = time.AfterFunc(time.Duration(timeout)*time.Millisecond, func() {
 		cancel()
@@ -96,10 +102,15 @@ func IsAlive(ip, port string, timeout int) bool {
 	d := net.Dialer{}
 	c, err := d.DialContext(ctx, "tcp", ip+":"+port)
 	if err != nil {
-		return false
+		if eo, ok := err.(net.Error); ok {
+			if eo.Timeout() {
+				return TimeOut
+			}
+		}
+		return Die
 	}
 	defer c.Close()
-	return true
+	return Alive
 }
 
 func GetHttpTitle(proto, domain string) (server, title string) {

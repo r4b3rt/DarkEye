@@ -2,17 +2,19 @@ package common
 
 import (
 	"bufio"
+	"context"
 	"fmt"
+	"net"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type FromTo struct {
 	From int
 	To   int
 }
-
 
 func GetIPRange(ip string) (base string, start, end int, err error) {
 	fromTo := strings.Split(ip, "-")
@@ -59,7 +61,7 @@ func GetPortRange(portRange string) ([]FromTo, int) {
 	return res, tot
 }
 
-func ImportFiles(f, cnt string) ( string,  error) {
+func ImportFiles(f, cnt string) (string, error) {
 	file, err := os.Open(f)
 	r := ""
 	if err != nil {
@@ -85,4 +87,24 @@ func ImportFiles(f, cnt string) ( string,  error) {
 		}
 	}
 	return r, nil
+}
+
+func IsAlive(ip, port string, millTimeOut int) int {
+	ctx, cancel := context.WithTimeout(context.TODO(), time.Duration(millTimeOut)*time.Millisecond)
+	defer cancel()
+	//start := time.Now()
+	d := &net.Dialer{}
+	c, err := d.DialContext(ctx, "tcp4", ip+":"+port)
+	//duration := time.Now().Sub(start)
+	if err != nil {
+		//fmt.Println("timeout duration", duration, err.Error(), millTimeOut)
+		if eo, ok := err.(net.Error); ok {
+			if eo.Timeout() {
+				return TimeOut
+			}
+		}
+		return Die
+	}
+	_ = c.Close()
+	return Alive
 }

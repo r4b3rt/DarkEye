@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
 	"strings"
+	"time"
 )
 
 func (f *Fofa) Run() {
@@ -71,6 +72,8 @@ func (f *Fofa) runIP() {
 			}
 			f.get(fmt.Sprintf("%s.%d", base, start))
 			start++
+			//学做人，防止fofa封
+			time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))
 		}
 	}
 }

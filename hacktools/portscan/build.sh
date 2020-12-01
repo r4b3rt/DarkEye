@@ -17,6 +17,7 @@ build_mac() {
 clean() {
     rm -f lowSpeedPortScan*
     rm -f lowspeedportscan.cfg
+    rm -f *.csv
 }
 
 clean

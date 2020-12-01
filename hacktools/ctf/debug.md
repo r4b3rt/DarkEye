@@ -34,6 +34,11 @@ set follow-fork-mode child
 
 dump memory ./result.txt 0x7fffffffdaa0 0x7fffffffdae0
 ```
+### Debug pass sigsegv to app
+```
+handle SIGSEGV nostop noprint pass
+```
+
 #### Dump 
 ```
 #!/bin/bash

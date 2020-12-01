@@ -25,10 +25,6 @@ func (f *Fofa) get(query string) {
 	}
 	//获取首页面
 	body := f.fetchBody(&req, query, 1)
-	defer func() {
-		//学做人，防止fofa封
-		time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))
-	}()
 	//获取页数
 	pageRe, err := regexp.Compile(`>(\d*)</a> <a class="next_page" rel="next"`)
 	if err != nil {
@@ -53,8 +49,8 @@ func (f *Fofa) get(query string) {
 		if common.ShouldStop(&f.Stop) {
 			break
 		}
-		//学做人，防止fofa封
-		time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))
+		//翻页1秒等待
+		time.Sleep(time.Second * 1)
 		if f.parseHtml(query, body, start) {
 			//解析页面遇到不可恢复的情况立刻终止，提高效率
 			break

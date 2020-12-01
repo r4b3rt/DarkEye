@@ -103,9 +103,9 @@ func (s *SecurityTrails) fetchSubDomainResults(req *common.HttpRequest, query st
 }
 
 func (s *SecurityTrails) parseTag(d *dnsInfo) {
-	d.server, d.title = common.GetHttpTitle("http", d.domain)
+	d.server, d.title = common.GetHttpTitle("http", d.domain, 5)
 	if d.server == "" && d.title == "" {
-		d.server, d.title = common.GetHttpTitle("https", d.domain)
+		d.server, d.title = common.GetHttpTitle("https", d.domain, 5)
 	}
 	return
 }

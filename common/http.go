@@ -3,7 +3,6 @@ package common
 import (
 	"bytes"
 	"compress/gzip"
-	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -42,18 +41,21 @@ type HttpResponse struct {
 }
 
 func (m *HttpRequest) Go() (*HttpResponse, error) {
-	ctx, cancel := context.WithCancel(context.TODO()) // or parant context
-	_ = time.AfterFunc(m.TimeOut*time.Second, func() {
-		cancel()
-	})
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		DialContext: (&net.Dialer{
+			Timeout:   m.TimeOut * time.Second,
+			KeepAlive: m.TimeOut * time.Second,
+		}).DialContext,
+		ResponseHeaderTimeout: time.Second * m.TimeOut,
+		TLSHandshakeTimeout:   time.Second * m.TimeOut,
 	}
 	jar, _ := cookiejar.New(nil)
 	cli := http.Client{
 		Transport:     tr,
 		CheckRedirect: defaultCheckRedirect,
 		Jar:           jar,
+		//Timeout:       m.TimeOut * time.Second,
 	}
 	if m.NoFollowRedirect {
 		cli.CheckRedirect = noCheckRedirect
@@ -62,7 +64,6 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
 	for k, v := range m.Headers {
 		req.Header.Set(k, v)
 	}
@@ -94,31 +95,12 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 	return &response, nil
 }
 
-func IsAlive(ip, port string, timeout int) int {
-	ctx, cancel := context.WithCancel(context.TODO()) // or parant context
-	_ = time.AfterFunc(time.Duration(timeout)*time.Millisecond, func() {
-		cancel()
-	})
-	d := net.Dialer{}
-	c, err := d.DialContext(ctx, "tcp", ip+":"+port)
-	if err != nil {
-		if eo, ok := err.(net.Error); ok {
-			if eo.Timeout() {
-				return TimeOut
-			}
-		}
-		return Die
-	}
-	defer c.Close()
-	return Alive
-}
-
-func GetHttpTitle(proto, domain string) (server, title string) {
+func GetHttpTitle(proto, domain string, timeOutSec int) (server, title string) {
 	url := fmt.Sprintf(proto+"://%s", domain)
 	userAgent := UserAgents[0]
 	req := HttpRequest{
 		Url:     url,
-		TimeOut: time.Duration(5),
+		TimeOut: time.Duration(timeOutSec),
 		Method:  "GET",
 		Headers: map[string]string{
 			"User-Agent": userAgent,

@@ -3,6 +3,7 @@ package common
 import (
 	"bufio"
 	"context"
+	"encoding/binary"
 	"fmt"
 	"net"
 	"os"
@@ -21,11 +22,11 @@ func GetIPRange(ip string) (base string, start, end int, err error) {
 	ipStart := fromTo[0]
 	err = fmt.Errorf(LogBuild("common.func", "IP格式错误(eg. 1.1.1.1-3)", FAULT))
 
+	start = 1
 	tIp := strings.Split(ipStart, ".")
-	if len(tIp) != 4 {
-		return
+	if len(tIp) == 4 {
+		start, _ = strconv.Atoi(tIp[len(tIp) - 1])
 	}
-	start, _ = strconv.Atoi(tIp[3])
 	end = start
 	if len(fromTo) == 2 {
 		end, _ = strconv.Atoi(fromTo[1])
@@ -33,9 +34,28 @@ func GetIPRange(ip string) (base string, start, end int, err error) {
 	if end == 0 {
 		return
 	}
-	base = fmt.Sprintf("%s.%s.%s", tIp[0], tIp[1], tIp[2])
+	for _,v := range tIp {
+		base += fmt.Sprintf("%s.", v)
+	}
+	base = strings.TrimRight(base, ".")
 	err = nil
 	return
+}
+
+func GenIP(ipSeg string, ip int) string {
+	a := make([]byte, 4)
+	binary.BigEndian.PutUint32(a, uint32(ip))
+	b := strings.Split(ipSeg, ".")
+	bl := len(b)
+	for k := range a {
+		if bl == 0 {
+			break
+		}
+		v,_ := strconv.Atoi(b[k])
+		a[k] += uint8(v)
+		bl --
+	}
+	return  net.IPv4(a[0], a[1], a[2], a[3]).String()
 }
 
 func GetPortRange(portRange string) ([]FromTo, int) {

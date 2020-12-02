@@ -101,6 +101,7 @@ func pocMS17010(plg *Plugins) (vul bool) {
 
 	if reply[9] == 0x05 && reply[10] == 0x02 && reply[11] == 0x00 && reply[12] == 0xc0 {
 		vul = true
+		plg.highLight = true
 		plg.Ms17010.Description = "likely VULNERABLE to MS17-010!"
 
 		// detect present of DOUBLEPULSAR SMB implant

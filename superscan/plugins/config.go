@@ -1,5 +1,7 @@
 package plugins
 
+import "sync"
+
 type Web struct {
 	Server string `json:",omitempty"`
 	Title  string `json:",omitempty"`
@@ -24,10 +26,14 @@ type Plugins struct {
 	Mysql      []Account  `json:",omitempty"`
 
 	NoTrust        bool `json:",omitempty"`
+	Worker         int  `json:",omitempty"`
 	TargetIp       string
 	TargetPort     string
 	TargetProtocol string
 	TimeOut        int `json:"-"`
+	DescCallback   func(string)
+	highLight      bool
+	locker         sync.RWMutex
 }
 
 const (
@@ -36,4 +42,13 @@ const (
 	MS17010
 	WEBSrv  //放到最后
 	PluginNR
+)
+
+const (
+	OKNone = iota
+	OKWait
+	OKTimeOut
+	OKDone
+	OKNext
+	OKStop
 )

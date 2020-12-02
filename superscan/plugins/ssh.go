@@ -1,10 +1,13 @@
 package plugins
 
 import (
+	"context"
 	"fmt"
+	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh"
 	"net"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -18,35 +21,74 @@ func sshCheck(plg *Plugins) interface{} {
 		return nil
 	}
 	plg.SSh = make([]Account, 0)
+	wg := sync.WaitGroup{}
+	wg.Add(len(sshUsername))
+	limiter := make(chan int, plg.Worker)
+	ctx, cancel := context.WithCancel(context.TODO())
 	for _, user := range sshUsername {
-		for _, pass := range sshPassword {
-			pass = strings.Replace(pass, "%user%", user, -1)
-			if ok, stop := sshConn(plg, user, pass); ok {
-				plg.SSh = append(plg.SSh, Account{Username: user, Password: pass})
-				plg.TargetProtocol = "[SSH]"
-				return &plg.SSh[0]
-			} else if stop {
-				//非SSH协议退出
-				return nil
+		limiter <- 1
+		go func(username string) {
+			defer func() {
+				<-limiter
+				wg.Done()
+			}()
+			select {
+			case <-ctx.Done():
+				return
+			default:
 			}
-		}
+			for _, pass := range sshPassword {
+				pass = strings.Replace(pass, "%user%", username, -1)
+				plg.DescCallback(fmt.Sprintf("Cracking %s:%s %s/%s",
+					plg.TargetIp, plg.TargetPort, username, pass))
+				ok := sshConn(plg, username, pass)
+				switch ok {
+				case OKDone:
+					//密码正确一次退出
+					plg.locker.Lock()
+					plg.SSh = append(plg.SSh, Account{Username: username, Password: pass})
+					plg.locker.Unlock()
+					plg.highLight = true
+					cancel()
+					return
+				case OKWait:
+					//太快了服务器限制
+					color.Red("爆破频率太快服务器受限，建议降低参数'plugin-worker'数值影响主机:%s:%s", plg.TargetIp, plg.TargetPort)
+					cancel()
+					return
+				case OKTimeOut:
+					color.Red("爆破过程中连接超时，建议提高参数'timeout'数值影响主机:%s:%s", plg.TargetIp, plg.TargetPort)
+					cancel()
+					return
+				case OKStop:
+					//非协议退出
+					cancel()
+					return
+				default:
+					//密码错误.OKNext
+					plg.TargetProtocol = "[SSH]"
+				}
+			}
+		}(user)
 	}
+	wg.Wait()
 	//未找到密码
-	plg.TargetProtocol = "[SSH]"
-	plg.SSh = append(plg.SSh, Account{})
-	return &plg.SSh[0]
+	if plg.TargetProtocol != "" {
+		plg.SSh = append(plg.SSh, Account{})
+		return &plg.SSh
+	}
+	return nil
 }
 
-func sshConn(plg *Plugins, user string, pass string) (ok bool, stop bool) {
+func sshConn(plg *Plugins, user string, pass string) (ok int) {
+	ok = OKNext
 	config := &ssh.ClientConfig{
 		User: user,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(pass),
 		},
-		Timeout: time.Duration(plg.TimeOut) * time.Millisecond,
-		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
-			return nil
-		},
+		Timeout:         time.Duration(plg.TimeOut) * time.Millisecond,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 	conn, err := net.DialTimeout("tcp4",
 		fmt.Sprintf("%v:%v", plg.TargetIp, plg.TargetPort), time.Duration(plg.TimeOut)*time.Millisecond)
@@ -54,18 +96,29 @@ func sshConn(plg *Plugins, user string, pass string) (ok bool, stop bool) {
 		return
 	}
 	defer conn.Close()
+
 	err = conn.SetReadDeadline(time.Now().Add(time.Duration(plg.TimeOut) * time.Millisecond))
 	if err != nil {
 		return
 	}
-	clientConn, channelCh, reqCh, err := ssh.NewClientConn(conn, "tcp", config)
+	clientConn, channelCh, reqCh, err := ssh.NewClientConn(conn, fmt.Sprintf("%v:%v", plg.TargetIp, plg.TargetPort), config)
 	if err != nil {
-		if strings.Contains(err.Error(), "unable to authenticate") {
+		if strings.Contains(err.Error(), "password") {
 			//密码错误
 			return
 		}
+		if strings.Contains(err.Error(), "connection reset by peer") {
+			//连接限制
+			ok = OKWait
+			return
+		}
+		if strings.Contains(err.Error(), "i/o timeout") {
+			ok = OKTimeOut
+			return
+		}
+		//color.Red(err.Error() + plg.TargetIp + plg.TargetPort + user + pass)
 		//协议异常
-		stop = true
+		ok = OKStop
 		return
 	}
 	defer clientConn.Close()
@@ -82,7 +135,7 @@ func sshConn(plg *Plugins, user string, pass string) (ok bool, stop bool) {
 	session, err := client.NewSession()
 	if err == nil {
 		session.Close()
-		ok = true
+		ok = OKDone
 	}
 	return
 

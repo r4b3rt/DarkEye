@@ -12,13 +12,14 @@ import (
 
 func New(ip string) *Scan {
 	return &Scan{
-		Ip:                 ip,
-		ActivePort:         "80",
-		PortRange:          common.PortList,
-		PortsScannedOpened: make([]plugins.Plugins, 0),
-		Callback:           callback,
-		BarCallback:        barCallback,
-		ThreadNumber:       200, //unlimited
+		Ip:                     ip,
+		ActivePort:             "80",
+		PortRange:              common.PortList,
+		PortsScannedOpened:     make([]plugins.Plugins, 0),
+		Callback:               callback,
+		BarCallback:            barCallback,
+		ThreadNumber:           200,
+		BarDescriptionCallback: descCallback,
 	}
 }
 
@@ -55,11 +56,13 @@ func (s *Scan) Check(p int) {
 		s.BarCallback(1)
 	}()
 	plg := plugins.Plugins{
-		TargetIp:   s.Ip,
-		TargetPort: strconv.Itoa(p),
-		TimeOut:    s.TimeOut,
-		PortOpened: false,
-		NoTrust:    s.NoTrust,
+		TargetIp:     s.Ip,
+		TargetPort:   strconv.Itoa(p),
+		TimeOut:      s.TimeOut,
+		PortOpened:   false,
+		NoTrust:      s.NoTrust,
+		Worker:       s.PluginWorker,
+		DescCallback: s.BarDescriptionCallback,
 	}
 	plg.Check()
 	if !plg.PortOpened {
@@ -92,5 +95,9 @@ func callback(a []byte) {
 }
 
 func barCallback(i int) {
+	fmt.Println("Bar callback")
+}
+
+func descCallback(i string) {
 	fmt.Println("Bar callback")
 }

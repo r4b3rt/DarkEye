@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	checkFuncs          = map[int]func(*Plugins) interface{}{}
+	checkFuncs         = map[int]func(*Plugins) interface{}{}
 )
 
 func (plg *Plugins) Check() {
@@ -23,7 +23,11 @@ func (plg *Plugins) Check() {
 
 	for i < PluginNR {
 		if p := checkFuncs[i](plg); p != nil {
-			color.Yellow("\n%s %s:%s %v\n", plg.TargetProtocol, plg.TargetIp, plg.TargetPort, p)
+			if plg.highLight {
+				color.Green("\n%s %s:%s %v\n", plg.TargetProtocol, plg.TargetIp, plg.TargetPort, p)
+			} else {
+				color.Yellow("\n%s %s:%s %v\n", plg.TargetProtocol, plg.TargetIp, plg.TargetPort, p)
+			}
 			break
 		}
 		i++

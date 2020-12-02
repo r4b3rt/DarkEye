@@ -10,32 +10,32 @@ import (
 	"github.com/schollz/progressbar"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"runtime"
 	"strings"
 	"sync"
 	"syscall"
-	//_ "net/http/pprof"
 )
 
 var (
-	mIp          = flag.String("ip", "127.0.0.1", "a.b.c.1-254")
-	mTimeOut     = flag.Int("timeout", 3000, "单位ms")
-	mThread      = flag.Int("thread", 32, "扫单IP线程数")
-	mPortList    = flag.String("port-list", common.PortList, "端口范围,默认1000+常用端口")
-	mNoTrust     = flag.Bool("no-trust", false, "由端口判定协议改为指纹方式判断协议,速度慢点")
-	mActivePort  = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
-	mMaxIPDetect = 16
-	mFile        *os.File
-	mCsvWriter   *csv.Writer
-	mFileName    string
+	mIp           = flag.String("ip", "127.0.0.1", "a.b.c.1-254")
+	mTimeOut      = flag.Int("timeout", 3000, "单位ms")
+	mThread       = flag.Int("thread", 32, "扫单IP线程数")
+	mPortList     = flag.String("port-list", common.PortList, "端口范围,默认1000+常用端口")
+	mNoTrust      = flag.Bool("no-trust", false, "由端口判定协议改为指纹方式判断协议,速度慢点")
+	mPluginWorker = flag.Int("plugin-worker", 2, "单协议爆破密码时，线程个数")
+	mActivePort   = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
+	mMaxIPDetect  = 16
+	mFile         *os.File
+	mCsvWriter    *csv.Writer
+	mFileName     string
+	mBar          *progressbar.ProgressBar
 )
 
 var (
 	mScans = make([]*Scan, 0)
-	//进度条
-	Bar     = &progressbar.ProgressBar{}
-	BarDesc = make(chan *BarValue, 64)
 	//记录文件
 	mFileSync = sync.RWMutex{}
 )
@@ -61,11 +61,11 @@ func main() {
 	color.Yellow("\n一键端口发现、POC检测、弱口令检测\n\n")
 	flag.Parse()
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	/* debug runtime
-		go func() {
-			fmt.Println(http.ListenAndServe("localhost:10000", nil))
-		}()
-	*/
+	//  debug/pprof/
+	go func() {
+		fmt.Println(http.ListenAndServe("localhost:10000", nil))
+	}()
+
 	Start()
 }
 
@@ -83,7 +83,7 @@ func Start() {
 			if start > end {
 				break
 			}
-			s := NewScan(fmt.Sprintf("%s.%d", base, start))
+			s := NewScan(common.GenIP(base, start))
 			s.ActivePort = "0"
 			_, t := common.GetPortRange(s.PortRange)
 			tot += t
@@ -101,7 +101,7 @@ func Start() {
 	color.Green(fmt.Sprintf("已加载%d个IP,共计%d个端口,启动检测线程数%d,同时可检测IP数量%d,系统资源上限为%v",
 		len(mScans), tot, *mThread, mMaxIPDetect, rLimit))
 	//建立进度条
-	Bar = NewBar(tot)
+	mBar = NewBar(tot)
 	if len(mScans) == 1 {
 		//单IP支持校正
 		mScans[0].ActivePort = *mActivePort
@@ -123,16 +123,24 @@ func Start() {
 
 func NewScan(ip string) *Scan {
 	return &Scan{
-		Ip:                 ip,
-		TimeOut:            *mTimeOut,
-		ActivePort:         *mActivePort,
-		PortRange:          *mPortList,
-		ThreadNumber:       *mThread,
-		NoTrust:            *mNoTrust,
-		PortsScannedOpened: make([]plugins.Plugins, 0),
-		Callback:           myCallback,
-		BarCallback:        myBarCallback,
+		Ip:                     ip,
+		TimeOut:                *mTimeOut,
+		ActivePort:             *mActivePort,
+		PortRange:              *mPortList,
+		ThreadNumber:           *mThread,
+		NoTrust:                *mNoTrust,
+		PluginWorker:           *mPluginWorker,
+		PortsScannedOpened:     make([]plugins.Plugins, 0),
+		Callback:               myCallback,
+		BarCallback:            myBarCallback,
+		BarDescriptionCallback: myBarDescUpdate,
 	}
+}
+
+func myBarDescUpdate(a string) {
+	mBar.Describe(a)
+	mBar.Add(0)
+
 }
 
 func myCallback(result []byte) {
@@ -145,7 +153,7 @@ func myCallback(result []byte) {
 }
 
 func myBarCallback(i int) {
-	_ = Bar.Add(i)
+	_ = mBar.Add(i)
 }
 
 func NewBar(max int) *progressbar.ProgressBar {

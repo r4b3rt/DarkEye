@@ -39,7 +39,7 @@ func sshCheck(plg *Plugins) interface{} {
 			}
 			for _, pass := range sshPassword {
 				pass = strings.Replace(pass, "%user%", username, -1)
-				plg.DescCallback(fmt.Sprintf("Cracking %s:%s %s/%s",
+				plg.DescCallback(fmt.Sprintf("Cracking ssh %s:%s %s/%s",
 					plg.TargetIp, plg.TargetPort, username, pass))
 				ok := sshConn(plg, username, pass)
 				switch ok {
@@ -53,11 +53,11 @@ func sshCheck(plg *Plugins) interface{} {
 					return
 				case OKWait:
 					//太快了服务器限制
-					color.Red("爆破频率太快服务器受限，建议降低参数'plugin-worker'数值影响主机:%s:%s", plg.TargetIp, plg.TargetPort)
+					color.Red("[ssh]爆破频率太快服务器受限，建议降低参数'plugin-worker'数值影响主机:%s:%s", plg.TargetIp, plg.TargetPort)
 					cancel()
 					return
 				case OKTimeOut:
-					color.Red("爆破过程中连接超时，建议提高参数'timeout'数值影响主机:%s:%s", plg.TargetIp, plg.TargetPort)
+					color.Red("[ssh]爆破过程中连接超时，建议提高参数'timeout'数值影响主机:%s:%s", plg.TargetIp, plg.TargetPort)
 					cancel()
 					return
 				case OKStop:
@@ -74,7 +74,6 @@ func sshCheck(plg *Plugins) interface{} {
 	wg.Wait()
 	//未找到密码
 	if plg.TargetProtocol != "" {
-		plg.SSh = append(plg.SSh, Account{})
 		return &plg.SSh
 	}
 	return nil

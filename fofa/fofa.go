@@ -70,7 +70,7 @@ func (f *Fofa) runIP() {
 			if common.ShouldStop(&f.Stop) {
 				break
 			}
-			f.get(fmt.Sprintf("%s.%d", base, start))
+			f.get(common.GenIP(base, start))
 			start++
 			//学做人，防止fofa封
 			time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))

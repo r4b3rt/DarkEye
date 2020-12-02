@@ -27,12 +27,12 @@ func mysqlCheck(plg *Plugins) interface{} {
 				<-limiter
 				wg.Done()
 			}()
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
 			for _, pass := range mysqlPassword {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
 				pass = strings.Replace(pass, "%user%", username, -1)
 				plg.DescCallback(fmt.Sprintf("Cracking mysql %s:%s %s/%s",
 					plg.TargetIp, plg.TargetPort, username, pass))

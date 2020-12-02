@@ -22,17 +22,11 @@ func GetIPRange(ip string) (base string, start, end int, err error) {
 	ipStart := fromTo[0]
 	err = fmt.Errorf(LogBuild("common.func", "IP格式错误(eg. 1.1.1.1-3)", FAULT))
 
-	start = 1
+	start = 0
 	tIp := strings.Split(ipStart, ".")
-	if len(tIp) == 4 {
-		start, _ = strconv.Atoi(tIp[len(tIp) - 1])
-	}
 	end = start
 	if len(fromTo) == 2 {
 		end, _ = strconv.Atoi(fromTo[1])
-	}
-	if end == 0 {
-		return
 	}
 	for _,v := range tIp {
 		base += fmt.Sprintf("%s.", v)

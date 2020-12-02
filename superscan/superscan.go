@@ -10,8 +10,7 @@ import (
 	"github.com/schollz/progressbar"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
-	"net/http"
-	_ "net/http/pprof"
+	//	_ "net/http/pprof"
 	"os"
 	"runtime"
 	"strings"
@@ -40,11 +39,6 @@ var (
 	mFileSync = sync.RWMutex{}
 )
 
-type BarValue struct {
-	Key   string
-	Value string
-}
-
 func init() {
 	var err error
 	_, mFile, mFileName, err = common.CreateCSV("portScan",
@@ -61,11 +55,12 @@ func main() {
 	color.Yellow("\n一键端口发现、POC检测、弱口令检测\n\n")
 	flag.Parse()
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	//  debug/pprof/
+	//  debug/pprof
+	/*
 	go func() {
 		fmt.Println(http.ListenAndServe("localhost:10000", nil))
 	}()
-
+	*/
 	Start()
 }
 
@@ -139,13 +134,13 @@ func NewScan(ip string) *Scan {
 
 func myBarDescUpdate(a string) {
 	mBar.Describe(a)
-	mBar.Add(0)
-
+	_ = mBar.RenderBlank()
 }
 
 func myCallback(result []byte) {
 	plg := plugins.Plugins{}
 	_ = json.Unmarshal(result, &plg)
+
 	mFileSync.Lock()
 	defer mFileSync.Unlock()
 	_ = mCsvWriter.Write([]string{plg.TargetIp, string(result)})
@@ -167,9 +162,15 @@ func NewBar(max int) *progressbar.ProgressBar {
 			_, _ = fmt.Fprint(os.Stderr, "\n扫描任务完成")
 		}),
 		progressbar.OptionSpinnerType(14),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "=",
+			SaucerHead:    ">",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}),
 		progressbar.OptionFullWidth(),
 	)
-
 	_ = bar.RenderBlank()
 	return bar
 }

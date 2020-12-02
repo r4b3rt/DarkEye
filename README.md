@@ -1,7 +1,9 @@
 # DarkEye
-
-DarkEye项目旨为收集目标信息，如实反馈结果，无主观判断。DarkEye从互联网（SecurityTrails、FoFa、google）收集情报或目标公开的接口信息，仅做汇总并不做分析，本项目不具备攻击性，漏洞的利用主要依靠人或其它工具来支撑。
-
+```
+本项目旨为从互联网收集目标信息，如实反馈结果。
+信息主要来源：SecurityTrails、FoFa、google、网站API接口。
+本项目不具备攻击性，漏洞的利用分析主要依靠人。
+```
 功能介绍
 ===
 ### 超级扫描
@@ -10,7 +12,7 @@ DarkEye项目旨为收集目标信息，如实反馈结果，无主观判断。D
 2、常用协议弱口令爆破
 3、支持获取标题和中间件
 4、绕过防火墙频率限制扫描（限单IP）
-5、收集结果自动保存为csv报告
+5、收集结果自动报告输出
 ```
 
 ### 信息搜集
@@ -22,16 +24,16 @@ DarkEye项目旨为收集目标信息，如实反馈结果，无主观判断。D
 5、支持长亭xray官方poc解析，poc文件可从下列列表白嫖：
     https://github.com/chaitin/xray/tree/master/pocs
     https://github.com/Laura0xiaoshizi/xray_pocs
+6、收集结果自动报告输出    
 ```
 
 功能截图
 ===
 超级扫描
-![avatar](screenshot/portscan.jpg)
+![avatar](screenshot/superscan.jpg)
 主界面
 ![avatar](screenshot/darkeye.jpg)
-POC扫描
-![avatar](screenshot/pocscan.jpg)
+
 
 
 支持平台

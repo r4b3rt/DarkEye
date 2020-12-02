@@ -1,6 +1,8 @@
 package plugins
 
-import "sync"
+import (
+	"sync"
+)
 
 type Web struct {
 	Server string `json:",omitempty"`

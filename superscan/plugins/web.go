@@ -17,14 +17,14 @@ func webCheck(plg *Plugins) interface{} {
 	plg.Web.Server, plg.Web.Title = common.GetHttpTitle("http", plg.TargetIp+":"+plg.TargetPort, timeOutSec)
 	//部分http访问https有title
 	if strings.Contains(plg.Web.Title, "The plain HTTP request was sent to HTTPS port") {
-		plg.TargetProtocol = "[WEB]"
+		plg.TargetProtocol = "[web]"
 		plg.Web.Title = ""
 	}
 	if plg.Web.Server == "" && plg.Web.Title == "" {
 		plg.Web.Server, plg.Web.Title = common.GetHttpTitle("https", plg.TargetIp+":"+plg.TargetPort, timeOutSec)
 	}
 	if plg.Web.Server != "" || plg.Web.Title != "" {
-		plg.TargetProtocol = "[WEB]"
+		plg.TargetProtocol = "[web]"
 		return &plg.Web
 	} else {
 		return nil

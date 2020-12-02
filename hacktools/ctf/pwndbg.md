@@ -1,4 +1,4 @@
-#全局
+# 全局
 关闭地址随机化: 
 ```
 echo 0 >/proc/sys/kernel/randomize_va_space

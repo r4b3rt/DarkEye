@@ -4,7 +4,7 @@ export GO111MODULE=off
 
 build_hackTools() {
     os=$1
-    cd hacktools/portscan && ./build.sh mac && mv portscan ../../dist/portscan.${os}
+    cd superscan && ./build.sh $os && mv superscan ../../dist/portscan.${os}
 }
 
 build_mac() {

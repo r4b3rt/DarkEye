@@ -68,7 +68,7 @@ func pocMS17010(plg *Plugins) (vul bool) {
 		byteCount := binary.LittleEndian.Uint16(sessionSetupResponse[7:9])
 		if n != int(byteCount)+45 {
 		} else {
-			// two continous null bytes indicates end of a unicode string
+			// two continues null bytes indicates end of a unicode string
 			for i := 10; i < len(sessionSetupResponse)-1; i++ {
 				if sessionSetupResponse[i] == 0 && sessionSetupResponse[i+1] == 0 {
 					plg.Ms17010.os = string(sessionSetupResponse[10:i])

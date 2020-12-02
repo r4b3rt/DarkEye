@@ -20,7 +20,7 @@ func (f *Fofa) get(query string) {
 			"User-Agent": userAgent,
 			"Cookie":     cookie,
 		},
-		TimeOut: time.Duration(5 + f.Interval),
+		TimeOut: time.Duration(f.Interval),
 		Method:  "GET",
 	}
 	//获取首页面
@@ -32,14 +32,12 @@ func (f *Fofa) get(query string) {
 			fmt.Sprintf("%s: 无页码", query), common.FAULT)
 		return
 	}
-	pageNr := 1
+	pageNr := 0
 	pageNum := pageRe.FindSubmatch(body)
-	if len(pageNum) < 1 {
-		pageNr = 0
-	} else {
+	if len(pageNum) >= 1 {
 		pageNr, _ = strconv.Atoi(string(pageNum[1]))
 	}
-	//非授权的只能获取f.Pages=5页
+	//非授权的只能获取f.Pages=5页,单IP5页基本够用
 	if pageNr > f.Pages {
 		pageNr = f.Pages
 	}

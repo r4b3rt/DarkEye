@@ -23,7 +23,7 @@ type Fofa struct {
 
 func NewConfig() Fofa {
 	return Fofa{
-		Interval:    6,
+		Interval:    3,
 		Pages:       5,
 		FofaSession: "_fofapro_ars_session=Your-Cookie",
 	}

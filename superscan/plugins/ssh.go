@@ -1,13 +1,10 @@
 package plugins
 
 import (
-	"context"
 	"fmt"
-	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh"
 	"net"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -16,69 +13,11 @@ var (
 	sshPassword = make([]string, 0)
 )
 
-func sshCheck(plg *Plugins) interface{} {
+func sshCheck(plg *Plugins) {
 	if !plg.NoTrust && plg.TargetPort != "22" {
-		return nil
+		return
 	}
-	plg.SSh = make([]Account, 0)
-	wg := sync.WaitGroup{}
-	wg.Add(len(sshUsername))
-	limiter := make(chan int, plg.Worker)
-	ctx, cancel := context.WithCancel(context.TODO())
-	for _, user := range sshUsername {
-		limiter <- 1
-		go func(username string) {
-			defer func() {
-				<-limiter
-				wg.Done()
-			}()
-			for _, pass := range sshPassword {
-				select {
-				case <-ctx.Done():
-					return
-				default:
-				}
-				pass = strings.Replace(pass, "%user%", username, -1)
-				plg.DescCallback(fmt.Sprintf("Cracking ssh %s:%s %s/%s",
-					plg.TargetIp, plg.TargetPort, username, pass))
-				ok := sshConn(plg, username, pass)
-				switch ok {
-				case OKDone:
-					//密码正确一次退出
-					plg.locker.Lock()
-					plg.SSh = append(plg.SSh, Account{Username: username, Password: pass})
-					plg.locker.Unlock()
-					plg.highLight = true
-					cancel()
-					return
-				case OKWait:
-					//太快了服务器限制
-					color.Red("[ssh]爆破受限，建议降低参数'plugin-worker'数值.影响主机:%s:%s",
-						plg.TargetIp, plg.TargetPort)
-					cancel()
-					return
-				case OKTimeOut:
-					color.Red("[ssh]爆破超时，建议提高参数'timeout'数值.影响主机:%s:%s",
-						plg.TargetIp, plg.TargetPort)
-					cancel()
-					return
-				case OKStop:
-					//非协议退出
-					cancel()
-					return
-				default:
-					//密码错误.OKNext
-					plg.TargetProtocol = "[ssh]"
-				}
-			}
-		}(user)
-	}
-	wg.Wait()
-	//未找到密码
-	if plg.TargetProtocol != "" {
-		return &plg.SSh
-	}
-	return nil
+	crack("[ssh]", plg, sshUsername, sshPassword, sshConn)
 }
 
 func sshConn(plg *Plugins, user string, pass string) (ok int) {

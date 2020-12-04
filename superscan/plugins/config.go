@@ -26,7 +26,7 @@ type NetBios struct {
 type Plugins struct {
 	PortOpened bool
 	Web        Web       `json:",omitempty"`
-	SSh        []Account `json:",omitempty"`
+	Cracked    []Account `json:",omitempty"`
 	Mysql      []Account `json:",omitempty"`
 	NetBios    NetBios   `json:",omitempty"`
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/zsdevX/DarkEye/superscan/plugins"
+	"golang.org/x/time/rate"
 	"sync"
 )
 
@@ -15,11 +16,12 @@ type Scan struct {
 	PluginWorker int
 
 	//任务执行结果
+	Rate               *rate.Limiter
 	TimeOut            int               `json:"timeout"`
 	PortsScannedOpened []plugins.Plugins `json:"ports_opened"`
 	//用于回显示
-	Callback              func([]byte)   `json:"-"`
-	BarCallback           func(i int)    `json:"-"`
+	Callback               func([]byte)   `json:"-"`
+	BarCallback            func(i int)    `json:"-"`
 	BarDescriptionCallback func(i string) `json:"-"`
-	lock                  sync.RWMutex
+	lock                   sync.RWMutex
 }

@@ -10,6 +10,9 @@ import (
 	"github.com/schollz/progressbar"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
+	"golang.org/x/time/rate"
+	"time"
+
 	//	_ "net/http/pprof"
 	"os"
 	"runtime"
@@ -25,12 +28,14 @@ var (
 	mPortList     = flag.String("port-list", common.PortList, "端口范围,默认1000+常用端口")
 	mNoTrust      = flag.Bool("no-trust", false, "由端口判定协议改为指纹方式判断协议,速度慢点")
 	mPluginWorker = flag.Int("plugin-worker", 2, "单协议爆破密码时，线程个数")
+	mRateLimiter  = flag.Int("pps", 0, "扫描工具整体发包频率n/秒, 该选项可避免线程过多发包会占有带宽导致丢失目标端口")
 	mActivePort   = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
 	mMaxIPDetect  = 16
 	mFile         *os.File
 	mCsvWriter    *csv.Writer
 	mFileName     string
 	mBar          *progressbar.ProgressBar
+	mPps          *rate.Limiter
 )
 
 var (
@@ -55,6 +60,11 @@ func main() {
 	color.Yellow("\n一键端口发现、POC检测、弱口令检测\n\n")
 	flag.Parse()
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	if *mRateLimiter > 0 {
+		//每秒发包*mRateLimiter，缓冲10个
+		mPps = rate.NewLimiter(rate.Every(1000000*time.Microsecond/time.Duration(*mRateLimiter)), 10)
+		color.Green("rate limit enable <= %v pps\n", mPps.Limit())
+	}
 	//  debug/pprof
 	/*
 	go func() {
@@ -124,6 +134,7 @@ func NewScan(ip string) *Scan {
 		PortRange:              *mPortList,
 		ThreadNumber:           *mThread,
 		NoTrust:                *mNoTrust,
+		Rate:                   mPps,
 		PluginWorker:           *mPluginWorker,
 		PortsScannedOpened:     make([]plugins.Plugins, 0),
 		Callback:               myCallback,

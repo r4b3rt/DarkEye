@@ -23,7 +23,6 @@ func sshCheck(plg *Plugins) interface{} {
 	plg.SSh = make([]Account, 0)
 	wg := sync.WaitGroup{}
 	wg.Add(len(sshUsername))
-	var once sync.Once
 	limiter := make(chan int, plg.Worker)
 	ctx, cancel := context.WithCancel(context.TODO())
 	for _, user := range sshUsername {
@@ -50,22 +49,22 @@ func sshCheck(plg *Plugins) interface{} {
 					plg.SSh = append(plg.SSh, Account{Username: username, Password: pass})
 					plg.locker.Unlock()
 					plg.highLight = true
-					once.Do(func() { cancel() })
+					cancel()
 					return
 				case OKWait:
 					//太快了服务器限制
-					color.Red("[ssh]爆破频率太快服务器受限，建议降低参数'plugin-worker'数值影响主机:%s:%s",
+					color.Red("[ssh]爆破受限，建议降低参数'plugin-worker'数值.影响主机:%s:%s",
 						plg.TargetIp, plg.TargetPort)
-					once.Do(func() { cancel() })
+					cancel()
 					return
 				case OKTimeOut:
-					color.Red("[ssh]爆破过程中连接超时，建议提高参数'timeout'数值影响主机:%s:%s",
+					color.Red("[ssh]爆破超时，建议提高参数'timeout'数值.影响主机:%s:%s",
 						plg.TargetIp, plg.TargetPort)
-					once.Do(func() { cancel() })
+					cancel()
 					return
 				case OKStop:
 					//非协议退出
-					once.Do(func() { cancel() })
+					cancel()
 					return
 				default:
 					//密码错误.OKNext
@@ -83,6 +82,7 @@ func sshCheck(plg *Plugins) interface{} {
 }
 
 func sshConn(plg *Plugins, user string, pass string) (ok int) {
+	plg.RateWait(plg.RateLimiter) //爆破限制
 	ok = OKNext
 	config := &ssh.ClientConfig{
 		User: user,

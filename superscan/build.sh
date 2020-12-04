@@ -15,8 +15,8 @@ build_mac() {
 }
 
 clean() {
-    rm -f lowSpeedPortScan*
-    rm -f lowspeedportscan.cfg
+    rm -f superscan
+    rm -f superscan.exe
     rm -f *.csv
 }
 

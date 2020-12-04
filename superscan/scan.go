@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
+	"golang.org/x/time/rate"
 	"strconv"
 	"sync"
 	"time"
@@ -24,6 +26,7 @@ func New(ip string) *Scan {
 }
 
 func (s *Scan) Run() {
+	s.preCheck()
 	fromTo, tot := common.GetPortRange(s.PortRange)
 	taskAlloc := make(chan int, s.ThreadNumber)
 	wg := sync.WaitGroup{}
@@ -62,7 +65,9 @@ func (s *Scan) Check(p int) {
 		PortOpened:   false,
 		NoTrust:      s.NoTrust,
 		Worker:       s.PluginWorker,
+		RateLimiter:  s.Rate,
 		DescCallback: s.BarDescriptionCallback,
+		RateWait:     rateWait,
 	}
 	plg.Check()
 	if !plg.PortOpened {
@@ -73,6 +78,17 @@ func (s *Scan) Check(p int) {
 	defer s.lock.Unlock()
 	s.PortsScannedOpened = append(s.PortsScannedOpened, plg)
 	s.Callback(resultStr)
+}
+
+func (s *Scan) preCheck() {
+	plg := plugins.Plugins{
+		TargetIp:    s.Ip,
+		TargetPort:  "137",
+		RateLimiter: mPps,
+		RateWait:    rateWait,
+		TimeOut:     s.TimeOut,
+	}
+	plg.PreCheck()
 }
 
 func (s *Scan) IsFireWallNotForbidden() bool {
@@ -88,6 +104,20 @@ func (s *Scan) IsFireWallNotForbidden() bool {
 		maxRetries --
 	}
 	return false
+}
+
+func rateWait(r *rate.Limiter) {
+	if r == nil {
+		return
+	}
+	for {
+		if r.Allow() {
+			color.Red("allow %v %v", time.Now().Second(), r)
+			break
+		} else {
+			time.Sleep(time.Millisecond * 100)
+		}
+	}
 }
 
 func callback(a []byte) {

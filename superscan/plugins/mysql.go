@@ -5,10 +5,11 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 	"strings"
 	"sync"
 	"time"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 func mysqlCheck(plg *Plugins) interface{} {
@@ -75,11 +76,13 @@ func mysqlCheck(plg *Plugins) interface{} {
 }
 
 func MysqlConn(plg *Plugins, user string, pass string) (ok int) {
+	plg.RateWait(plg.RateLimiter) //爆破限制
 	ok = OKNext
 	db, err := sql.Open("mysql",
-		fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8", user, pass, plg.TargetIp, plg.TargetPort, "mysql"))
+		fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?timeout=%dms&readTimeout=%dms",
+			user, pass, plg.TargetIp, plg.TargetPort, "mysql", plg.TimeOut, plg.TimeOut))
 	if err != nil {
-		color.Red(err.Error())
+		color.Green(err.Error())
 		if strings.Contains(err.Error(), "password") {
 			return
 		}
@@ -97,7 +100,7 @@ func MysqlConn(plg *Plugins, user string, pass string) (ok int) {
 			ok = OKStop
 			return
 		}
-		//非Mysql协议或受限制
+		//非协议或受限制
 		ok = OKStop
 		return
 	}
@@ -106,8 +109,23 @@ func MysqlConn(plg *Plugins, user string, pass string) (ok int) {
 	err = db.Ping()
 	if err == nil {
 		ok = OKDone
+	} else {
+		//非协议
+		ok = OKStop
 	}
 	return
+}
+
+//接管mysql的垃圾日志
+type mysqlLogger interface {
+	Print(v ...interface{})
+}
+
+type mysqlNoLogger struct {
+}
+
+func (*mysqlNoLogger) Print(v ...interface{}) {
+
 }
 
 var (
@@ -119,4 +137,5 @@ func init() {
 	checkFuncs[MysqlSrv] = mysqlCheck
 	mysqlUsername = loadDic("username_mysql.txt")
 	mysqlPassword = loadDic("password_mysql.txt")
+	_ = mysql.SetLogger(mysqlLogger(&mysqlNoLogger{}))
 }

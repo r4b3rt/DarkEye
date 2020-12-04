@@ -95,7 +95,7 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 	return &response, nil
 }
 
-func GetHttpTitle(proto, domain string, timeOutSec int) (server, title string) {
+func GetHttpTitle(proto, domain string, timeOutSec int) (server, title string, code int32) {
 	url := fmt.Sprintf(proto+"://%s", domain)
 	userAgent := UserAgents[0]
 	req := HttpRequest{
@@ -115,6 +115,7 @@ func GetHttpTitle(proto, domain string, timeOutSec int) (server, title string) {
 	if err != nil {
 		return
 	}
+	code = response.Status
 	t := htmlquery.Find(doc, "//title")
 	if len(t) != 0 {
 		title = htmlquery.InnerText(t[0])

@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
 	"golang.org/x/time/rate"
@@ -112,7 +111,6 @@ func rateWait(r *rate.Limiter) {
 	}
 	for {
 		if r.Allow() {
-			color.Red("allow %v %v", time.Now().Second(), r)
 			break
 		} else {
 			time.Sleep(time.Millisecond * 100)

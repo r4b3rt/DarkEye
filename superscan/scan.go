@@ -113,7 +113,7 @@ func rateWait(r *rate.Limiter) {
 		if r.Allow() {
 			break
 		} else {
-			time.Sleep(time.Millisecond * 100)
+			time.Sleep(time.Millisecond * 10)
 		}
 	}
 }

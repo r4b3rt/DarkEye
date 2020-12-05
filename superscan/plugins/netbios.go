@@ -69,7 +69,7 @@ func nbCheck(plg *Plugins) {
 	if reply.Header.RecordType != 0x21 {
 		return
 	}
-	plg.TargetProtocol = "[netbios]"
+	plg.TargetProtocol = "netbios"
 	plg.PortOpened = true
 	plg.NetBios.HostName = strings.TrimSpace(strings.Replace(string(reply.HostName[:]), "\x00", "", -1))
 	plg.NetBios.UserName = strings.TrimSpace(strings.Replace(string(reply.UserName[:]), "\x00", "", -1))

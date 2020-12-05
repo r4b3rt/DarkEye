@@ -13,11 +13,17 @@ var (
 	sshPassword = make([]string, 0)
 )
 
+func init() {
+	checkFuncs[SSHSrv] = sshCheck
+	sshUsername = loadDic("username_ssh.txt")
+	sshPassword = loadDic("password_ssh.txt")
+}
+
 func sshCheck(plg *Plugins) {
 	if !plg.NoTrust && plg.TargetPort != "22" {
 		return
 	}
-	crack("[ssh]", plg, sshUsername, sshPassword, sshConn)
+	crack("ssh", plg, sshUsername, sshPassword, sshConn)
 }
 
 func sshConn(plg *Plugins, user string, pass string) (ok int) {
@@ -80,10 +86,4 @@ func sshConn(plg *Plugins, user string, pass string) (ok int) {
 	}
 	return
 
-}
-
-func init() {
-	checkFuncs[SSHSrv] = sshCheck
-	sshUsername = loadDic("username_ssh.txt")
-	sshPassword = loadDic("password_ssh.txt")
 }

@@ -46,6 +46,9 @@ type Plugins struct {
 const (
 	SSHSrv = iota
 	MysqlSrv
+	RedisSrv
+	FtpSrv
+	MongoSrv
 	WEBSrv  //放到最后
 	PluginNR
 )
@@ -56,5 +59,7 @@ const (
 	OKTimeOut
 	OKDone
 	OKNext
+	OKForbidden
+	OKNoauth
 	OKStop
 )

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
 	"golang.org/x/time/rate"
@@ -16,7 +14,6 @@ func New(ip string) *Scan {
 		Ip:                     ip,
 		ActivePort:             "80",
 		PortRange:              common.PortList,
-		PortsScannedOpened:     make([]plugins.Plugins, 0),
 		Callback:               callback,
 		BarCallback:            barCallback,
 		ThreadNumber:           200,
@@ -72,11 +69,7 @@ func (s *Scan) Check(p int) {
 	if !plg.PortOpened {
 		return
 	}
-	resultStr, _ := json.Marshal(&plg)
-	s.lock.Lock()
-	defer s.lock.Unlock()
-	s.PortsScannedOpened = append(s.PortsScannedOpened, plg)
-	s.Callback(resultStr)
+	s.Callback(&plg)
 }
 
 func (s *Scan) preCheck() {
@@ -118,14 +111,14 @@ func rateWait(r *rate.Limiter) {
 	}
 }
 
-func callback(a []byte) {
-	fmt.Println(string(a))
+func callback(a interface{}) {
+	//todo
 }
 
 func barCallback(i int) {
-	fmt.Println("Bar callback")
+	//todo
 }
 
 func descCallback(i string) {
-	fmt.Println("Bar callback")
+	//todo
 }

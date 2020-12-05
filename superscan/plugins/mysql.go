@@ -3,28 +3,38 @@ package plugins
 import (
 	"database/sql"
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"strings"
 	"time"
 )
 
+var (
+	mysqlUsername = make([]string, 0)
+	mysqlPassword = make([]string, 0)
+)
+
+func init() {
+	checkFuncs[MysqlSrv] = mysqlCheck
+	mysqlUsername = loadDic("username_mysql.txt")
+	mysqlPassword = loadDic("password_mysql.txt")
+	_ = mysql.SetLogger(mysqlLogger(&mysqlNoLogger{}))
+}
+
 func mysqlCheck(plg *Plugins) {
 	if !plg.NoTrust && plg.TargetPort != "3306" {
 		return
 	}
-	crack("[mysql]", plg, mysqlUsername, mysqlPassword, mysqlConn)
+	crack("mysql", plg, mysqlUsername, mysqlPassword, mysqlConn)
 }
 
 func mysqlConn(plg *Plugins, user string, pass string) (ok int) {
 	plg.RateWait(plg.RateLimiter) //爆破限制
 	ok = OKNext
-	db, err := sql.Open("mysql",
-		fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?timeout=%dms&readTimeout=%dms",
-			user, pass, plg.TargetIp, plg.TargetPort, "mysql", plg.TimeOut, plg.TimeOut))
+	source := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?timeout=%dms&readTimeout=%dms",
+		user, pass, plg.TargetIp, plg.TargetPort, "mysql", plg.TimeOut, plg.TimeOut)
+	db, err := sql.Open("mysql", source)
 	if err != nil {
-		color.Green(err.Error())
 		if strings.Contains(err.Error(), "password") {
 			return
 		}
@@ -39,10 +49,10 @@ func mysqlConn(plg *Plugins, user string, pass string) (ok int) {
 		}
 		if strings.Contains(err.Error(), "not allowed to connect") {
 			//Mysql配置限制
-			ok = OKStop
+			ok = OKForbidden
 			return
 		}
-		//非协议或受限制
+		//非协议
 		ok = OKStop
 		return
 	}
@@ -52,8 +62,7 @@ func mysqlConn(plg *Plugins, user string, pass string) (ok int) {
 	if err == nil {
 		ok = OKDone
 	} else {
-		//非协议
-		ok = OKStop
+		//MariaDB Open时候会返回正确但这里返回错误
 	}
 	return
 }
@@ -67,16 +76,4 @@ type mysqlNoLogger struct {
 }
 
 func (*mysqlNoLogger) Print(v ...interface{}) {
-}
-
-var (
-	mysqlUsername = make([]string, 0)
-	mysqlPassword = make([]string, 0)
-)
-
-func init() {
-	checkFuncs[MysqlSrv] = mysqlCheck
-	mysqlUsername = loadDic("username_mysql.txt")
-	mysqlPassword = loadDic("password_mysql.txt")
-	_ = mysql.SetLogger(mysqlLogger(&mysqlNoLogger{}))
 }

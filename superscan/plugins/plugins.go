@@ -61,8 +61,21 @@ func loadDic(name string) []string {
 	filename := filepath.Join("dic", fmt.Sprintf("dic_%s", name))
 	file, err := os.Open(filename)
 	if err != nil {
-		color.Red("未发现字典文件:" + filename)
-		return nil
+		defFilename := "username.txt"
+		if strings.Contains(filename, "username") {
+			file, err = os.Open(defFilename)
+		} else {
+			defFilename = "password.txt"
+			file, err = os.Open(defFilename)
+		}
+		if err != nil {
+			color.Red("当前目录未发现字典文件")
+			return nil
+		} else {
+			color.Green("读取字典 %s", defFilename)
+		}
+	} else {
+		color.Green("读取字典 %s", filename)
 	}
 	defer file.Close()
 	result := make([]string, 0)
@@ -106,11 +119,20 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 					pid, plg.TargetIp, plg.TargetPort, username, pass))
 				ok := callback(plg, username, pass)
 				switch ok {
+				case OKNoauth:
+					fallthrough
 				case OKDone:
 					//密码正确一次退出
 					plg.locker.Lock()
+					if pass == "" || ok == OKNoauth {
+						pass = "空"
+					}
+					if username == "" {
+						username = "空"
+					}
 					plg.Cracked = append(plg.Cracked, Account{Username: username, Password: pass})
 					plg.locker.Unlock()
+					plg.TargetProtocol = pid
 					plg.highLight = true
 					cancel()
 					return
@@ -127,6 +149,11 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 					return
 				case OKStop:
 					//非协议退出
+					cancel()
+				case OKForbidden:
+					plg.TargetProtocol = pid
+					color.Red("\n%s服务器配置受限。影响主机:%s:%s",
+						pid, plg.TargetIp, plg.TargetPort)
 					cancel()
 					return
 				default:

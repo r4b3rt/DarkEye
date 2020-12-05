@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/csv"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/fatih/color"
@@ -18,7 +17,6 @@ import (
 	"runtime"
 	"strings"
 	"sync"
-	"syscall"
 )
 
 var (
@@ -46,8 +44,8 @@ var (
 
 func init() {
 	var err error
-	_, mFile, mFileName, err = common.CreateCSV("portScan",
-		[]string{"IP", "端口", "插件扫描信息"})
+	_, mFile, mFileName, err = common.CreateCSV("superScan",
+		[]string{"IP", "端口", "协议", "插件信息"})
 	if err != nil {
 		panic("创建记录文件失败" + err.Error())
 	}
@@ -57,7 +55,8 @@ func init() {
 
 func main() {
 	color.Red(common.Banner)
-	color.Yellow("\n一键端口发现、POC检测、弱口令检测\n\n")
+	color.Yellow("\n一键端口发现、弱口令检测\n\n")
+	color.Yellow("关于字典：\n  方法1: 原'超级弱口令工具'的dic文件夹放入程序目录\n  方法2: 当前目录创建 'username.txt' 和 'password.txt'")
 	flag.Parse()
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	if *mRateLimiter > 0 {
@@ -96,15 +95,9 @@ func Start() {
 			start++
 		}
 	}
-	//设置max file
-	rLimit := syscall.Rlimit{
-		Cur: 65535,
-		Max: 65535,
-	}
-	_ = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-	_ = syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-	color.Green(fmt.Sprintf("已加载%d个IP,共计%d个端口,启动检测线程数%d,同时可检测IP数量%d,系统资源上限为%v",
-		len(mScans), tot, *mThread, mMaxIPDetect, rLimit))
+	setRLimit()
+	color.Green(fmt.Sprintf("已加载%d个IP,共计%d个端口,启动检测线程数%d,同时可检测IP数量%d",
+		len(mScans), tot, *mThread, mMaxIPDetect))
 	//建立进度条
 	mBar = NewBar(tot)
 	if len(mScans) == 1 {
@@ -136,7 +129,6 @@ func NewScan(ip string) *Scan {
 		NoTrust:                *mNoTrust,
 		Rate:                   mPps,
 		PluginWorker:           *mPluginWorker,
-		PortsScannedOpened:     make([]plugins.Plugins, 0),
 		Callback:               myCallback,
 		BarCallback:            myBarCallback,
 		BarDescriptionCallback: myBarDescUpdate,
@@ -148,13 +140,12 @@ func myBarDescUpdate(a string) {
 	_ = mBar.RenderBlank()
 }
 
-func myCallback(result []byte) {
-	plg := plugins.Plugins{}
-	_ = json.Unmarshal(result, &plg)
-
+func myCallback(a interface{}) {
+	plg := a.(*plugins.Plugins)
 	mFileSync.Lock()
 	defer mFileSync.Unlock()
-	_ = mCsvWriter.Write([]string{plg.TargetIp, string(result)})
+	_ = mCsvWriter.Write([]string{plg.TargetIp, plg.TargetPort, plg.TargetProtocol,
+		fmt.Sprintf("%v %v", plg.Cracked, plg.NetBios)})
 	mCsvWriter.Flush()
 }
 

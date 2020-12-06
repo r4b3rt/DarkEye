@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"gopkg.in/mgo.v2"
 	"strings"
 	"time"
@@ -13,8 +14,8 @@ var (
 
 func init() {
 	checkFuncs[MongoSrv] = mongoCheck
-	mongoUsername = loadDic("username_mongodb.txt")
-	mongoPassword = loadDic("password_mongodb.txt")
+	mongoUsername = dic.DIC_USERNAME_MONGODB
+	mongoPassword = dic.DIC_PASSWORD_MONGODB
 }
 
 func mongoCheck(plg *Plugins) {

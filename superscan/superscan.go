@@ -24,6 +24,8 @@ var (
 	mTimeOut      = flag.Int("timeout", 3000, "单位ms")
 	mThread       = flag.Int("thread", 32, "扫单IP线程数")
 	mPortList     = flag.String("port-list", common.PortList, "端口范围,默认1000+常用端口")
+	mUserList     = flag.String("user-file", "", "用户名字典文件")
+	mPassList     = flag.String("pass-file", "", "密码字典文件")
 	mNoTrust      = flag.Bool("no-trust", false, "由端口判定协议改为指纹方式判断协议,速度慢点")
 	mPluginWorker = flag.Int("plugin-worker", 2, "单协议爆破密码时，线程个数")
 	mRateLimiter  = flag.Int("pps", 0, "扫描工具整体发包频率n/秒, 该选项可避免线程过多发包会占有带宽导致丢失目标端口")
@@ -56,8 +58,8 @@ func init() {
 func main() {
 	color.Red(common.Banner)
 	color.Yellow("\n一键端口发现、弱口令检测\n\n")
-	color.Yellow("关于字典：\n  方法1: 原'超级弱口令工具'的dic文件夹放入程序目录\n  方法2: 当前目录创建 'username.txt' 和 'password.txt'")
 	flag.Parse()
+	plugins.SetDicbyFile(*mUserList, *mPassList)
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	if *mRateLimiter > 0 {
 		//每秒发包*mRateLimiter，缓冲10个

@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"github.com/go-redis/redis"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 	"time"
 )
@@ -13,8 +14,8 @@ var (
 
 func init() {
 	checkFuncs[RedisSrv] = redisCheck
-	redisUsername = loadDic("username_redis.txt")
-	redisPassword = loadDic("password_redis.txt")
+	redisUsername = dic.DIC_USERNAME_REDIS
+	redisPassword = dic.DIC_PASSWORD_REDIS
 }
 
 func redisCheck(plg *Plugins) {

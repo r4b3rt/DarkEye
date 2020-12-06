@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 	"time"
 )
@@ -16,8 +17,8 @@ var (
 
 func init() {
 	checkFuncs[MysqlSrv] = mysqlCheck
-	mysqlUsername = loadDic("username_mysql.txt")
-	mysqlPassword = loadDic("password_mysql.txt")
+	mysqlUsername = dic.DIC_USERNAME_MYSQL
+	mysqlPassword = dic.DIC_PASSWORD_MYSQL
 	_ = mysql.SetLogger(mysqlLogger(&mysqlNoLogger{}))
 }
 

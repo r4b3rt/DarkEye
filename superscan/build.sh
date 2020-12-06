@@ -18,9 +18,13 @@ clean() {
     rm -f superscan
     rm -f superscan.exe
     rm -f *.csv
+    rm -f dic/*.go
 }
 
 clean
+
+cd utils && go run dic.go && cd -
+
 case "$1" in
     "mac")
         build_mac

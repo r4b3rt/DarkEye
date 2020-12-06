@@ -3,6 +3,7 @@ package plugins
 import (
 	"fmt"
 	"github.com/jlaffaye/ftp"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"time"
 )
 
@@ -13,8 +14,8 @@ var (
 
 func init() {
 	checkFuncs[FtpSrv] = ftpCheck
-	ftpUsername = loadDic("username_ftp.txt")
-	ftpPassword = loadDic("password_ftp.txt")
+	ftpUsername = dic.DIC_USERNAME_FTP
+	ftpPassword = dic.DIC_PASSWORD_FTP
 }
 
 func ftpCheck(plg *Plugins) {

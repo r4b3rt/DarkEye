@@ -1,19 +1,18 @@
 package plugins
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/zsdevX/DarkEye/common"
-	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 )
 
 var (
 	checkFuncs = map[int]func(*Plugins){}
+	userList   []string
+	passList   []string
 )
 
 func (plg *Plugins) Check() {
@@ -57,46 +56,30 @@ func (plg *Plugins) PreCheck() {
 	}
 }
 
-func loadDic(name string) []string {
-	filename := filepath.Join("dic", fmt.Sprintf("dic_%s", name))
-	file, err := os.Open(filename)
-	if err != nil {
-		defFilename := "username.txt"
-		if strings.Contains(filename, "username") {
-			file, err = os.Open(defFilename)
-		} else {
-			defFilename = "password.txt"
-			file, err = os.Open(defFilename)
-		}
-		if err != nil {
-			color.Red("当前目录未发现字典文件")
-			return nil
-		} else {
-			color.Green("读取字典 %s", defFilename)
-		}
-	} else {
-		color.Green("读取字典 %s", filename)
+func SetDicbyFile(userfile, passfile string) {
+	if userfile != "" {
+		userList = common.GenArraryFromFile(userfile)
 	}
-	defer file.Close()
-	result := make([]string, 0)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		one := scanner.Text()
-		if strings.HasPrefix(one, "#") {
-			continue
-		}
-		one = strings.TrimSpace(one)
-		one = strings.Trim(one, "\r\n")
-		if one == "空" { //超级口令的""特殊表示
-			result = append(result, "")
-		} else {
-			result = append(result, one)
-		}
+	if passfile != "" {
+		passList = common.GenArraryFromFile(passfile)
 	}
-	return result
+	if userList != nil {
+		color.Green("使用用户字典 %s", userfile)
+	}
+	if passList != nil {
+		color.Green("使用密码字典 %s", passfile)
+	}
+	return
 }
 
 func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(*Plugins, string, string) int) {
+	//如果用户指定字典强制切换
+	if userList != nil {
+		dictUser = userList
+	}
+	if passList != nil {
+		dictPass = passList
+	}
 	wg := sync.WaitGroup{}
 	wg.Add(len(dictUser))
 	limiter := make(chan int, plg.Worker)
@@ -114,6 +97,9 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 					return
 				default:
 				}
+				if pass == "空" {
+					pass = ""
+				}
 				pass = strings.Replace(pass, "%user%", username, -1)
 				plg.DescCallback(fmt.Sprintf("Cracking %s %s:%s %s/%s",
 					pid, plg.TargetIp, plg.TargetPort, username, pass))
@@ -126,9 +112,6 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 					plg.locker.Lock()
 					if pass == "" || ok == OKNoauth {
 						pass = "空"
-					}
-					if username == "" {
-						username = "空"
 					}
 					plg.Cracked = append(plg.Cracked, Account{Username: username, Password: pass})
 					plg.locker.Unlock()

@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bufio"
 	"encoding/csv"
 	"os"
 	"path/filepath"
@@ -27,4 +28,24 @@ func CreateCSV(fileName string, cols []string) (*csv.Writer, *os.File, string, e
 	w := csv.NewWriter(f)
 	_ = w.Write(cols)
 	return w, f, fileName, nil
+}
+
+func GenArraryFromFile(filename string) []string{
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil
+	}
+	defer file.Close()
+	result := make([]string, 0)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		one := scanner.Text()
+		if strings.HasPrefix(one, "#") {
+			continue
+		}
+		one = strings.TrimSpace(one)
+		one = strings.Trim(one, "\r\n")
+		result = append(result, one)
+	}
+	return result
 }

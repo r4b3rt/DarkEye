@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"fmt"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"golang.org/x/crypto/ssh"
 	"net"
 	"strings"
@@ -15,8 +16,8 @@ var (
 
 func init() {
 	checkFuncs[SSHSrv] = sshCheck
-	sshUsername = loadDic("username_ssh.txt")
-	sshPassword = loadDic("password_ssh.txt")
+	sshUsername = dic.DIC_USERNAME_SSH
+	sshPassword = dic.DIC_PASSWORD_SSH
 }
 
 func sshCheck(plg *Plugins) {

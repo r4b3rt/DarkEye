@@ -4,7 +4,11 @@ export GO111MODULE=off
 
 build_hackTools() {
     os=$1
-    cd superscan && ./build.sh $os && mv superscan ../../dist/portscan.${os}
+    if [[ "$os" == "win" ]]; then
+        cd superscan && ./build.sh $os && mv superscan.exe ../dist/superscan.${os}
+    else
+        cd superscan && ./build.sh $os && mv superscan ../dist/superscan.${os}
+    fi
 }
 
 build_mac() {
@@ -60,8 +64,7 @@ clean() {
     rm -f *.cpp
     rm -rf darwin
     rm -rf windows
-    rm -rf hacktools/portscan/portscan
-    rm -rf hacktools/portscan/tmp
+    rm -rf superscan/superscan
 }
 
 clean

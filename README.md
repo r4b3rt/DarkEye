@@ -50,9 +50,9 @@
 编译安装
 ===
 
-###环境准备
-####QT环境
-图形界面部分采用qt，需安装qt支持库
+### 环境准备
+#### QT环境
+'信息搜集'的图形界面部分采用qt，需安装qt支持库。
 ```qt
 参考: https://github.com/therecipe/qt/wiki/Installation
 ```

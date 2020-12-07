@@ -14,17 +14,20 @@ func webCheck(plg *Plugins) {
 	if timeOutSec == 0 {
 		timeOutSec = 1
 	}
+	cracked := Account{}
 	plg.RateWait(plg.RateLimiter)
-
-	plg.Web.Server, plg.Web.Title, plg.Web.Code = common.GetHttpTitle("http", plg.TargetIp+":"+plg.TargetPort, timeOutSec)
+	cracked.Server, cracked.Title, cracked.Code = common.GetHttpTitle("http", plg.TargetIp+":"+plg.TargetPort, timeOutSec)
 	//部分http访问https有title
-	if strings.Contains(plg.Web.Title, "The plain HTTP request was sent to HTTPS port") {
-		plg.Web.Title = ""
+	if strings.Contains(cracked.Title, "The plain HTTP request was sent to HTTPS port") {
+		cracked.Title = ""
 	}
-	if plg.Web.Server == "" && plg.Web.Title == "" {
-		plg.Web.Server, plg.Web.Title, plg.Web.Code = common.GetHttpTitle("https", plg.TargetIp+":"+plg.TargetPort, timeOutSec)
+	if cracked.Server == "" && cracked.Title == "" {
+		cracked.Server, cracked.Title, cracked.Code = common.GetHttpTitle("https", plg.TargetIp+":"+plg.TargetPort, timeOutSec)
 	}
-	if plg.Web.Server != "" || plg.Web.Title != "" {
+	if cracked.Server != "" || cracked.Title != "" {
 		plg.TargetProtocol = "web"
+		plg.Lock()
+		plg.Cracked = append(plg.Cracked, cracked)
+		plg.Unlock()
 	}
 }

@@ -147,7 +147,7 @@ func myCallback(a interface{}) {
 	mFileSync.Lock()
 	defer mFileSync.Unlock()
 	_ = mCsvWriter.Write([]string{plg.TargetIp, plg.TargetPort, plg.TargetProtocol,
-		fmt.Sprintf("%v %v", plg.Cracked, plg.NetBios)})
+		fmt.Sprintf("%v", plg.Cracked)})
 	mCsvWriter.Flush()
 }
 

@@ -50,10 +50,14 @@ func (plg *Plugins) Check() {
 func (plg *Plugins) PreCheck() {
 	//预处理
 	//137端口机器检查
+	plg.TargetPort = "137"
 	nbCheck(plg)
+	plg.TargetPort = "445"
+	smbGhostCheck(plg)
+	ms17010Check(plg)
 	if plg.PortOpened {
 		color.Yellow("\n%s %s:%s %v\n",
-			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, plg.NetBios)
+			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, plg.Cracked)
 	}
 }
 
@@ -110,12 +114,12 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 					fallthrough
 				case OKDone:
 					//密码正确一次退出
-					plg.locker.Lock()
+					plg.Lock()
 					if pass == "" || ok == OKNoauth {
 						pass = "空"
 					}
 					plg.Cracked = append(plg.Cracked, Account{Username: username, Password: pass})
-					plg.locker.Unlock()
+					plg.Unlock()
 					plg.TargetProtocol = pid
 					plg.highLight = true
 					cancel()

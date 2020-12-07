@@ -11,11 +11,6 @@ type Web struct {
 	Code   int32  `json:",omitempty"`
 }
 
-type Account struct {
-	Username string `json:",omitempty"`
-	Password string `json:",omitempty"`
-}
-
 type NetBios struct {
 	HostName  string `json:",omitempty"`
 	UserName  string `json:",omitempty"`
@@ -23,12 +18,21 @@ type NetBios struct {
 	Ip        []string
 }
 
+type Poc struct {
+	Desc string `json:",omitempty"`
+}
+
+type Account struct {
+	Username string `json:",omitempty"`
+	Password string `json:",omitempty"`
+	Web      `json:",omitempty"`
+	NetBios  `json:",omitempty"`
+	Poc      `json:",omitempty"`
+}
+
 type Plugins struct {
 	PortOpened bool
-	Web        Web       `json:",omitempty"`
 	Cracked    []Account `json:",omitempty"`
-	Mysql      []Account `json:",omitempty"`
-	NetBios    NetBios   `json:",omitempty"`
 
 	RateLimiter    *rate.Limiter
 	NoTrust        bool `json:",omitempty"`
@@ -40,7 +44,7 @@ type Plugins struct {
 	DescCallback   func(string)
 	RateWait       func(*rate.Limiter)
 	highLight      bool
-	locker         sync.RWMutex
+	sync.RWMutex //protect 'Cracked'
 }
 
 const (
@@ -51,6 +55,7 @@ const (
 	MongoSrv
 	MemoryCacheSrv
 	PostgresSrv
+	MSSQLSrv
 	WEBSrv  //放到最后
 	PluginNR
 )

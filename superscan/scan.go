@@ -75,7 +75,6 @@ func (s *Scan) Check(p int) {
 func (s *Scan) preCheck() {
 	plg := plugins.Plugins{
 		TargetIp:    s.Ip,
-		TargetPort:  "137",
 		RateLimiter: mPps,
 		RateWait:    rateWait,
 		TimeOut:     s.TimeOut,

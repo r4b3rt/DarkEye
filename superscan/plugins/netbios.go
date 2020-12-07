@@ -69,12 +69,18 @@ func nbCheck(plg *Plugins) {
 	if reply.Header.RecordType != 0x21 {
 		return
 	}
+	cracked := Account{}
 	plg.TargetProtocol = "netbios"
 	plg.PortOpened = true
-	plg.NetBios.HostName = strings.TrimSpace(strings.Replace(string(reply.HostName[:]), "\x00", "", -1))
-	plg.NetBios.UserName = strings.TrimSpace(strings.Replace(string(reply.UserName[:]), "\x00", "", -1))
+	cracked.HostName = strings.TrimSpace(strings.Replace(string(reply.HostName[:]), "\x00", "", -1))
+	cracked.UserName = strings.TrimSpace(strings.Replace(string(reply.UserName[:]), "\x00", "", -1))
+	defer func() {
+		plg.Lock()
+		plg.Cracked = append(plg.Cracked, cracked)
+		plg.Unlock()
+	}()
 	//Netbios name
-	if !nbSendRequest(socket, addr, nbCreateNameRequest(plg.NetBios.HostName)) {
+	if !nbSendRequest(socket, addr, nbCreateNameRequest(cracked.HostName)) {
 		return
 	}
 	//Netbios NAME paring
@@ -88,9 +94,9 @@ func nbCheck(plg *Plugins) {
 	if len(reply.Names) == 0 && len(reply.Addresses) == 0 {
 		return
 	}
-	plg.NetBios.Ip = make([]string, 0)
+	cracked.Ip = make([]string, 0)
 	for _, ip := range reply.Addresses {
-		plg.NetBios.Ip = append(plg.NetBios.Ip, net.IPv4(ip.Address[0], ip.Address[1], ip.Address[2], ip.Address[3]).String())
+		cracked.Ip = append(cracked.Ip, net.IPv4(ip.Address[0], ip.Address[1], ip.Address[2], ip.Address[3]).String())
 	}
 }
 

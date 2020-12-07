@@ -7,6 +7,7 @@
 功能介绍
 ===
 ### 超级扫描
+命令行模式运行
 ```aidl
 1、支持范围扫描（IP、端口）
 2、常用协议弱口令爆破
@@ -16,6 +17,7 @@
 ```
 
 ### 信息搜集
+图形界面模式运行
 ```aidl
 1、支持Fofa收集资产信息，无需Key。
 2、支持SecurityTrails收集子域信息，并扩展支持提取域名解析的ip、cname、地域、标题。（50个域名/1key，多申请:)）
@@ -45,23 +47,32 @@
 |Windows | 支持|
 
 
-安装
+编译安装
 ===
 
-##### QT环境
-
+###环境准备
+####QT环境
+图形界面部分采用qt，需安装qt支持库
 ```qt
 参考: https://github.com/therecipe/qt/wiki/Installation
 ```
 
-##### Build Windows/macOS/Linux
-
+### 不同操作系统下Windows/macOS/Linux编译方法
+## 信息搜集
 ```golnag
 go get github.com/zsdevX/DarkEye
 ./build mac
 ./build linux
 ./build win
 编译好后文件都自动发布到dist目录下
+```
 
+### 超级扫描
+```golang
+go get github.com/zsdevX/DarkEye
+cd superscan
+./build mac
+./build linux
+./build win
 ```
 

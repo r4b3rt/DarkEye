@@ -23,12 +23,17 @@ build_mac() {
 build_linux() {
      os=`uname`
      if [[ "$os" == "Linux" ]]; then
-            #docker run -idt -v /Volumes/dev/gosrc:/Volumes/dev/src therecipe/qt:linux
-            #docker exec -it qt-linux-docker bash
-            #export PATH=$PATH:/opt/Qt5.13.0/5.13.0/gcc_64/bin
-            #export GOPATH=/Volumes/dev/src
             qtdeploy  -uic=false build linux
             mv deploy/linux/DarkEye dist/
+     else
+        echo "Note:"
+        echo "#macbook下编译linux QT界面比较复杂，但是按照如下操作是成功的:
+            #加载docker方式加载qt编译环境（注意映射代码到docker中）： docker run -idt -v /Volumes/dev/gosrc:/Volumes/dev/src therecipe/qt:linux
+            #进入容器：docker exec -it qt-linux-docker bash
+            #配置环境：export PATH=$PATH:/opt/Qt5.13.0/5.13.0/gcc_64/bin
+            #配置环境：export GOPATH=/Volumes/dev/src
+            #编译：qtdeploy  -uic=false build linux
+            "
      fi
      build_hackTools "linux"
 }

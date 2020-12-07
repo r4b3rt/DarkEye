@@ -57,9 +57,9 @@ func init() {
 
 func main() {
 	color.Red(common.Banner)
-	color.Yellow("\n一键端口发现、弱口令检测\n\n")
+	color.Yellow("\n超级弱口令、系统Vulnerable检测\n\n")
 	flag.Parse()
-	plugins.SetDicbyFile(*mUserList, *mPassList)
+	plugins.SetDicByFile(*mUserList, *mPassList)
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	if *mRateLimiter > 0 {
 		//每秒发包*mRateLimiter，缓冲10个

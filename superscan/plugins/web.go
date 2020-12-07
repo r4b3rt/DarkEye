@@ -25,6 +25,6 @@ func webCheck(plg *Plugins) {
 		plg.Web.Server, plg.Web.Title, plg.Web.Code = common.GetHttpTitle("https", plg.TargetIp+":"+plg.TargetPort, timeOutSec)
 	}
 	if plg.Web.Server != "" || plg.Web.Title != "" {
-		plg.TargetProtocol = "[web]"
+		plg.TargetProtocol = "web"
 	}
 }

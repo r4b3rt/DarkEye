@@ -49,12 +49,14 @@ const (
 	RedisSrv
 	FtpSrv
 	MongoSrv
+	MemoryCacheSrv
+	PostgresSrv
 	WEBSrv  //放到最后
 	PluginNR
 )
 
 const (
-	OKNone = iota
+	OKNa = iota
 	OKWait
 	OKTimeOut
 	OKDone

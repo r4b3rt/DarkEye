@@ -52,11 +52,12 @@ func (plg *Plugins) PreCheck() {
 	//137端口机器检查
 	nbCheck(plg)
 	if plg.PortOpened {
-		color.Yellow("\n%s %s:%s %v\n", plg.TargetProtocol, plg.TargetIp, 137, plg.NetBios)
+		color.Yellow("\n%s %s:%s %v\n",
+			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, plg.NetBios)
 	}
 }
 
-func SetDicbyFile(userfile, passfile string) {
+func SetDicByFile(userfile, passfile string) {
 	if userfile != "" {
 		userList = common.GenArraryFromFile(userfile)
 	}

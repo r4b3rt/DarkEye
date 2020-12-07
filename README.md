@@ -57,7 +57,7 @@
 参考: https://github.com/therecipe/qt/wiki/Installation
 ```
 
-### 不同操作系统下Windows/macOS/Linux编译方法
+### Windows/macOS/Linux编译方法
 ## 信息搜集
 ```golnag
 go get github.com/zsdevX/DarkEye

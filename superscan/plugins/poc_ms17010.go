@@ -1,5 +1,5 @@
 package plugins
-
+//代码我抄的
 import (
 	"encoding/binary"
 	"encoding/hex"
@@ -93,7 +93,6 @@ func ms17010Check(plg *Plugins) {
 
 	if reply[9] == 0x05 && reply[10] == 0x02 && reply[11] == 0x00 && reply[12] == 0xc0 {
 		cracked := Account{}
-		cracked.Desc = "CVE-2020-0796 SmbGhost Vulnerable"
 		plg.highLight = true
 		plg.PortOpened = true
 		cracked.Desc = "MS17-010 " + os

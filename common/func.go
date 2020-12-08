@@ -21,14 +21,16 @@ func GetIPRange(ip string) (base string, start, end int, err error) {
 	fromTo := strings.Split(ip, "-")
 	ipStart := fromTo[0]
 	err = fmt.Errorf(LogBuild("common.func", "IP格式错误(eg. 1.1.1.1-3)", FAULT))
-
+	if strings.Contains(ip, "/") {
+		return
+	}
 	start = 0
 	tIp := strings.Split(ipStart, ".")
 	end = start
 	if len(fromTo) == 2 {
 		end, _ = strconv.Atoi(fromTo[1])
 	}
-	for _,v := range tIp {
+	for _, v := range tIp {
 		base += fmt.Sprintf("%s.", v)
 	}
 	base = strings.TrimRight(base, ".")
@@ -45,11 +47,11 @@ func GenIP(ipSeg string, ip int) string {
 		if bl == 0 {
 			break
 		}
-		v,_ := strconv.Atoi(b[k])
+		v, _ := strconv.Atoi(b[k])
 		a[k] += uint8(v)
 		bl --
 	}
-	return  net.IPv4(a[0], a[1], a[2], a[3]).String()
+	return net.IPv4(a[0], a[1], a[2], a[3]).String()
 }
 
 func GetPortRange(portRange string) ([]FromTo, int) {

@@ -44,7 +44,7 @@ var (
 	mFileSync = sync.RWMutex{}
 )
 
-func init() {
+func recordInit() {
 	var err error
 	_, mFile, mFileName, err = common.CreateCSV("superScan",
 		[]string{"IP", "端口", "协议", "插件信息"})
@@ -56,8 +56,7 @@ func init() {
 }
 
 func main() {
-	color.Red(common.Banner)
-	color.Yellow("\n超级弱口令、系统Vulnerable检测\n\n")
+	color.Yellow("超级弱口令、系统Vulnerable检测\n")
 	flag.Parse()
 	plugins.SetDicByFile(*mUserList, *mPassList)
 	runtime.GOMAXPROCS(runtime.NumCPU())
@@ -72,6 +71,8 @@ func main() {
 		fmt.Println(http.ListenAndServe("localhost:10000", nil))
 	}()
 	*/
+	color.Red(common.Banner)
+	recordInit()
 	Start()
 }
 

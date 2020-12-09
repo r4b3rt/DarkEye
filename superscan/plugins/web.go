@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"github.com/zsdevX/DarkEye/common"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 )
 
@@ -23,11 +24,22 @@ func webCheck(plg *Plugins) {
 	}
 	if cracked.Server == "" && cracked.Title == "" {
 		cracked.Server, cracked.Title, cracked.Code = common.GetHttpTitle("https", plg.TargetIp+":"+plg.TargetPort, timeOutSec)
+		cracked.Tls = true
 	}
 	if cracked.Server != "" || cracked.Title != "" {
 		plg.TargetProtocol = "web"
 		plg.Lock()
 		plg.Cracked = append(plg.Cracked, cracked)
 		plg.Unlock()
+		webTodo(plg, &cracked)
+	}
+}
+
+func webTodo(plg *Plugins, ck *Account) {
+	if strings.Contains(ck.Title, "Apache Tomcat") {
+		//爆破manager
+		plg.tmp.tls = ck.Tls
+		plg.tmp.UrlPath = "/manager/html"
+		basicAuthCheck(plg, dic.DIC_USERNAME_TOMCAT, dic.DIC_PASSWORD_TOMCAT)
 	}
 }

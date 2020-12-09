@@ -9,6 +9,7 @@ type Web struct {
 	Server string `json:",omitempty"`
 	Title  string `json:",omitempty"`
 	Code   int32  `json:",omitempty"`
+	Tls    bool   `json:",omitempty"`
 }
 
 type NetBios struct {
@@ -30,9 +31,15 @@ type Account struct {
 	Poc      `json:",omitempty"`
 }
 
+type tmpCache struct {
+	UrlPath string
+	tls     bool
+}
+
 type Plugins struct {
 	PortOpened bool
 	Cracked    []Account `json:",omitempty"`
+	tmp        tmpCache
 
 	RateLimiter    *rate.Limiter
 	NoTrust        bool `json:",omitempty"`

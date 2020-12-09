@@ -29,13 +29,7 @@ func (plg *Plugins) Check() {
 		plg.DescCallback("Cracking ...")
 		//未找到密码
 		if plg.TargetProtocol != "" {
-			if plg.highLight {
-				color.Green("\n%s %s:%s %v\n",
-					plg.TargetProtocol, plg.TargetIp, plg.TargetPort, plg.Cracked)
-			} else {
-				color.Yellow("\n%s %s:%s %v\n",
-					plg.TargetProtocol, plg.TargetIp, plg.TargetPort, plg.Cracked)
-			}
+			output(plg)
 			break
 		}
 		i++
@@ -53,26 +47,24 @@ func (plg *Plugins) PreCheck() {
 	plg.TargetPort = "137"
 	nbCheck(plg)
 	plg.TargetPort = "445"
-	smbGhostCheck(plg)
 	ms17010Check(plg)
 	if plg.PortOpened {
-		color.Yellow("\n%s %s:%s %v\n",
-			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, plg.Cracked)
+		output(plg)
 	}
 }
 
-func SetDicByFile(userfile, passfile string) {
-	if userfile != "" {
-		userList = common.GenArraryFromFile(userfile)
+func SetDicByFile(userFile, passFile string) {
+	if userFile != "" {
+		userList = common.GenArraryFromFile(userFile)
 	}
-	if passfile != "" {
-		passList = common.GenArraryFromFile(passfile)
+	if passFile != "" {
+		passList = common.GenArraryFromFile(passFile)
 	}
 	if userList != nil {
-		color.Green("使用用户字典 %s", userfile)
+		color.Green("使用用户字典 %s", userFile)
 	}
 	if passList != nil {
-		color.Green("使用密码字典 %s", passfile)
+		color.Green("使用密码字典 %s", passFile)
 	}
 	return
 }
@@ -152,4 +144,14 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 		}(user)
 	}
 	wg.Wait()
+}
+
+func output(plg *Plugins) {
+	if plg.highLight {
+		color.Green("\n%s %s:%s %v\n",
+			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, plg.Cracked)
+	} else {
+		color.Yellow("\n%s %s:%s %v\n",
+			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, plg.Cracked)
+	}
 }

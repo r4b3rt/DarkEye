@@ -1,4 +1,5 @@
 package plugins
+
 //代码我抄的
 import (
 	"encoding/binary"
@@ -25,7 +26,7 @@ func ms17010Check(plg *Plugins) {
 	}
 	defer conn.Close()
 
-	conn.SetDeadline(time.Now().Add(time.Millisecond * time.Duration(plg.TimeOut)))
+	conn.SetDeadline(time.Now().Add(2 * time.Millisecond * time.Duration(plg.TimeOut)))
 	conn.Write(negotiateProtocolRequest)
 	reply := make([]byte, 1024)
 	if n, err := conn.Read(reply); err != nil || n < 36 {

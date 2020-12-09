@@ -56,6 +56,7 @@ const (
 	MemoryCacheSrv
 	PostgresSrv
 	MSSQLSrv
+	SmbSrv
 	WEBSrv  //放到最后
 	PluginNR
 )

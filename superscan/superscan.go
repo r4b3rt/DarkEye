@@ -174,7 +174,7 @@ func NewBar(max int) *progressbar.ProgressBar {
 			BarStart:      "[",
 			BarEnd:        "]",
 		}),
-		progressbar.OptionFullWidth(),
+		//progressbar.OptionFullWidth(),
 	)
 	_ = bar.RenderBlank()
 	return bar

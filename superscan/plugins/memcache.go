@@ -9,6 +9,7 @@ import (
 
 func init() {
 	checkFuncs[MemoryCacheSrv] = memcachedCheck
+	supportPlugin["memcached"] = "memcached"
 }
 
 func memcachedCheck(plg *Plugins) {

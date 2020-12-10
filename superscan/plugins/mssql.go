@@ -20,6 +20,7 @@ func init() {
 	checkFuncs[MSSQLSrv] = mssqlCheck
 	mssqlUsername = dic.DIC_USERNAME_SQLSERVER
 	mssqlPassword = dic.DIC_PASSWORD_SQLSERVER
+	supportPlugin["mssql"] = "mssql"
 }
 
 func mssqlCheck(plg *Plugins) {

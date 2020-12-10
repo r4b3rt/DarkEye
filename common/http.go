@@ -89,7 +89,7 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 	}
 	body, err := getRespBody(resp)
 	if err != nil {
-		return nil, err
+		return &response, err
 	}
 	response.Body = body
 	return &response, nil

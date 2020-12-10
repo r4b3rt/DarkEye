@@ -44,6 +44,10 @@ type NetbiosReplyStatus struct {
 	Addresses []NetbiosReplyAddress
 }
 
+func init() {
+	supportPlugin["netbios"] = "netbios"
+}
+
 func nbCheck(plg *Plugins) {
 	plg.RateWait(plg.RateLimiter) //爆破限制
 	addr := fmt.Sprintf("%s:%s", plg.TargetIp, plg.TargetPort)

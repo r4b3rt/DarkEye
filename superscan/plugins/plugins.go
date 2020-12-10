@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	checkFuncs = map[int]func(*Plugins){}
-	userList   []string
-	passList   []string
+	checkFuncs    = map[int]func(*Plugins){}
+	supportPlugin = map[string]string{}
+	userList      []string
+	passList      []string
 )
 
 func (plg *Plugins) Check() {
@@ -154,4 +155,11 @@ func output(plg *Plugins) {
 		color.Yellow("\n%s %s:%s %v\n",
 			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, plg.Cracked)
 	}
+}
+
+func SupportPlugin() {
+	for _, v := range supportPlugin {
+		color.Green("%v,", v)
+	}
+	color.Green("to be continue.\n,")
 }

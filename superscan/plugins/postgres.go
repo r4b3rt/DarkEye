@@ -19,6 +19,7 @@ func init() {
 	checkFuncs[PostgresSrv] = postgresCheck
 	postgresUsername = dic.DIC_USERNAME_POSTGRESQL
 	postgresPassword = dic.DIC_PASSWORD_POSTGRESQL
+	supportPlugin["postgres"] = "postgres"
 }
 
 func postgresCheck(plg *Plugins) {

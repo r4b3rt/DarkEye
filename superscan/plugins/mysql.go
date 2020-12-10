@@ -20,6 +20,7 @@ func init() {
 	mysqlUsername = dic.DIC_USERNAME_MYSQL
 	mysqlPassword = dic.DIC_PASSWORD_MYSQL
 	_ = mysql.SetLogger(mysqlLogger(&mysqlNoLogger{}))
+	supportPlugin["mysql"] = "mysql"
 }
 
 func mysqlCheck(plg *Plugins) {

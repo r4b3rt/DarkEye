@@ -17,6 +17,7 @@ func init() {
 	checkFuncs[SmbSrv] = msbCheck
 	smbUsername = dic.DIC_USERNAME_SMB
 	smbPassword = dic.DIC_PASSWORD_SMB
+	supportPlugin["smb"] = "smb"
 }
 
 func msbCheck(plg *Plugins) {

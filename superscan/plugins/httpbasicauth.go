@@ -15,9 +15,9 @@ func basicAuthCheck(plg *Plugins, user, pass []string) {
 func basicAuthConn(plg *Plugins, user string, pass string) (ok int) {
 	ok = OKNext
 
-	url := fmt.Sprintf("http://%s:%s%s", plg.TargetIp, plg.TargetPort, plg.tmp.UrlPath)
+	url := fmt.Sprintf("http://%s:%s%s", plg.TargetIp, plg.TargetPort, plg.tmp.urlPath)
 	if plg.tmp.tls {
-		url = fmt.Sprintf("https://%s:%s%s", plg.TargetIp, plg.TargetPort, plg.tmp.UrlPath)
+		url = fmt.Sprintf("https://%s:%s%s", plg.TargetIp, plg.TargetPort, plg.tmp.urlPath)
 	}
 	authKey := base64.StdEncoding.EncodeToString([]byte(user + ":" + pass))
 	req := common.HttpRequest{
@@ -27,6 +27,7 @@ func basicAuthConn(plg *Plugins, user string, pass string) (ok int) {
 		NoFollowRedirect: true,
 		Headers: map[string]string{
 			"Authorization": "Basic " + authKey,
+			"User-Agent":    common.UserAgents[0],
 		},
 	}
 	response, err := req.Go()

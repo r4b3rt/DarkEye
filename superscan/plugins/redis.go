@@ -16,6 +16,7 @@ func init() {
 	checkFuncs[RedisSrv] = redisCheck
 	redisUsername = dic.DIC_USERNAME_REDIS
 	redisPassword = dic.DIC_PASSWORD_REDIS
+	supportPlugin["redis"] = "redis"
 }
 
 func redisCheck(plg *Plugins) {

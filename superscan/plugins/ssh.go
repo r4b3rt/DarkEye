@@ -18,6 +18,7 @@ func init() {
 	checkFuncs[SSHSrv] = sshCheck
 	sshUsername = dic.DIC_USERNAME_SSH
 	sshPassword = dic.DIC_PASSWORD_SSH
+	supportPlugin["ssh"] = "ssh"
 }
 
 func sshCheck(plg *Plugins) {

@@ -8,6 +8,7 @@ import (
 
 func init() {
 	checkFuncs[WEBSrv] = webCheck
+	supportPlugin["tomcat"] = "tomcat"
 }
 
 func webCheck(plg *Plugins) {
@@ -28,10 +29,10 @@ func webCheck(plg *Plugins) {
 	}
 	if cracked.Server != "" || cracked.Title != "" {
 		plg.TargetProtocol = "web"
+		webTodo(plg, &cracked)
 		plg.Lock()
 		plg.Cracked = append(plg.Cracked, cracked)
 		plg.Unlock()
-		webTodo(plg, &cracked)
 	}
 }
 
@@ -39,7 +40,11 @@ func webTodo(plg *Plugins, ck *Account) {
 	if strings.Contains(ck.Title, "Apache Tomcat") {
 		//爆破manager
 		plg.tmp.tls = ck.Tls
-		plg.tmp.UrlPath = "/manager/html"
+		plg.tmp.urlPath = "/manager/html"
+		plg.TargetProtocol = "tomcat"
 		basicAuthCheck(plg, dic.DIC_USERNAME_TOMCAT, dic.DIC_PASSWORD_TOMCAT)
+		return
 	}
+	//Other
+	checkWebLogic(plg)
 }

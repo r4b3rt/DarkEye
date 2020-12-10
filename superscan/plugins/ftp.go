@@ -16,6 +16,7 @@ func init() {
 	checkFuncs[FtpSrv] = ftpCheck
 	ftpUsername = dic.DIC_USERNAME_FTP
 	ftpPassword = dic.DIC_PASSWORD_FTP
+	supportPlugin["ftp"] = "ftp"
 }
 
 func ftpCheck(plg *Plugins) {

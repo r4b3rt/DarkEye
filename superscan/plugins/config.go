@@ -32,8 +32,9 @@ type Account struct {
 }
 
 type tmpCache struct {
-	UrlPath string
+	urlPath string
 	tls     bool
+	cookie  string
 }
 
 type Plugins struct {

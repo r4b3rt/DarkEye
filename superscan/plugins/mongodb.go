@@ -16,6 +16,7 @@ func init() {
 	checkFuncs[MongoSrv] = mongoCheck
 	mongoUsername = dic.DIC_USERNAME_MONGODB
 	mongoPassword = dic.DIC_PASSWORD_MONGODB
+	supportPlugin["mongodb"] = "mongodb"
 }
 
 func mongoCheck(plg *Plugins) {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -32,8 +33,20 @@ func basicAuthConn(plg *Plugins, user string, pass string) (ok int) {
 	}
 	response, err := req.Go()
 	if err != nil {
-		ok = OKStop
-		return
+		if strings.Contains(err.Error(), "connection reset by peer") {
+			//连接限制
+			ok = OKWait
+			return
+		}
+		if strings.Contains(err.Error(), "i/o timeout") {
+			ok = OKTimeOut
+			return
+		}
+		if response == nil {
+			//异常?
+			ok = OKStop
+			return
+		}
 	}
 	if response.Status == http.StatusOK {
 		ok = OKDone

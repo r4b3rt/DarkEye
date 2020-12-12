@@ -15,7 +15,6 @@ var (
 )
 
 func main() () {
-
 	f, _ := os.OpenFile(dictionary, os.O_RDONLY, os.ModeDir)
 	defer f.Close()
 

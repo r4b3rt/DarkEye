@@ -103,7 +103,7 @@ func Start() {
 			start++
 		}
 	}
-	setRLimit()
+	common.SetRLimit()
 	color.Green(fmt.Sprintf("已加载%d个IP,共计%d个端口,启动检测线程数%d,同时可检测IP数量%d",
 		len(mScans), tot, *mThread, mMaxIPDetect))
 	//建立进度条

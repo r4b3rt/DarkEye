@@ -64,7 +64,7 @@ clean() {
     rm -f *.cpp
     rm -rf darwin
     rm -rf windows
-    rm -rf superscan/superscan
+    cd superscan && make clean && cd -
 }
 
 clean

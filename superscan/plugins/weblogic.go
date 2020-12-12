@@ -22,7 +22,8 @@ func checkWebLogic(plg *Plugins) {
 		if !strings.Contains(loc, "LoginForm.jsp") {
 			return
 		}
-		//ADMINCONSOLESESSION=O9BKOxQLzl7ZoJBlf4IgIicF0g0WGpfNMrUaSWWIA2G5gdlL6yvH!-1249850057;
+		//随意填写一个过期cookie
+		plg.tmp.cookie = "ADMINCONSOLESESSION=O9BKOxQLzl7ZoJBlf4IgIicF0g0WGpfNMrUaSWWIA2G5gdlL6yvH!-1249850057"
 		if ck, ok := response.ResponseHeaders["Set-Cookie"]; ok {
 			cks := strings.Split(ck, ";")
 			if len(cks) >= 1 {

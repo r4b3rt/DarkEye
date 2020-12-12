@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/fofa"
-	"github.com/zsdevX/DarkEye/poc"
-	"github.com/zsdevX/DarkEye/securitytrails"
 	"github.com/zsdevX/DarkEye/spider"
+	"github.com/zsdevX/DarkEye/subdomain"
 	"io/ioutil"
 	"path/filepath"
 )
@@ -23,10 +22,9 @@ func init() {
 }
 
 type config struct {
-	SecurityTrails securitytrails.SecurityTrails `json:"securitytrails"`
+	SubDomain subdomain.SubDomain `json:"sub_domain"`
 	Fofa           fofa.Fofa                     `json:"fofa"`
 	Spider         spider.Spider                 `json:"spider"`
-	Poc            poc.Poc                       `json:"poc"`
 	Valid          bool                          `json:"valid"`
 }
 
@@ -36,9 +34,8 @@ func loadCfg() error {
 		if !mConfig.Valid {
 			mConfig.Valid = true
 			mConfig.Fofa = fofa.NewConfig()
-			mConfig.SecurityTrails = securitytrails.NewConfig()
+			mConfig.SubDomain = subdomain.NewConfig()
 			mConfig.Spider = spider.NewConfig()
-			mConfig.Poc = poc.NewConfig()
 		}
 	}()
 	data, err := ioutil.ReadFile(mConfigFile)

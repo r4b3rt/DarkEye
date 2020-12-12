@@ -78,9 +78,12 @@ case "$1" in
     "linux")
         build_linux
         ;;
+    "clean")
+        clean
+        ;;
       *)
         echo "./build.sh [mac|win|linux]"
         ;;
 esac
-clean
+
 

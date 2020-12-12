@@ -42,273 +42,124 @@
      <attribute name="title">
       <string>资产收集</string>
      </attribute>
-     <widget class="QLineEdit" name="fofa_asset_ip">
-      <property name="geometry">
-       <rect>
-        <x>110</x>
-        <y>40</y>
-        <width>191</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string>f.u.c.1-254,f.u.c.k</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="fofa_asset_label">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>50</y>
-        <width>91</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>资产IP</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="fofa_start">
-      <property name="geometry">
-       <rect>
-        <x>230</x>
-        <y>540</y>
-        <width>113</width>
-        <height>32</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>开始</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="fofa_stop">
-      <property name="geometry">
-       <rect>
-        <x>350</x>
-        <y>540</y>
-        <width>113</width>
-        <height>32</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>停止</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="fofa_interval_label">
-      <property name="geometry">
-       <rect>
-        <x>310</x>
-        <y>50</y>
-        <width>81</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>检索周期(秒)</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="fofa_interval">
-      <property name="geometry">
-       <rect>
-        <x>390</x>
-        <y>40</y>
-        <width>31</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="text">
-       <string>6</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string/>
-      </property>
-     </widget>
-     <widget class="QLabel" name="fofa_session_label">
-      <property name="geometry">
-       <rect>
-        <x>430</x>
-        <y>50</y>
-        <width>81</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>会话</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="fofa_session">
-      <property name="geometry">
-       <rect>
-        <x>470</x>
-        <y>40</y>
-        <width>281</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>_fofapro_ars_session=</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string>_fofapro_ars_session=ooxx</string>
-      </property>
-     </widget>
      <widget class="QTextEdit" name="fofa_log">
       <property name="geometry">
        <rect>
         <x>60</x>
-        <y>90</y>
+        <y>80</y>
         <width>691</width>
-        <height>441</height>
+        <height>451</height>
        </rect>
       </property>
       <property name="readOnly">
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QPushButton" name="fofa_clear">
+     <widget class="QSplitter" name="splitter_3">
       <property name="geometry">
        <rect>
-        <x>470</x>
+        <x>60</x>
+        <y>40</y>
+        <width>681</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QLabel" name="fofa_asset_label">
+       <property name="text">
+        <string>资产IP</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="fofa_asset_ip">
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="placeholderText">
+        <string>f.u.c.1-254,f.u.c.k</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="fofa_interval_label">
+       <property name="text">
+        <string>检索周期(秒)</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="fofa_interval">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>3</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="placeholderText">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLabel" name="fofa_session_label">
+       <property name="text">
+        <string>会话</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="fofa_session">
+       <property name="text">
+        <string>_fofapro_ars_session=</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="placeholderText">
+        <string>_fofapro_ars_session=ooxx</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QSplitter" name="splitter_4">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
         <y>540</y>
-        <width>113</width>
+        <width>204</width>
         <height>32</height>
        </rect>
       </property>
-      <property name="text">
-       <string>清空</string>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
+      <widget class="QPushButton" name="fofa_start">
+       <property name="text">
+        <string>开始</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="fofa_stop">
+       <property name="text">
+        <string>停止</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="fofa_clear">
+       <property name="text">
+        <string>清空</string>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="st_tab">
      <attribute name="title">
       <string>子域收集</string>
      </attribute>
-     <widget class="QLabel" name="st_domain_label">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>50</y>
-        <width>60</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>域名</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="st_domain">
-      <property name="geometry">
-       <rect>
-        <x>90</x>
-        <y>40</y>
-        <width>191</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string>a.com,b.com,c.com</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="st_stop">
-      <property name="geometry">
-       <rect>
-        <x>350</x>
-        <y>540</y>
-        <width>113</width>
-        <height>32</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>停止</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="st_dns_label">
-      <property name="geometry">
-       <rect>
-        <x>290</x>
-        <y>50</y>
-        <width>81</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>DNS</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="st_start">
-      <property name="geometry">
-       <rect>
-        <x>230</x>
-        <y>540</y>
-        <width>113</width>
-        <height>32</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>开始</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="st_clear">
-      <property name="geometry">
-       <rect>
-        <x>470</x>
-        <y>540</y>
-        <width>113</width>
-        <height>32</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>清空</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="st_dns">
-      <property name="geometry">
-       <rect>
-        <x>320</x>
-        <y>40</y>
-        <width>111</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string>192.168.1.1:53</string>
-      </property>
-     </widget>
      <widget class="QLabel" name="st_key_label">
       <property name="geometry">
        <rect>
-        <x>440</x>
+        <x>482</x>
         <y>50</y>
-        <width>81</width>
+        <width>110</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
-       <string>APIKey</string>
+       <string>SecurityTrails Key</string>
       </property>
      </widget>
      <widget class="QTextEdit" name="st_log">
@@ -327,60 +178,200 @@
      <widget class="QComboBox" name="st_apikeylist">
       <property name="geometry">
        <rect>
-        <x>490</x>
-        <y>40</y>
-        <width>251</width>
-        <height>31</height>
+        <x>608</x>
+        <y>50</y>
+        <width>105</width>
+        <height>28</height>
        </rect>
       </property>
       <property name="editable">
        <bool>true</bool>
       </property>
      </widget>
+     <widget class="QLineEdit" name="st_domain_brute">
+      <property name="geometry">
+       <rect>
+        <x>123</x>
+        <y>50</y>
+        <width>125</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="placeholderText">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QLabel" name="st_domain_brute_label">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>50</y>
+        <width>52</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>爆破长度</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="st_domain_brute_rate_label">
+      <property name="geometry">
+       <rect>
+        <x>265</x>
+        <y>50</y>
+        <width>63</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>爆破频率/s</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="st_domain_brute_rate">
+      <property name="geometry">
+       <rect>
+        <x>340</x>
+        <y>50</y>
+        <width>125</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="placeholderText">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QSplitter" name="splitter">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>540</y>
+        <width>204</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QPushButton" name="st_start">
+       <property name="text">
+        <string>开始</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="st_stop">
+       <property name="text">
+        <string>停止</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="st_clear">
+       <property name="text">
+        <string>清空</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QSplitter" name="splitter_5">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>20</y>
+        <width>661</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QLabel" name="st_domain_label">
+       <property name="text">
+        <string>域名</string>
+       </property>
+       <property name="buddy">
+        <cstring>st_domain_label</cstring>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="st_domain">
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="placeholderText">
+        <string>a.com,b.com,c.com</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="st_dns_label">
+       <property name="text">
+        <string>域名服务器</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="st_dns">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="placeholderText">
+        <string>192.168.1.1:53</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="st_domain_brute_mode_label">
+       <property name="text">
+        <string>爆破模式</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="st_domain_brute_mode">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </widget>
+     <zorder>st_domain_label</zorder>
+     <zorder>st_domain</zorder>
+     <zorder>st_stop</zorder>
+     <zorder>st_dns_label</zorder>
+     <zorder>st_start</zorder>
+     <zorder>st_clear</zorder>
+     <zorder>st_dns</zorder>
+     <zorder>st_key_label</zorder>
+     <zorder>st_apikeylist</zorder>
+     <zorder>st_domain_brute_mode</zorder>
+     <zorder>st_domain_brute</zorder>
+     <zorder>st_domain_brute_label</zorder>
+     <zorder>st_domain_brute_mode_label</zorder>
+     <zorder>st_domain_brute_rate_label</zorder>
+     <zorder>st_domain_brute_rate</zorder>
+     <zorder>st_log</zorder>
     </widget>
     <widget class="QWidget" name="sensitive_tab">
      <attribute name="title">
       <string>敏感信息</string>
      </attribute>
-     <widget class="QPushButton" name="spider_stop">
-      <property name="geometry">
-       <rect>
-        <x>640</x>
-        <y>450</y>
-        <width>113</width>
-        <height>50</height>
-       </rect>
-      </property>
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="text">
-       <string>停止</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="spider_start">
-      <property name="geometry">
-       <rect>
-        <x>640</x>
-        <y>390</y>
-        <width>113</width>
-        <height>50</height>
-       </rect>
-      </property>
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="text">
-       <string>开始</string>
-      </property>
-     </widget>
      <widget class="QTextEdit" name="spider_log">
       <property name="geometry">
        <rect>
         <x>60</x>
         <y>20</y>
         <width>691</width>
-        <height>331</height>
+        <height>391</height>
        </rect>
       </property>
       <property name="readOnly">
@@ -391,9 +382,9 @@
       <property name="geometry">
        <rect>
         <x>60</x>
-        <y>360</y>
+        <y>420</y>
         <width>581</width>
-        <height>191</height>
+        <height>151</height>
        </rect>
       </property>
       <property name="contextMenuPolicy">
@@ -422,65 +413,20 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
-         <height>28</height>
+         <width>581</width>
+         <height>79</height>
         </rect>
        </property>
        <attribute name="label">
         <string>敏感接口</string>
        </attribute>
-       <widget class="QLineEdit" name="spider_url">
-        <property name="geometry">
-         <rect>
-          <x>70</x>
-          <y>10</y>
-          <width>191</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="maxLength">
-         <number>65536</number>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="placeholderText">
-         <string>http://f.u.c.k</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="spider_node">
-        <property name="geometry">
-         <rect>
-          <x>270</x>
-          <y>20</y>
-          <width>60</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>爬取节点</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="spider_url_label">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>20</y>
-          <width>60</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>目标网址</string>
-        </property>
-       </widget>
        <widget class="QLineEdit" name="spider_cookie">
         <property name="geometry">
          <rect>
-          <x>70</x>
-          <y>50</y>
-          <width>501</width>
-          <height>31</height>
+          <x>60</x>
+          <y>40</y>
+          <width>491</width>
+          <height>32</height>
          </rect>
         </property>
         <property name="toolTip">
@@ -493,44 +439,12 @@
          <string>爬取过程很可能会触发删除操作，因此渗透xxx管理平台过程中禁止填写Cookie</string>
         </property>
        </widget>
-       <widget class="QLabel" name="spider_deps_label">
-        <property name="geometry">
-         <rect>
-          <x>470</x>
-          <y>20</y>
-          <width>60</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>爬取深度</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="spider_deps">
-        <property name="geometry">
-         <rect>
-          <x>530</x>
-          <y>10</y>
-          <width>41</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>2</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="placeholderText">
-         <string>2</string>
-        </property>
-       </widget>
        <widget class="QLabel" name="spider_cookie_label">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>60</y>
-          <width>81</width>
+          <y>50</y>
+          <width>91</width>
           <height>16</height>
          </rect>
         </property>
@@ -538,37 +452,71 @@
          <string>Cookie</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="spider_node_url">
-        <property name="geometry">
-         <rect>
-          <x>330</x>
-          <y>10</y>
-          <width>131</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="placeholderText">
-         <string>a:href,script:src</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="spider_import_urls">
+       <widget class="QSplitter" name="splitter_2">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>90</y>
-          <width>111</width>
-          <height>35</height>
+          <y>0</y>
+          <width>541</width>
+          <height>32</height>
          </rect>
         </property>
-        <property name="cursor">
-         <cursorShape>PointingHandCursor</cursorShape>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-        <property name="text">
-         <string>批量导入目标</string>
-        </property>
+        <widget class="QLabel" name="spider_url_label">
+         <property name="text">
+          <string>目标网址</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="spider_url">
+         <property name="maxLength">
+          <number>65536</number>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string>http://f.u.c.k</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="spider_import_urls">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="text">
+          <string>导入目标</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="spider_node">
+         <property name="text">
+          <string>爬取节点</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="spider_node_url">
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string>a:href,script:src</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="spider_deps_label">
+         <property name="text">
+          <string>爬取深度</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="spider_deps">
+         <property name="text">
+          <string>2</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string>2</string>
+         </property>
+        </widget>
        </widget>
       </widget>
       <widget class="QWidget" name="page_2">
@@ -577,82 +525,12 @@
          <x>0</x>
          <y>0</y>
          <width>581</width>
-         <height>119</height>
+         <height>79</height>
         </rect>
        </property>
        <attribute name="label">
         <string>搜索引擎</string>
        </attribute>
-       <widget class="QLineEdit" name="search_query">
-        <property name="geometry">
-         <rect>
-          <x>350</x>
-          <y>50</y>
-          <width>221</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="toolTip">
-         <string>google hack</string>
-        </property>
-        <property name="text">
-         <string>site:ooxx.com filetype:txt</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="placeholderText">
-         <string>google hack</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="search_key">
-        <property name="geometry">
-         <rect>
-          <x>60</x>
-          <y>50</y>
-          <width>211</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="toolTip">
-         <string>API申请地址: https://serpstack.com/</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="placeholderText">
-         <string>f9c8878e81ooxxooxxx20bc92d0498e34ec</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="search_query_label">
-        <property name="geometry">
-         <rect>
-          <x>290</x>
-          <y>60</y>
-          <width>61</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>查询条件</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="search_key_label">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>60</y>
-          <width>81</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="toolTip">
-         <string>API申请地址: https://serpstack.com/</string>
-        </property>
-        <property name="text">
-         <string>APIKey</string>
-        </property>
-       </widget>
        <widget class="QCheckBox" name="search_enable">
         <property name="enabled">
          <bool>true</bool>
@@ -660,7 +538,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>20</y>
+          <y>0</y>
           <width>51</width>
           <height>20</height>
          </rect>
@@ -672,227 +550,87 @@
          <string>启用</string>
         </property>
        </widget>
+       <widget class="QSplitter" name="splitter_6">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>561</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QLabel" name="search_key_label">
+         <property name="toolTip">
+          <string>API申请地址: https://serpstack.com/</string>
+         </property>
+         <property name="text">
+          <string>APIKey</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="search_key">
+         <property name="toolTip">
+          <string>API申请地址: https://serpstack.com/</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string>f9c8878e81ooxxooxxx20bc92d0498e34ec</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="search_query_label">
+         <property name="text">
+          <string>查询条件</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="search_query">
+         <property name="toolTip">
+          <string>google hack</string>
+         </property>
+         <property name="text">
+          <string>site:ooxx.com filetype:txt</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string>google hack</string>
+         </property>
+        </widget>
+       </widget>
       </widget>
      </widget>
-    </widget>
-    <widget class="QWidget" name="poc_tab">
-     <attribute name="title">
-      <string>POC</string>
-     </attribute>
-     <widget class="QTextEdit" name="poc_log">
+     <widget class="QSplitter" name="splitter_7">
       <property name="geometry">
        <rect>
-        <x>60</x>
-        <y>20</y>
-        <width>691</width>
-        <height>411</height>
+        <x>670</x>
+        <y>480</y>
+        <width>68</width>
+        <height>64</height>
        </rect>
       </property>
-      <property name="readOnly">
-       <bool>true</bool>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
       </property>
-      <property name="html">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="poc_url">
-      <property name="geometry">
-       <rect>
-        <x>130</x>
-        <y>450</y>
-        <width>391</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="maxLength">
-       <number>65536</number>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string>http://f.u.c.k</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="poc_url_label">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>460</y>
-        <width>60</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>目标网址</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="poc_import_urls">
-      <property name="geometry">
-       <rect>
-        <x>520</x>
-        <y>450</y>
-        <width>111</width>
-        <height>35</height>
-       </rect>
-      </property>
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="text">
-       <string>批量导入目标</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="poc_start">
-      <property name="geometry">
-       <rect>
-        <x>640</x>
-        <y>450</y>
-        <width>113</width>
-        <height>50</height>
-       </rect>
-      </property>
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="text">
-       <string>开始</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="poc_stop">
-      <property name="geometry">
-       <rect>
-        <x>640</x>
-        <y>500</y>
-        <width>113</width>
-        <height>50</height>
-       </rect>
-      </property>
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="text">
-       <string>停止</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="poc_reverse_url_label">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>500</y>
-        <width>60</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>反弹地址</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="poc_reverse_url">
-      <property name="geometry">
-       <rect>
-        <x>130</x>
-        <y>490</y>
-        <width>181</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="maxLength">
-       <number>65536</number>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string>http://f.u.c.k</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="poc_reverse_url_check_label">
-      <property name="geometry">
-       <rect>
-        <x>320</x>
-        <y>500</y>
-        <width>81</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>反弹验证API</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="poc_reverse_url_check">
-      <property name="geometry">
-       <rect>
-        <x>400</x>
-        <y>490</y>
-        <width>231</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="maxLength">
-       <number>65536</number>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string>http://f.u.c.k</string>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="poc_listen">
-      <property name="geometry">
-       <rect>
-        <x>530</x>
-        <y>540</y>
-        <width>101</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>被动监听目标</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="poc_file">
-      <property name="geometry">
-       <rect>
-        <x>170</x>
-        <y>530</y>
-        <width>341</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="maxLength">
-       <number>65536</number>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-      <property name="placeholderText">
-       <string>poc.yml</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="poc_import_file">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>530</y>
-        <width>101</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="text">
-       <string>设置POC</string>
-      </property>
+      <widget class="QPushButton" name="spider_start">
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>开始</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="spider_stop">
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>停止</string>
+       </property>
+      </widget>
      </widget>
     </widget>
    </widget>

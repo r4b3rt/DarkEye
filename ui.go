@@ -7,6 +7,7 @@ import (
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/ui"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -21,7 +22,7 @@ func main() {
 func runApp() {
 	//加载配置
 	_ = loadCfg()
-
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	app := widgets.NewQApplication(len(os.Args), os.Args)
 	app.SetWindowIcon(gui.NewQIcon5(":/qml/logo.ico"))
 	app.SetQuitOnLastWindowClosed(false)
@@ -43,12 +44,10 @@ func runApp() {
 func initMainWin(mainWin *ui.MainWindow) {
 	//FoFa
 	LoadFoFa(mainWin)
-	//SecurityTrails
-	LoadSecurityTrails(mainWin)
+	//subDomain
+	LoadSubDomain(mainWin)
 	//Spider
 	LoadSpider(mainWin)
-	//poc
-	LoadPoc(mainWin)
 }
 
 func sysTrayDaemon(sysTray *QSystemTrayIconWithCustomSlot, mainWin *ui.MainWindow, app *widgets.QApplication) {

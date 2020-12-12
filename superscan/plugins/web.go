@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"fmt"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
@@ -19,6 +20,7 @@ func webCheck(plg *Plugins) {
 	cracked := Account{}
 	plg.RateWait(plg.RateLimiter)
 	cracked.Server, cracked.Title, cracked.Code = common.GetHttpTitle("http", plg.TargetIp+":"+plg.TargetPort, timeOutSec)
+	cracked.Url = fmt.Sprintf("http://%s:%s", plg.TargetIp, plg.TargetPort)
 	//部分http访问https有title
 	if strings.Contains(cracked.Title, "The plain HTTP request was sent to HTTPS port") {
 		cracked.Title = ""
@@ -26,6 +28,7 @@ func webCheck(plg *Plugins) {
 	if cracked.Server == "" && cracked.Title == "" {
 		cracked.Server, cracked.Title, cracked.Code = common.GetHttpTitle("https", plg.TargetIp+":"+plg.TargetPort, timeOutSec)
 		cracked.Tls = true
+		cracked.Url = fmt.Sprintf("https://%s:%s", plg.TargetIp, plg.TargetPort)
 	}
 	if cracked.Server != "" || cracked.Title != "" {
 		plg.TargetProtocol = "web"

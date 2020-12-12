@@ -9,6 +9,7 @@ type Web struct {
 	Server string `json:",omitempty"`
 	Title  string `json:",omitempty"`
 	Code   int32  `json:",omitempty"`
+	Url    string `json:",omitempty"`
 	Tls    bool   `json:",omitempty"`
 }
 

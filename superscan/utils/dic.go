@@ -1,3 +1,6 @@
+//字典集成工具
+//将dic目录中的字典*.txt转为*.go
+
 package main
 
 import (

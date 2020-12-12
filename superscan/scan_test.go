@@ -17,7 +17,6 @@ func Test_SpeedTest(t *testing.T) {
 }
 
 func Test_Run(t *testing.T) {
-	//*mIp = "47.92.207.116"
 	*mIp = "192.168.1.1-254"
 	*mThread = 30
 	*mTimeOut = 2000

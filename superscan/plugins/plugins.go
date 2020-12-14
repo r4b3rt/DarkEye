@@ -49,9 +49,10 @@ func (plg *Plugins) PreCheck() {
 	nbCheck(plg)
 	plg.TargetPort = "445"
 	ms17010Check(plg)
-	if plg.PortOpened {
+	if plg.PortOpened || len(plg.Cracked) != 0 {
 		output(plg)
 	}
+
 }
 
 func SetDicByFile(userFile, passFile string) {

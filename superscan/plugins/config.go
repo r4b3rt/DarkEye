@@ -25,11 +25,12 @@ type Poc struct {
 }
 
 type Account struct {
-	Username string `json:",omitempty"`
-	Password string `json:",omitempty"`
-	Web      `json:",omitempty"`
-	NetBios  `json:",omitempty"`
-	Poc      `json:",omitempty"`
+	Username  string `json:",omitempty"`
+	Password  string `json:",omitempty"`
+	Web       `json:",omitempty"`
+	NetBios   `json:",omitempty"`
+	Poc       `json:",omitempty"`
+	PingAlive string
 }
 
 type tmpCache struct {

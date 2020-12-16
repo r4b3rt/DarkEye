@@ -19,11 +19,13 @@ clean() {
     rm -f superscan.exe
     rm -f *.csv
     rm -f dic/*.go
+    rm -rf db_poc/*.go
 }
 
 clean
 
 cd utils && go run dic.go && cd -
+cd utils && go run poc.go && cd -
 
 case "$1" in
     "mac")

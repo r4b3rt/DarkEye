@@ -1,7 +1,8 @@
 package xraypoc
 
 import (
-	"gopkg.in/yaml.v2"
+	"fmt"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 )
 
@@ -29,6 +30,11 @@ type Detail struct {
 	Version     string   `yaml:"version"`
 }
 
+type XArYPoc struct {
+	ReverseUrl      string
+	ReverseUrlCheck string
+}
+
 func LoadPoc(fileName string) (*Poc, error) {
 	p := &Poc{}
 	yamlFile, err := ioutil.ReadFile(fileName)
@@ -36,6 +42,18 @@ func LoadPoc(fileName string) (*Poc, error) {
 		return nil, err
 	}
 	err = yaml.Unmarshal(yamlFile, p)
+	if err != nil {
+		return nil, err
+	}
+	return p, err
+}
+
+func LoadPocByData(data []byte) (*Poc, error) {
+	if data == nil {
+		return nil, fmt.Errorf("NoData")
+	}
+	p := &Poc{}
+	err := yaml.Unmarshal(data, p)
 	if err != nil {
 		return nil, err
 	}

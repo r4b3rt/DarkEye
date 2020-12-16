@@ -3,7 +3,9 @@ package plugins
 import (
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
+	"github.com/zsdevX/DarkEye/superscan/db_poc"
 	"github.com/zsdevX/DarkEye/superscan/dic"
+	"github.com/zsdevX/DarkEye/xraypoc"
 	"strings"
 )
 
@@ -32,14 +34,15 @@ func webCheck(plg *Plugins) {
 	}
 	if cracked.Server != "" || cracked.Title != "" {
 		plg.TargetProtocol = "web"
-		webTodo(plg, &cracked)
+		webCrackByFinger(plg, &cracked)
+		webPocCheck(plg, &cracked)
 		plg.Lock()
 		plg.Cracked = append(plg.Cracked, cracked)
 		plg.Unlock()
 	}
 }
 
-func webTodo(plg *Plugins, ck *Account) {
+func webCrackByFinger(plg *Plugins, ck *Account) {
 	if strings.Contains(ck.Title, "Apache Tomcat") {
 		//爆破manager
 		plg.tmp.tls = ck.Tls
@@ -50,4 +53,22 @@ func webTodo(plg *Plugins, ck *Account) {
 	}
 	//Other
 	checkWebLogic(plg)
+}
+
+func webPocCheck(plg *Plugins, ck *Account) {
+	xAry := xraypoc.XArYPoc{
+		ReverseUrlCheck: reverseCheckUrl,
+		ReverseUrl:      reverseUrl,
+	}
+	url := fmt.Sprintf("http://%s:%s", plg.TargetIp, plg.TargetPort)
+	if plg.tmp.tls {
+		url = fmt.Sprintf("https://%s:%s", plg.TargetIp, plg.TargetPort)
+	}
+	for _, p := range db_poc.POCS {
+		ok, _ := xAry.Check([]byte(p.Data), "", url)
+		if ok {
+			ck.Desc += "|" + p.Name
+			break
+		}
+	}
 }

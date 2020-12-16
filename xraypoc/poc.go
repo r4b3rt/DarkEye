@@ -1,23 +1,25 @@
-package poc
+package xraypoc
 
 import (
 	"encoding/base64"
 	"fmt"
 	"github.com/google/cel-go/cel"
 	"github.com/zsdevX/DarkEye/common"
-	"github.com/zsdevX/DarkEye/poc/xraypoc"
-	"github.com/zsdevX/DarkEye/poc/xraypoc/celtypes"
+	"github.com/zsdevX/DarkEye/xraypoc/celtypes"
 	"regexp"
 	"sort"
 	"strings"
 )
 
-func (p *Poc) doCheck(pocFileName, myUrl string) (bool, error) {
-	poc, err := xraypoc.LoadPoc(pocFileName)
-	if err != nil {
-		return false, err
+func (p *XArYPoc) Check(data []byte, pocFileName, myUrl string) (bool, error) {
+	poc, err := LoadPocByData(data)
+	if poc == nil {
+		poc, err = LoadPoc(pocFileName)
+		if err != nil {
+			return false, err
+		}
 	}
-	newLib := xraypoc.NewCustomLib()
+	newLib := NewCustomLib()
 	params, err := p.loadParamsPrepare(newLib, myUrl, poc)
 	if err != nil {
 		return false, err
@@ -58,7 +60,7 @@ func (p *Poc) doCheck(pocFileName, myUrl string) (bool, error) {
 			}
 		}
 		//匹配rule.Expression
-		out, err := xraypoc.Eval(env, rule.Expression, params)
+		out, err := Eval(env, rule.Expression, params)
 		if err != nil {
 			return result, err
 		}
@@ -71,10 +73,10 @@ func (p *Poc) doCheck(pocFileName, myUrl string) (bool, error) {
 	return result, nil
 }
 
-func (p *Poc) loadParamsPrepare(newLib *xraypoc.CustomLib, myUrl string, poc *xraypoc.Poc) (params map[string]interface{}, err error) {
+func (p *XArYPoc) loadParamsPrepare(newLib *CustomLib, myUrl string, poc *Poc) (params map[string]interface{}, err error) {
 	params = make(map[string]interface{})
 	for k, v := range poc.Set {
-		newLib.UpdateOptions(k, xraypoc.ConvertDeclType(v))
+		newLib.UpdateOptions(k, ConvertDeclType(v))
 		//预处理
 		if v == "newReverse()" {
 			params[k], err = p.newReverse(base64.StdEncoding.EncodeToString([]byte(myUrl + poc.Name)))
@@ -84,7 +86,7 @@ func (p *Poc) loadParamsPrepare(newLib *xraypoc.CustomLib, myUrl string, poc *xr
 		}
 		if strings.HasPrefix(v, "request.") {
 			//Fixme: 在rule中发送get/post时，是否需要增加path，例如refrer=request.url+rule.path
-			url, err := xraypoc.StringConvertUrl(myUrl)
+			url, err := StringConvertUrl(myUrl)
 			if err != nil {
 				return nil, err
 			}
@@ -96,7 +98,22 @@ func (p *Poc) loadParamsPrepare(newLib *xraypoc.CustomLib, myUrl string, poc *xr
 	return
 }
 
-func loadParams(poc *xraypoc.Poc, params map[string]interface{}, env *cel.Env) error {
+func (p *XArYPoc) newReverse(tagFilter string) (*xraypoc_celtypes.Reverse, error) {
+	tagReverseUrl := fmt.Sprintf("http://%s.%s", tagFilter, p.ReverseUrl)
+	urlType, err := StringConvertUrl(tagReverseUrl)
+	if err != nil {
+		return nil, err
+	}
+	return &xraypoc_celtypes.Reverse{
+		Url:                urlType,
+		Domain:             urlType.Domain,
+		Ip:                 "",
+		IsDomainNameServer: false,
+		ReverseCheckUrl:    p.ReverseUrlCheck,
+	}, nil
+}
+
+func loadParams(poc *Poc, params map[string]interface{}, env *cel.Env) error {
 	keys := make([]string, 0)
 	for k := range poc.Set {
 		keys = append(keys, k)
@@ -113,13 +130,13 @@ func loadParams(poc *xraypoc.Poc, params map[string]interface{}, env *cel.Env) e
 			k == "payload" {
 			continue
 		}
-		result, err := xraypoc.Eval(env, v, params)
+		result, err := Eval(env, v, params)
 		if err != nil {
 			return err
 		}
 		switch val := result.Value().(type) {
 		case *xraypoc_celtypes.UrlType:
-			params[k] = xraypoc.UrlConvertString(val)
+			params[k] = UrlConvertString(val)
 		default:
 			params[k] = result
 		}
@@ -129,7 +146,7 @@ func loadParams(poc *xraypoc.Poc, params map[string]interface{}, env *cel.Env) e
 		if v != "payload" {
 			continue
 		}
-		out, err := xraypoc.Eval(env, v, params)
+		out, err := Eval(env, v, params)
 		if err != nil {
 			return err
 		}
@@ -157,22 +174,7 @@ func trySearch(re string, body []byte) map[string]string {
 	return nil
 }
 
-func (p *Poc) newReverse(tagFilter string) (*xraypoc_celtypes.Reverse, error) {
-	tagReverseUrl := fmt.Sprintf("http://%s.%s", tagFilter, p.ReverseUrl)
-	urlType, err := xraypoc.StringConvertUrl(tagReverseUrl)
-	if err != nil {
-		return nil, err
-	}
-	return &xraypoc_celtypes.Reverse{
-		Url:                urlType,
-		Domain:             urlType.Domain,
-		Ip:                 "",
-		IsDomainNameServer: p.ReverseUseDomain,
-		ReverseCheckUrl:    p.ReverseCheckUrl,
-	}, nil
-}
-
-func tryReq(myUrl string, rule *xraypoc.Rules) (xraypoc_celtypes.Response, error) {
+func tryReq(myUrl string, rule *Rules) (xraypoc_celtypes.Response, error) {
 	req := common.HttpRequest{
 		Method:           rule.Method,
 		Url:              myUrl + rule.Path,

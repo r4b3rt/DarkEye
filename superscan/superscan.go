@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/fatih/color"
@@ -20,23 +21,25 @@ import (
 )
 
 var (
-	mIp           = flag.String("ip", "127.0.0.1", "a.b.c.1-254")
-	mTimeOut      = flag.Int("timeout", 3000, "单位ms")
-	mThread       = flag.Int("thread", 32, "扫单IP线程数")
-	mPortList     = flag.String("port-list", common.PortList, "端口范围,默认1000+常用端口")
-	mUserList     = flag.String("user-file", "", "用户名字典文件")
-	mPassList     = flag.String("pass-file", "", "密码字典文件")
-	mNoTrust      = flag.Bool("no-trust", false, "由端口判定协议改为指纹方式判断协议,速度慢点")
-	mPluginWorker = flag.Int("plugin-worker", 2, "单协议爆破密码时，线程个数")
-	mRateLimiter  = flag.Int("pps", 0, "扫描工具整体发包频率n/秒, 该选项可避免线程过多发包会占有带宽导致丢失目标端口")
-	mActivePort   = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
-	mListPlugin   = flag.Bool("list-plugin", false, "列出支持的爆破协议")
-	mMaxIPDetect  = 16
-	mFile         *os.File
-	mCsvWriter    *csv.Writer
-	mFileName     string
-	mBar          *progressbar.ProgressBar
-	mPps          *rate.Limiter
+	mIp              = flag.String("ip", "127.0.0.1", "a.b.c.1-254")
+	mTimeOut         = flag.Int("timeout", 3000, "单位ms")
+	mThread          = flag.Int("thread", 32, "扫单IP线程数")
+	mPortList        = flag.String("port-list", common.PortList, "端口范围,默认1000+常用端口")
+	mUserList        = flag.String("user-file", "", "用户名字典文件")
+	mPassList        = flag.String("pass-file", "", "密码字典文件")
+	mNoTrust         = flag.Bool("no-trust", false, "由端口判定协议改为指纹方式判断协议,速度慢点")
+	mPluginWorker    = flag.Int("plugin-worker", 2, "单协议爆破密码时，线程个数")
+	mRateLimiter     = flag.Int("pps", 0, "扫描工具整体发包频率n/秒, 该选项可避免线程过多发包会占有带宽导致丢失目标端口")
+	mActivePort      = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
+	mListPlugin      = flag.Bool("list-plugin", false, "列出支持的爆破协议")
+	mPocReverse      = flag.String("reverse-url", "qvn0kc.ceye.io", "CEye 标识")
+	mPocReverseCheck = flag.String("reverse-check-url", "http://api.ceye.io/v1/records?token=066f3d242991929c823ac85bb60f4313&type=http&filter=", "CEye API")
+	mMaxIPDetect     = 16
+	mFile            *os.File
+	mCsvWriter       *csv.Writer
+	mFileName        string
+	mBar             *progressbar.ProgressBar
+	mPps             *rate.Limiter
 )
 
 var (
@@ -63,7 +66,8 @@ func main() {
 		plugins.SupportPlugin()
 		return
 	}
-	plugins.SetDicByFile(*mUserList, *mPassList)
+	plugins.SetDic(*mUserList, *mPassList)
+	plugins.SetReverse(*mPocReverse, *mPocReverseCheck)
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	if *mRateLimiter > 0 {
 		//每秒发包*mRateLimiter，缓冲10个
@@ -156,8 +160,9 @@ func myCallback(a interface{}) {
 	plg := a.(*plugins.Plugins)
 	mFileSync.Lock()
 	defer mFileSync.Unlock()
+	ck, _ := json.Marshal(plg.Cracked)
 	_ = mCsvWriter.Write([]string{plg.TargetIp, plg.TargetPort, plg.TargetProtocol,
-		fmt.Sprintf("%v", plg.Cracked)})
+		string(ck)})
 	mCsvWriter.Flush()
 }
 

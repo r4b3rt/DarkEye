@@ -13,7 +13,17 @@
 2、常用协议弱口令爆破
 3、支持获取标题和中间件
 4、绕过防火墙频率限制扫描（限单IP）
-5、收集结果自动报告输出
+5、支持长亭xray官方poc解析，poc文件可从下列列表白嫖：
+    https://github.com/chaitin/xray/tree/master/pocs
+    https://github.com/Laura0xiaoshizi/xray_pocs
+6、收集结果自动报告输出
+```
+
+#### Poc测试
+```aidl
+cd superscan/util
+go build poc.go
+./poc -test -test-poc ../db_poc/shiro.yml -test-url http://www.baidu.com
 ```
 
 ### 信息搜集
@@ -23,10 +33,7 @@
 2、支持SecurityTrails收集子域信息，并扩展支持提取域名解析的ip、cname、地域、标题。（50个域名/1key，多申请:)）
 3、爬取网站（含js、html、xml、json等）贪婪搜索返回内容中任何位置可能存在的接口路径; 敏感路径分级;
 4、支持google hack爬取数据，无需翻墙但是需要到https://serpstack.com/申请key（1key/100次/每月, 多申请:)）
-5、支持长亭xray官方poc解析，poc文件可从下列列表白嫖：
-    https://github.com/chaitin/xray/tree/master/pocs
-    https://github.com/Laura0xiaoshizi/xray_pocs
-6、收集结果自动报告输出    
+5、收集结果自动报告输出    
 ```
 
 功能截图

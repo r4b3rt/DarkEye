@@ -10,10 +10,12 @@ import (
 )
 
 var (
-	checkFuncs    = map[int]func(*Plugins){}
-	supportPlugin = map[string]string{}
-	userList      []string
-	passList      []string
+	checkFuncs      = map[int]func(*Plugins){}
+	supportPlugin   = map[string]string{}
+	userList        []string
+	passList        []string
+	reverseUrl      = "qvn0kc.ceye.io"
+	reverseCheckUrl = "http://api.ceye.io/v1/records?token=066f3d242991929c823ac85bb60f4313&type=http&filter="
 )
 
 func (plg *Plugins) Check() {
@@ -52,23 +54,6 @@ func (plg *Plugins) PreCheck() {
 	if plg.PortOpened || len(plg.Cracked) != 0 {
 		output(plg)
 	}
-
-}
-
-func SetDicByFile(userFile, passFile string) {
-	if userFile != "" {
-		userList = common.GenArraryFromFile(userFile)
-	}
-	if passFile != "" {
-		passList = common.GenArraryFromFile(passFile)
-	}
-	if userList != nil {
-		color.Green("使用用户字典 %s", userFile)
-	}
-	if passList != nil {
-		color.Green("使用密码字典 %s", passFile)
-	}
-	return
 }
 
 func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(*Plugins, string, string) int) {
@@ -158,9 +143,30 @@ func output(plg *Plugins) {
 	}
 }
 
+func SetDic(userFile, passFile string) {
+	if userFile != "" {
+		userList = common.GenArraryFromFile(userFile)
+	}
+	if passFile != "" {
+		passList = common.GenArraryFromFile(passFile)
+	}
+	if userList != nil {
+		color.Green("使用用户字典 %s", userFile)
+	}
+	if passList != nil {
+		color.Green("使用密码字典 %s", passFile)
+	}
+	return
+}
+
 func SupportPlugin() {
 	for _, v := range supportPlugin {
 		color.Green("%v,", v)
 	}
 	color.Green("to be continue.\n,")
+}
+
+func SetReverse(url, api string) {
+	reverseUrl = url
+	reverseCheckUrl = api
 }

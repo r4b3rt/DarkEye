@@ -11,11 +11,11 @@ import (
 )
 
 var (
-	dictionary = "../dic"
+	dictionaryDic = "../dic"
 )
 
 func main() () {
-	f, _ := os.OpenFile(dictionary, os.O_RDONLY, os.ModeDir)
+	f, _ := os.OpenFile(dictionaryDic, os.O_RDONLY, os.ModeDir)
 	defer f.Close()
 
 	//读取目录
@@ -32,9 +32,9 @@ func main() () {
 }
 
 func genCode(filename string) {
-	file, _ := os.Open(filepath.Join(dictionary, filename))
+	file, _ := os.Open(filepath.Join(dictionaryDic, filename))
 	tag := strings.TrimSuffix(filename, ".txt")
-	output, _ := os.OpenFile(filepath.Join(dictionary, tag+".go"),
+	output, _ := os.OpenFile(filepath.Join(dictionaryDic, tag+".go"),
 		os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
 	defer output.Close()
 	defer file.Close()

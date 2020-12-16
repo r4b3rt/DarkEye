@@ -64,7 +64,7 @@ clean() {
     rm -f *.cpp
     rm -rf darwin
     rm -rf windows
-    cd superscan && make clean && cd -
+    cd superscan && ./build.sh clean && cd -
 }
 
 clean

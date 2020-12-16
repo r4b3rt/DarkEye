@@ -30,7 +30,7 @@ var (
 	mPluginWorker = flag.Int("plugin-worker", 2, "单协议爆破密码时，线程个数")
 	mRateLimiter  = flag.Int("pps", 0, "扫描工具整体发包频率n/秒, 该选项可避免线程过多发包会占有带宽导致丢失目标端口")
 	mActivePort   = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
-	mListPlugin  = flag.Bool("list-plugin", false, "列出支持的爆破协议")
+	mListPlugin   = flag.Bool("list-plugin", false, "列出支持的爆破协议")
 	mMaxIPDetect  = 16
 	mFile         *os.File
 	mCsvWriter    *csv.Writer
@@ -144,8 +144,12 @@ func NewScan(ip string) *Scan {
 }
 
 func myBarDescUpdate(a string) {
-	mBar.Describe(a)
-	_ = mBar.RenderBlank()
+	b := fmt.Sprintf("%-30s", a)
+	if len(a) > 30 {
+		b = a[0:27] + "..."
+	}
+	mBar.Describe(b)
+	//_ = mBar.RenderBlank()
 }
 
 func myCallback(a interface{}) {
@@ -164,7 +168,7 @@ func myBarCallback(i int) {
 func NewBar(max int) *progressbar.ProgressBar {
 	bar := progressbar.NewOptions(max,
 		progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
-		progressbar.OptionSetDescription("Loading ..."),
+		progressbar.OptionSetDescription(fmt.Sprintf("%-30s", "Cracking...")),
 		progressbar.OptionSetWriter(os.Stderr),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowIts(),
@@ -179,7 +183,7 @@ func NewBar(max int) *progressbar.ProgressBar {
 			BarStart:      "[",
 			BarEnd:        "]",
 		}),
-		//progressbar.OptionFullWidth(),
+		progressbar.OptionFullWidth(),
 	)
 	_ = bar.RenderBlank()
 	return bar

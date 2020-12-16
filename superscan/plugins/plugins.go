@@ -18,6 +18,7 @@ var (
 
 func (plg *Plugins) Check() {
 	plg.RateWait(plg.RateLimiter) //活跃端口发包限制
+	plg.DescCallback(fmt.Sprintf("Cracking %s:%s", plg.TargetIp, plg.TargetPort))
 	if common.IsAlive(plg.TargetIp, plg.TargetPort, plg.TimeOut) != common.Alive {
 		return
 	}
@@ -27,7 +28,6 @@ func (plg *Plugins) Check() {
 	//预处理
 	for i < PluginNR {
 		checkFuncs[i](plg)
-		plg.DescCallback("Cracking ...")
 		//未找到密码
 		if plg.TargetProtocol != "" {
 			output(plg)

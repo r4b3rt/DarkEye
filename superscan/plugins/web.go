@@ -57,8 +57,8 @@ func webCrackByFinger(plg *Plugins, ck *Account) {
 
 func webPocCheck(plg *Plugins, ck *Account) {
 	xAry := xraypoc.XArYPoc{
-		ReverseUrlCheck: reverseCheckUrl,
-		ReverseUrl:      reverseUrl,
+		ReverseUrlCheck: GlobalConfig.ReverseCheckUrl,
+		ReverseUrl:      GlobalConfig.ReverseUrl,
 	}
 	url := fmt.Sprintf("http://%s:%s", plg.TargetIp, plg.TargetPort)
 	if plg.tmp.tls {

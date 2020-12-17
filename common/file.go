@@ -30,7 +30,10 @@ func CreateCSV(fileName string, cols []string) (*csv.Writer, *os.File, string, e
 	return w, f, fileName, nil
 }
 
-func GenArraryFromFile(filename string) []string{
+func GenDicFromFile(filename string) []string{
+	if filename == "" {
+		return nil
+	}
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil

@@ -57,6 +57,13 @@ type Plugins struct {
 	sync.RWMutex //protect 'Cracked'
 }
 
+type Config struct {
+	UserList        []string
+	PassList        []string
+	ReverseUrl      string
+	ReverseCheckUrl string
+}
+
 const (
 	SSHSrv = iota
 	MysqlSrv

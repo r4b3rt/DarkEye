@@ -66,8 +66,12 @@ func main() {
 		plugins.SupportPlugin()
 		return
 	}
-	plugins.SetDic(*mUserList, *mPassList)
-	plugins.SetReverse(*mPocReverse, *mPocReverseCheck)
+	//初始化插件
+	plugins.GlobalConfig.ReverseUrl = *mPocReverse
+	plugins.GlobalConfig.ReverseCheckUrl = *mPocReverseCheck
+	plugins.GlobalConfig.UserList = common.GenDicFromFile(*mUserList)
+	plugins.GlobalConfig.PassList = common.GenDicFromFile(*mPassList)
+
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	if *mRateLimiter > 0 {
 		//每秒发包*mRateLimiter，缓冲10个

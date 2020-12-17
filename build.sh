@@ -5,7 +5,7 @@ export GO111MODULE=off
 build_hackTools() {
     os=$1
     if [[ "$os" == "win" ]]; then
-        cd superscan && ./build.sh $os && mv superscan.exe ../dist/superscan.${os}
+        cd superscan && ./build.sh $os && mv superscan.exe ../dist/superscan.exe
     else
         cd superscan && ./build.sh $os && mv superscan ../dist/superscan.${os}
     fi
@@ -54,7 +54,7 @@ build_win() {
         mv deploy/windows/DarkEye.exe dist/
         echo "Build Success"
     fi
-     build_hackTools "windows"
+     build_hackTools "win"
 }
 
 clean() {

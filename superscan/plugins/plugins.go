@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	checkFuncs      = map[int]func(*Plugins){}
-	supportPlugin   = map[string]string{}
-	userList        []string
-	passList        []string
-	reverseUrl      = "qvn0kc.ceye.io"
-	reverseCheckUrl = "http://api.ceye.io/v1/records?token=066f3d242991929c823ac85bb60f4313&type=http&filter="
+	checkFuncs    = map[int]func(*Plugins){}
+	supportPlugin = map[string]string{}
+	GlobalConfig  = Config{
+		ReverseUrl:      "qvn0kc.ceye.io",
+		ReverseCheckUrl: "http://api.ceye.io/v1/records?token=066f3d242991929c823ac85bb60f4313&type=http&filter=",
+	}
 )
 
 func (plg *Plugins) Check() {
@@ -58,11 +58,11 @@ func (plg *Plugins) PreCheck() {
 
 func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(*Plugins, string, string) int) {
 	//如果用户指定字典强制切换
-	if userList != nil {
-		dictUser = userList
+	if GlobalConfig.UserList != nil {
+		dictUser = GlobalConfig.UserList
 	}
-	if passList != nil {
-		dictPass = passList
+	if GlobalConfig.PassList != nil {
+		dictPass = GlobalConfig.PassList
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(len(dictUser))
@@ -143,30 +143,8 @@ func output(plg *Plugins) {
 	}
 }
 
-func SetDic(userFile, passFile string) {
-	if userFile != "" {
-		userList = common.GenArraryFromFile(userFile)
-	}
-	if passFile != "" {
-		passList = common.GenArraryFromFile(passFile)
-	}
-	if userList != nil {
-		color.Green("使用用户字典 %s", userFile)
-	}
-	if passList != nil {
-		color.Green("使用密码字典 %s", passFile)
-	}
-	return
-}
-
 func SupportPlugin() {
 	for _, v := range supportPlugin {
 		color.Green("%v,", v)
 	}
-	color.Green("to be continue.\n,")
-}
-
-func SetReverse(url, api string) {
-	reverseUrl = url
-	reverseCheckUrl = api
 }

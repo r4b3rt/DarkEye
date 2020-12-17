@@ -96,10 +96,11 @@ func Start() {
 			return
 		}
 		for {
-			if start > end {
+			nip := common.GenIP(base, start)
+			if strings.Compare(nip, end) > 0 {
 				break
 			}
-			s := NewScan(common.GenIP(base, start))
+			s := NewScan(nip)
 			s.ActivePort = "0"
 			_, t := common.GetPortRange(s.PortRange)
 			tot += t

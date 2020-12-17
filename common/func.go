@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -17,23 +18,26 @@ type FromTo struct {
 	To   int
 }
 
-func GetIPRange(ip string) (base string, start, end int, err error) {
-	fromTo := strings.Split(ip, "-")
-	ipStart := fromTo[0]
-	err = fmt.Errorf(LogBuild("common.func", "IP格式错误(eg. 1.1.1.1-3)", FAULT))
-	if strings.Contains(ip, "/") {
+func GetIPRange(ip string) (base string, start int, end string, err error) {
+	err = fmt.Errorf(LogBuild("common.func", "IP格式错误(eg. 1.1.1.1-1.1.1.255)", FAULT))
+	re := regexp.MustCompile(`\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}-\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}|\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`)
+	//检查格式
+	x:= re.FindAllString(ip, -1)
+	if x == nil {
 		return
 	}
+	if x[0] != ip {
+		return
+	}
+
 	start = 0
-	tIp := strings.Split(ipStart, ".")
-	end = start
+	fromTo := strings.Split(ip, "-")
+	base = fromTo[0]
+
+	end = base
 	if len(fromTo) == 2 {
-		end, _ = strconv.Atoi(fromTo[1])
+		end = fromTo[1]
 	}
-	for _, v := range tIp {
-		base += fmt.Sprintf("%s.", v)
-	}
-	base = strings.TrimRight(base, ".")
 	err = nil
 	return
 }

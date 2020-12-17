@@ -48,7 +48,6 @@ func (sp *Spider) ApiFinderUrl(myUrl string) {
 
 	sp.requestLinkExtract(c)
 	sp.responseResultExtract(c)
-
 	_ = c.Visit(myUrl)
 }
 

@@ -36,7 +36,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="fofa_tab">
      <attribute name="title">
@@ -77,7 +77,7 @@
         <set>Qt::AlignCenter</set>
        </property>
        <property name="placeholderText">
-        <string>f.u.c.1-254,f.u.c.k</string>
+        <string>f.u.c.1-f.u.c.254,f.u.c.k</string>
        </property>
       </widget>
       <widget class="QLabel" name="fofa_interval_label">
@@ -344,19 +344,12 @@
        </property>
       </widget>
      </widget>
-     <zorder>st_domain_label</zorder>
-     <zorder>st_domain</zorder>
-     <zorder>st_stop</zorder>
-     <zorder>st_dns_label</zorder>
-     <zorder>st_start</zorder>
-     <zorder>st_clear</zorder>
-     <zorder>st_dns</zorder>
+     <zorder>splitter</zorder>
+     <zorder>splitter_5</zorder>
      <zorder>st_key_label</zorder>
      <zorder>st_apikeylist</zorder>
-     <zorder>st_domain_brute_mode</zorder>
      <zorder>st_domain_brute</zorder>
      <zorder>st_domain_brute_label</zorder>
-     <zorder>st_domain_brute_mode_label</zorder>
      <zorder>st_domain_brute_rate_label</zorder>
      <zorder>st_domain_brute_rate</zorder>
      <zorder>st_log</zorder>
@@ -413,8 +406,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>581</width>
-         <height>79</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <attribute name="label">

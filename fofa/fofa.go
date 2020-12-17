@@ -64,13 +64,14 @@ func (f *Fofa) runIP() {
 			return
 		}
 		for {
-			if start > end {
-				break
-			}
+			nip := common.GenIP(base, start)
 			if common.ShouldStop(&f.Stop) {
 				break
 			}
-			f.get(common.GenIP(base, start))
+			if strings.Compare(nip, end) > 0 {
+				break
+			}
+			f.get(nip)
 			start++
 			//学做人，防止fofa封
 			time.Sleep(time.Second * time.Duration(common.GenHumanSecond(f.Interval)))

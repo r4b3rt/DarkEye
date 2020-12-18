@@ -14,10 +14,10 @@ type Web struct {
 }
 
 type NetBios struct {
-	HostName  string `json:",omitempty"`
-	UserName  string `json:",omitempty"`
-	WorkGroup string `json:",omitempty"`
-	Ip        []string
+	HostName  string   `json:",omitempty"`
+	UserName  string   `json:",omitempty"`
+	WorkGroup string   `json:",omitempty"`
+	Ip        []string `json:",omitempty"`
 }
 
 type Poc struct {
@@ -25,12 +25,11 @@ type Poc struct {
 }
 
 type Account struct {
-	Username  string `json:",omitempty"`
-	Password  string `json:",omitempty"`
-	Web       `json:",omitempty"`
-	NetBios   `json:",omitempty"`
-	Poc       `json:",omitempty"`
-	PingAlive string
+	Username string `json:",omitempty"`
+	Password string `json:",omitempty"`
+	Web      `json:",omitempty"`
+	NetBios  `json:",omitempty"`
+	Poc      `json:",omitempty"`
 }
 
 type tmpCache struct {
@@ -64,6 +63,7 @@ type Config struct {
 	ReverseCheckUrl string
 }
 
+//check list
 const (
 	SSHSrv = iota
 	MysqlSrv
@@ -76,6 +76,14 @@ const (
 	SmbSrv
 	WEBSrv  //放到最后
 	PluginNR
+)
+
+//pre-check list
+const (
+	NetBiosPre = iota
+	Ms17010Pre
+	SnmpPre
+	PluginPreCheckNR
 )
 
 const (

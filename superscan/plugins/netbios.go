@@ -10,45 +10,16 @@ import (
 	"time"
 )
 
-type NetbiosReplyHeader struct {
-	XID             uint16
-	Flags           uint16
-	QuestionCount   uint16
-	AnswerCount     uint16
-	AuthCount       uint16
-	AdditionalCount uint16
-	QuestionName    [34]byte
-	RecordType      uint16
-	RecordClass     uint16
-	RecordTTL       uint32
-	RecordLength    uint16
-}
-
-type NetbiosReplyName struct {
-	Name [15]byte
-	Type uint8
-	Flag uint16
-}
-
-type NetbiosReplyAddress struct {
-	Flag    uint16
-	Address [4]uint8
-}
-
-type NetbiosReplyStatus struct {
-	Header    NetbiosReplyHeader
-	HostName  [15]byte
-	UserName  [15]byte
-	WorkGroup [15]byte
-	Names     []NetbiosReplyName
-	Addresses []NetbiosReplyAddress
-}
-
 func init() {
 	supportPlugin["netbios"] = "netbios"
+	preCheckFuncs[NetBiosPre] = nbCheck
 }
 
 func nbCheck(plg *Plugins) {
+	plg.TargetPort = "137"
+	plg.DescCallback(fmt.Sprintf("Cracking %s %s:%s",
+		"netbios", plg.TargetIp, plg.TargetPort))
+
 	plg.RateWait(plg.RateLimiter) //爆破限制
 	addr := fmt.Sprintf("%s:%s", plg.TargetIp, plg.TargetPort)
 	socket, err := net.Dial("udp", addr)
@@ -212,4 +183,38 @@ func encodeNetbiosName(name [16]byte) [32]byte {
 	}
 
 	return encoded
+}
+
+type NetbiosReplyHeader struct {
+	XID             uint16
+	Flags           uint16
+	QuestionCount   uint16
+	AnswerCount     uint16
+	AuthCount       uint16
+	AdditionalCount uint16
+	QuestionName    [34]byte
+	RecordType      uint16
+	RecordClass     uint16
+	RecordTTL       uint32
+	RecordLength    uint16
+}
+
+type NetbiosReplyName struct {
+	Name [15]byte
+	Type uint8
+	Flag uint16
+}
+
+type NetbiosReplyAddress struct {
+	Flag    uint16
+	Address [4]uint8
+}
+
+type NetbiosReplyStatus struct {
+	Header    NetbiosReplyHeader
+	HostName  [15]byte
+	UserName  [15]byte
+	WorkGroup [15]byte
+	Names     []NetbiosReplyName
+	Addresses []NetbiosReplyAddress
 }

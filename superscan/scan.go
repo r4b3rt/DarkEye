@@ -78,6 +78,7 @@ func (s *Scan) preCheck() {
 		RateLimiter: mPps,
 		RateWait:    rateWait,
 		TimeOut:     s.TimeOut,
+		DescCallback: s.BarDescriptionCallback,
 	}
 	plg.PreCheck()
 }

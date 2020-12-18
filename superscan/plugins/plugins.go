@@ -1,7 +1,9 @@
 package plugins
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/zsdevX/DarkEye/common"
@@ -11,6 +13,7 @@ import (
 
 var (
 	checkFuncs    = map[int]func(*Plugins){}
+	preCheckFuncs = map[int]func(*Plugins){}
 	supportPlugin = map[string]string{}
 	GlobalConfig  = Config{
 		ReverseUrl:      "qvn0kc.ceye.io",
@@ -18,10 +21,25 @@ var (
 	}
 )
 
+func (plg *Plugins) PreCheck() {
+	//预处理注意：
+	//1、该链上的处理为固定端口，主要为UDP或特殊协议
+	//2、此处未做发包限制
+	i := 0
+	for i < PluginPreCheckNR {
+		preCheckFuncs[i](plg)
+		i++
+	}
+	if plg.PortOpened || len(plg.Cracked) != 0 {
+		output(plg)
+	}
+}
+
 func (plg *Plugins) Check() {
 	plg.RateWait(plg.RateLimiter) //活跃端口发包限制
 	plg.DescCallback(fmt.Sprintf("Cracking %s:%s", plg.TargetIp, plg.TargetPort))
-	if common.IsAlive(plg.TargetIp, plg.TargetPort, plg.TimeOut) != common.Alive {
+	if !plg.PortOpened &&
+		common.IsAlive(plg.TargetIp, plg.TargetPort, plg.TimeOut) != common.Alive {
 		return
 	}
 	plg.PortOpened = true
@@ -38,22 +56,10 @@ func (plg *Plugins) Check() {
 		i++
 	}
 	if i >= PluginNR {
-		color.Yellow("\n%s %s:%s %v\n", "[-]",
+		color.Yellow("\n%s %s:%s %v\n", "[√]",
 			plg.TargetIp, plg.TargetPort, "Opened")
 	}
 	return
-}
-
-func (plg *Plugins) PreCheck() {
-	//预处理
-	//137端口机器检查
-	plg.TargetPort = "137"
-	nbCheck(plg)
-	plg.TargetPort = "445"
-	ms17010Check(plg)
-	if plg.PortOpened || len(plg.Cracked) != 0 {
-		output(plg)
-	}
 }
 
 func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(*Plugins, string, string) int) {
@@ -134,12 +140,15 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 }
 
 func output(plg *Plugins) {
+	output, _ := json.Marshal(plg.Cracked)
+	var out bytes.Buffer
+	_ = json.Indent(&out, output, "", "\t")
 	if plg.highLight {
-		color.Green("\n%s %s:%s %v\n",
-			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, plg.Cracked)
+		color.Green("\n[√]%s %s:%s %v\n",
+			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, out.String())
 	} else {
-		color.Yellow("\n%s %s:%s %v\n",
-			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, plg.Cracked)
+		color.Yellow("\n[√]%s %s:%s %v\n",
+			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, out.String())
 	}
 }
 

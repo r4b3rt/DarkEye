@@ -3,7 +3,7 @@ go env -w GOPROXY=https://goproxy.cn,direct
 export GO111MODULE=off
 
 build_win() {
-    GOOS=windows GOARCH=386 go build -ldflags="-s -w" ../dist/superscan_windows_386.exe
+    GOOS=windows GOARCH=386 go build -ldflags="-s -w" -o ../dist/superscan_windows_386.exe
 }
 
 build_mac() {

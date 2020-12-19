@@ -1,7 +1,6 @@
 package plugins
 
 import (
-	"fmt"
 	"github.com/alouca/gosnmp"
 )
 
@@ -11,8 +10,6 @@ func init() {
 }
 
 func snmpCheck(plg *Plugins) {
-	plg.DescCallback(fmt.Sprintf("Cracking %s %s:%s",
-		"snmp", plg.TargetIp, plg.TargetPort))
 	plg.TargetPort = "161"
 	if snmpConn(plg) == OKDone {
 		plg.TargetProtocol = "snmp"

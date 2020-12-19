@@ -20,7 +20,6 @@ func webCheck(plg *Plugins) {
 		timeOutSec = 1
 	}
 	cracked := Account{}
-	plg.RateWait(plg.RateLimiter)
 	cracked.Server, cracked.Title, cracked.Code = common.GetHttpTitle("http", plg.TargetIp+":"+plg.TargetPort, timeOutSec)
 	cracked.Url = fmt.Sprintf("http://%s:%s", plg.TargetIp, plg.TargetPort)
 	//部分http访问https有title

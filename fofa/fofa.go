@@ -68,7 +68,7 @@ func (f *Fofa) runIP() {
 			if common.ShouldStop(&f.Stop) {
 				break
 			}
-			if strings.Compare(nip, end) > 0 {
+			if common.CompareIP(nip, end) > 0 {
 				break
 			}
 			f.get(nip)

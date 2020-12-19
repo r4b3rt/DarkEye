@@ -11,35 +11,37 @@ import (
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
 	"golang.org/x/time/rate"
+	"runtime"
 	"time"
 
 	//	_ "net/http/pprof"
 	"os"
-	"runtime"
 	"strings"
 	"sync"
 )
 
 var (
-	mIp              = flag.String("ip", "127.0.0.1", "a.b.c.1-254")
-	mTimeOut         = flag.Int("timeout", 3000, "单位ms")
-	mThread          = flag.Int("thread", 32, "扫单IP线程数")
-	mPortList        = flag.String("port-list", common.PortList, "端口范围,默认1000+常用端口")
-	mUserList        = flag.String("user-file", "", "用户名字典文件")
-	mPassList        = flag.String("pass-file", "", "密码字典文件")
-	mNoTrust         = flag.Bool("no-trust", false, "由端口判定协议改为指纹方式判断协议,速度慢点")
-	mPluginWorker    = flag.Int("plugin-worker", 2, "单协议爆破密码时，线程个数")
-	mRateLimiter     = flag.Int("pps", 0, "扫描工具整体发包频率n/秒, 该选项可避免线程过多发包会占有带宽导致丢失目标端口")
-	mActivePort      = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
-	mListPlugin      = flag.Bool("list-plugin", false, "列出支持的爆破协议")
-	mPocReverse      = flag.String("reverse-url", "qvn0kc.ceye.io", "CEye 标识")
-	mPocReverseCheck = flag.String("reverse-check-url", "http://api.ceye.io/v1/records?token=066f3d242991929c823ac85bb60f4313&type=http&filter=", "CEye API")
-	mMaxIPDetect     = 16
-	mFile            *os.File
-	mCsvWriter       *csv.Writer
-	mFileName        string
-	mBar             *progressbar.ProgressBar
-	mPps             *rate.Limiter
+	mIp                    = flag.String("ip", "127.0.0.1", "a.b.c.1-254")
+	mTimeOut               = flag.Int("timeout", 3000, "单位ms")
+	mThread                = flag.Int("thread", 32, "扫单IP线程数")
+	mPortList              = flag.String("port-list", common.PortList, "端口范围,默认1000+常用端口")
+	mUserList              = flag.String("user-file", "", "用户名字典文件")
+	mPassList              = flag.String("pass-file", "", "密码字典文件")
+	mNoTrust               = flag.Bool("no-trust", false, "由端口判定协议改为指纹方式判断协议,速度慢点")
+	mPluginWorker          = flag.Int("plugin-worker", 2, "单协议爆破密码时，线程个数")
+	mRateLimiter           = flag.Int("pps", 0, "扫描工具整体发包频率n/秒, 该选项可避免线程过多发包会占有带宽导致丢失目标端口")
+	mActivePort            = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
+	mListPlugin            = flag.Bool("list-plugin", false, "列出支持的爆破协议")
+	mPocReverse            = flag.String("reverse-url", "qvn0kc.ceye.io", "CEye 标识")
+	mPocReverseCheck       = flag.String("reverse-check-url", "http://api.ceye.io/v1/records?token=066f3d242991929c823ac85bb60f4313&type=http&filter=", "CEye API")
+	mOnlyCheckAliveNetwork = flag.Bool("only-check-alive", false, "检查有活跃主机的网段")
+
+	mMaxIPDetect = 16
+	mFile        *os.File
+	mCsvWriter   *csv.Writer
+	mFileName    string
+	mBar         *progressbar.ProgressBar
+	mPps         *rate.Limiter
 )
 
 var (
@@ -60,31 +62,40 @@ func recordInit() {
 }
 
 func main() {
-	color.Yellow("超级弱口令、系统Vulnerable检测\n")
-	flag.Parse()
-	if *mListPlugin {
-		plugins.SupportPlugin()
-		return
-	}
-	//初始化插件
-	plugins.GlobalConfig.ReverseUrl = *mPocReverse
-	plugins.GlobalConfig.ReverseCheckUrl = *mPocReverseCheck
-	plugins.GlobalConfig.UserList = common.GenDicFromFile(*mUserList)
-	plugins.GlobalConfig.PassList = common.GenDicFromFile(*mPassList)
-
-	runtime.GOMAXPROCS(runtime.NumCPU())
-	if *mRateLimiter > 0 {
-		//每秒发包*mRateLimiter，缓冲10个
-		mPps = rate.NewLimiter(rate.Every(1000000*time.Microsecond/time.Duration(*mRateLimiter)), 10)
-		color.Green("rate limit enable <= %v pps\n", mPps.Limit())
-	}
 	//  debug/pprof
 	/*
 	go func() {
 		fmt.Println(http.ListenAndServe("localhost:10000", nil))
 	}()
 	*/
+	color.Yellow("超级弱口令、系统Vulnerable检测\n")
+	flag.Parse()
+	if *mListPlugin {
+		plugins.SupportPlugin()
+		return
+	}
+	if *mRateLimiter > 0 {
+		//每秒发包*mRateLimiter，缓冲10个
+		mPps = rate.NewLimiter(rate.Every(1000000*time.Microsecond/time.Duration(*mRateLimiter)), 10)
+		color.Green("rate limit enable <= %v pps\n", mPps.Limit())
+	}
+
+	//改变默认插件参数
+	plugins.GlobalConfig.ReverseUrl = *mPocReverse
+	plugins.GlobalConfig.ReverseCheckUrl = *mPocReverseCheck
+	plugins.GlobalConfig.UserList = common.GenDicFromFile(*mUserList)
+	plugins.GlobalConfig.PassList = common.GenDicFromFile(*mPassList)
+	plugins.GlobalConfig.Pps = mPps
+
 	color.Red(common.Banner)
+	common.SetRLimit()
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	//活跃网段检测
+	if *mOnlyCheckAliveNetwork {
+		networkCheck()
+		return
+	}
 	recordInit()
 	Start()
 }
@@ -101,7 +112,7 @@ func Start() {
 		}
 		for {
 			nip := common.GenIP(base, start)
-			if strings.Compare(nip, end) > 0 {
+			if common.CompareIP(nip, end) > 0 {
 				break
 			}
 			s := NewScan(nip)
@@ -112,7 +123,6 @@ func Start() {
 			start++
 		}
 	}
-	common.SetRLimit()
 	color.Green(fmt.Sprintf("已加载%d个IP,共计%d个端口,启动检测线程数%d,同时可检测IP数量%d",
 		len(mScans), tot, *mThread, mMaxIPDetect))
 	//建立进度条
@@ -136,6 +146,11 @@ func Start() {
 	color.Red("Done")
 }
 
+func networkCheck() {
+	s := NewScan("")
+	s.PingNet(*mIp)
+}
+
 func NewScan(ip string) *Scan {
 	return &Scan{
 		Ip:                     ip,
@@ -144,7 +159,6 @@ func NewScan(ip string) *Scan {
 		PortRange:              *mPortList,
 		ThreadNumber:           *mThread,
 		NoTrust:                *mNoTrust,
-		Rate:                   mPps,
 		PluginWorker:           *mPluginWorker,
 		Callback:               myCallback,
 		BarCallback:            myBarCallback,
@@ -153,12 +167,12 @@ func NewScan(ip string) *Scan {
 }
 
 func myBarDescUpdate(a string) {
-	b := fmt.Sprintf("%-30s", a)
-	if len(a) > 30 {
-		b = a[0:27] + "..."
+	b := fmt.Sprintf("%-64s", a)
+	if len(a) > 64 {
+		b = a[:61] + "..."
 	}
 	mBar.Describe(b)
-	//_ = mBar.RenderBlank()
+	_ = mBar.RenderBlank()
 }
 
 func myCallback(a interface{}) {
@@ -178,7 +192,7 @@ func myBarCallback(i int) {
 func NewBar(max int) *progressbar.ProgressBar {
 	bar := progressbar.NewOptions(max,
 		progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
-		progressbar.OptionSetDescription(fmt.Sprintf("%-30s", "Cracking...")),
+		progressbar.OptionSetDescription(fmt.Sprintf("%-64s", "Cracking...")),
 		progressbar.OptionSetWriter(os.Stderr),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowIts(),

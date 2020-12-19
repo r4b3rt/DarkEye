@@ -1,20 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
 	"testing"
 )
-
-func Test_SpeedTest(t *testing.T) {
-	s := New("192.168.1.1")
-	fmt.Println(s)
-	s.ActivePort = "80"
-	s.TimeOut = 300
-	s.Run()
-}
 
 func Test_Run(t *testing.T) {
 	*mIp = "192.168.1.1-254"
@@ -26,4 +17,9 @@ func Test_Run(t *testing.T) {
 		log.Println(http.ListenAndServe("localhost:10000", nil))
 	}()
 	Start()
+}
+
+func Test_pingNet(t *testing.T) {
+	s := NewScan("192.167.1.1")
+	s.PingNet("192.168.1.1-192.168.255.255")
 }

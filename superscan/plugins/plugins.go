@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/zsdevX/DarkEye/common"
+	"golang.org/x/time/rate"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
@@ -18,6 +20,18 @@ var (
 	GlobalConfig  = Config{
 		ReverseUrl:      "qvn0kc.ceye.io",
 		ReverseCheckUrl: "http://api.ceye.io/v1/records?token=066f3d242991929c823ac85bb60f4313&type=http&filter=",
+		RateWait: func(r *rate.Limiter) {
+			if r == nil {
+				return
+			}
+			for {
+				if r.Allow() {
+					break
+				} else {
+					time.Sleep(time.Millisecond * 10)
+				}
+			}
+		},
 	}
 )
 
@@ -27,6 +41,7 @@ func (plg *Plugins) PreCheck() {
 	//2、此处未做发包限制
 	i := 0
 	for i < PluginPreCheckNR {
+		plg.DescCallback(fmt.Sprintf("Cracking pre-check %s", plg.TargetIp))
 		preCheckFuncs[i](plg)
 		i++
 	}
@@ -36,7 +51,7 @@ func (plg *Plugins) PreCheck() {
 }
 
 func (plg *Plugins) Check() {
-	plg.RateWait(plg.RateLimiter) //活跃端口发包限制
+	GlobalConfig.RateWait(GlobalConfig.Pps) //活跃端口发包限制
 	plg.DescCallback(fmt.Sprintf("Cracking %s:%s", plg.TargetIp, plg.TargetPort))
 	if !plg.PortOpened &&
 		common.IsAlive(plg.TargetIp, plg.TargetPort, plg.TimeOut) != common.Alive {
@@ -45,7 +60,7 @@ func (plg *Plugins) Check() {
 	plg.PortOpened = true
 	plg.Cracked = make([]Account, 0)
 	i := 0
-	//预处理
+	//爆破链
 	for i < PluginNR {
 		checkFuncs[i](plg)
 		//未找到密码
@@ -93,6 +108,8 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 				pass = strings.Replace(pass, "%user%", username, -1)
 				plg.DescCallback(fmt.Sprintf("Cracking %s %s:%s %s/%s",
 					pid, plg.TargetIp, plg.TargetPort, username, pass))
+				//限速
+				GlobalConfig.RateWait(GlobalConfig.Pps)
 				ok := callback(plg, username, pass)
 				switch ok {
 				case OKNoauth:

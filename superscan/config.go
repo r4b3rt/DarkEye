@@ -1,9 +1,5 @@
 package main
 
-import (
-	"golang.org/x/time/rate"
-)
-
 type Scan struct {
 	//需配置参数
 	Ip           string `json:"ip"`
@@ -14,10 +10,9 @@ type Scan struct {
 	PluginWorker int
 
 	//任务执行结果
-	Rate    *rate.Limiter
 	TimeOut int `json:"timeout"`
 	//
-	Callback               func(interface{})   `json:"-"`
-	BarCallback            func(i int)    `json:"-"`
-	BarDescriptionCallback func(i string) `json:"-"`
+	Callback               func(interface{}) `json:"-"`
+	BarCallback            func(i int)       `json:"-"`
+	BarDescriptionCallback func(i string)    `json:"-"`
 }

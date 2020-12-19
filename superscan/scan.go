@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
-	"golang.org/x/time/rate"
 	"strconv"
 	"sync"
 	"time"
@@ -61,9 +60,7 @@ func (s *Scan) Check(p int) {
 		PortOpened:   false,
 		NoTrust:      s.NoTrust,
 		Worker:       s.PluginWorker,
-		RateLimiter:  s.Rate,
 		DescCallback: s.BarDescriptionCallback,
-		RateWait:     rateWait,
 	}
 	plg.Check()
 	if !plg.PortOpened {
@@ -74,10 +71,8 @@ func (s *Scan) Check(p int) {
 
 func (s *Scan) preCheck() {
 	plg := plugins.Plugins{
-		TargetIp:    s.Ip,
-		RateLimiter: mPps,
-		RateWait:    rateWait,
-		TimeOut:     s.TimeOut,
+		TargetIp:     s.Ip,
+		TimeOut:      s.TimeOut,
 		DescCallback: s.BarDescriptionCallback,
 	}
 	plg.PreCheck()
@@ -96,19 +91,6 @@ func (s *Scan) IsFireWallNotForbidden() bool {
 		maxRetries --
 	}
 	return false
-}
-
-func rateWait(r *rate.Limiter) {
-	if r == nil {
-		return
-	}
-	for {
-		if r.Allow() {
-			break
-		} else {
-			time.Sleep(time.Millisecond * 10)
-		}
-	}
 }
 
 func callback(a interface{}) {

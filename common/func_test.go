@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 )
 
@@ -11,7 +10,7 @@ func Test_getIPRange(t *testing.T) {
 	fmt.Println(start, end, fmt.Sprintf("%v", err))
 	for {
 		nip := GenIP(base, start)
-		if strings.Compare(nip, end) > 0 {
+		if CompareIP(nip, end) > 0 {
 			break
 		}
 		fmt.Println(nip)

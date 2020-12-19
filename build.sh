@@ -2,13 +2,8 @@
 #GOOS=windows GOARCH=386 go build -ldflags="-s -w"
 export GO111MODULE=off
 
-build_hackTools() {
-    os=$1
-    if [[ "$os" == "win" ]]; then
-        cd superscan && ./build.sh $os && mv superscan.exe ../dist/superscan.exe
-    else
-        cd superscan && ./build.sh $os && mv superscan ../dist/superscan.${os}
-    fi
+build_super() {
+    cd superscan && ./build.sh all
 }
 
 build_mac() {
@@ -21,7 +16,6 @@ build_mac() {
         mv deploy/darwin/DarkEye.app dist/
         echo "Build Success"
     fi
-    build_hackTools "mac"
 }
 
 build_linux() {
@@ -39,7 +33,6 @@ build_linux() {
             #编译：qtdeploy  -uic=false build linux
             "
      fi
-     build_hackTools "linux"
 }
 
 build_win() {
@@ -54,7 +47,6 @@ build_win() {
         mv deploy/windows/DarkEye.exe dist/
         echo "Build Success"
     fi
-     build_hackTools "win"
 }
 
 clean() {
@@ -78,11 +70,14 @@ case "$1" in
     "linux")
         build_linux
         ;;
+    "super")
+        build_super
+        ;;
     "clean")
         clean
         ;;
       *)
-        echo "./build.sh [mac|win|linux]"
+        echo "./build.sh [mac|win|linux|super]"
         ;;
 esac
 

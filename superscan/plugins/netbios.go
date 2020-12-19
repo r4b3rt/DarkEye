@@ -17,10 +17,6 @@ func init() {
 
 func nbCheck(plg *Plugins) {
 	plg.TargetPort = "137"
-	plg.DescCallback(fmt.Sprintf("Cracking %s %s:%s",
-		"netbios", plg.TargetIp, plg.TargetPort))
-
-	plg.RateWait(plg.RateLimiter) //爆破限制
 	addr := fmt.Sprintf("%s:%s", plg.TargetIp, plg.TargetPort)
 	socket, err := net.Dial("udp", addr)
 	if err != nil {

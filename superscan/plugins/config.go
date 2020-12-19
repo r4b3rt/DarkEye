@@ -43,7 +43,6 @@ type Plugins struct {
 	Cracked    []Account `json:",omitempty"`
 	tmp        tmpCache
 
-	RateLimiter    *rate.Limiter
 	NoTrust        bool `json:",omitempty"`
 	Worker         int  `json:",omitempty"`
 	TargetIp       string
@@ -51,16 +50,20 @@ type Plugins struct {
 	TargetProtocol string
 	TimeOut        int `json:"-"`
 	DescCallback   func(string)
-	RateWait       func(*rate.Limiter)
 	highLight      bool
 	sync.RWMutex //protect 'Cracked'
 }
 
 type Config struct {
+	//自定义字典
 	UserList        []string
 	PassList        []string
+	//Poc反弹验证地址
 	ReverseUrl      string
 	ReverseCheckUrl string
+	//发包速度限制
+	Pps             *rate.Limiter
+	RateWait        func(*rate.Limiter)
 }
 
 //check list

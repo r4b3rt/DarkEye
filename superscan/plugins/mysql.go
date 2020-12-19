@@ -31,7 +31,6 @@ func mysqlCheck(plg *Plugins) {
 }
 
 func mysqlConn(plg *Plugins, user string, pass string) (ok int) {
-	plg.RateWait(plg.RateLimiter) //爆破限制
 	ok = OKNext
 	source := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?timeout=%dms&readTimeout=%dms",
 		user, pass, plg.TargetIp, plg.TargetPort, "mysql", plg.TimeOut, plg.TimeOut)

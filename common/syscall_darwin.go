@@ -1,6 +1,7 @@
 package common
 
 import (
+	"os/exec"
 	"syscall"
 )
 
@@ -12,5 +13,9 @@ func SetRLimit() {
 	}
 	_ = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 	_ = syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+}
+
+func HideCmd(c *exec.Cmd) {
+
 }
 

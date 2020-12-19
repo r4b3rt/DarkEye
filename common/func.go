@@ -22,7 +22,7 @@ func GetIPRange(ip string) (base string, start int, end string, err error) {
 	err = fmt.Errorf(LogBuild("common.func", "IP格式错误(eg. 1.1.1.1-1.1.1.255)", FAULT))
 	re := regexp.MustCompile(`\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}-\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}|\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`)
 	//检查格式
-	x:= re.FindAllString(ip, -1)
+	x := re.FindAllString(ip, -1)
 	if x == nil {
 		return
 	}
@@ -44,18 +44,16 @@ func GetIPRange(ip string) (base string, start int, end string, err error) {
 
 func GenIP(ipSeg string, ip int) string {
 	a := make([]byte, 4)
-	binary.BigEndian.PutUint32(a, uint32(ip))
-	b := strings.Split(ipSeg, ".")
-	bl := len(b)
-	for k := range a {
-		if bl == 0 {
-			break
-		}
-		v, _ := strconv.Atoi(b[k])
-		a[k] += uint8(v)
-		bl --
-	}
+	x := net.ParseIP(ipSeg).To4()
+	y := binary.BigEndian.Uint32(x) + uint32(ip)
+	binary.BigEndian.PutUint32(a, y)
 	return net.IPv4(a[0], a[1], a[2], a[3]).String()
+}
+
+func CompareIP(a, b string) int64 {
+	x := binary.BigEndian.Uint32(net.ParseIP(a).To4())
+	y := binary.BigEndian.Uint32(net.ParseIP(b).To4())
+	return int64(x) - int64(y)
 }
 
 func GetPortRange(portRange string) ([]FromTo, int) {

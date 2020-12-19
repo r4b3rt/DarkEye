@@ -29,7 +29,6 @@ func sshCheck(plg *Plugins) {
 }
 
 func sshConn(plg *Plugins, user string, pass string) (ok int) {
-	plg.RateWait(plg.RateLimiter) //爆破限制
 	ok = OKNext
 	config := &ssh.ClientConfig{
 		User: user,

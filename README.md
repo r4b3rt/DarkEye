@@ -34,6 +34,11 @@
 ./supercan  -ip 192.168.1.1-192.168.255.255 -only-check-alive
 ```
 
+#### 活跃主机检测(限C段)
+```aidl
+./supercan  -ip 192.168.1.1 -only-check-alive
+```
+
 #### Poc测试
 ```aidl
 cd superscan/util

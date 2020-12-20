@@ -40,6 +40,12 @@ func (s *Scan) PingNet(ipList string) {
 	s.pingPrepare()
 	ips := strings.Split(ipList, ",")
 	for _, ip := range ips {
+		if !strings.Contains(ip, "-") {
+			//如果没有范围，则探测该段下所有ip活跃情况
+			s.pingHost(ip)
+			continue
+		}
+		//如果有'-'，则只探测网段存活
 		base, _, end, err := common.GetIPRange(ip)
 		if err != nil {
 			color.Red("%v", err)
@@ -48,7 +54,7 @@ func (s *Scan) PingNet(ipList string) {
 		ipSeg := net.ParseIP(base).To4()
 		for {
 			ipSeg[3] = 0
-			if s.pingCheck(ipSeg.String()) {
+			if s.pingCheck(ipSeg.String(), false) {
 				color.Green("%s is alive", ipSeg.String())
 			} else {
 				color.Yellow("%s is died", ipSeg.String())
@@ -64,8 +70,20 @@ func (s *Scan) PingNet(ipList string) {
 	}
 }
 
+func (s *Scan) pingHost(ip string) {
+	base, _, _, err := common.GetIPRange(ip)
+	if err != nil {
+		color.Red("%v", err)
+		return
+	}
+	ipSeg := net.ParseIP(base).To4()
+	ipSeg[3] = 0
+	s.pingCheck(ipSeg.String(), true)
+
+}
+
 //最小的ping单位：1个c段
-func (s *Scan) pingCheck(ipSeg string) bool {
+func (s *Scan) pingCheck(ipSeg string, perHost bool) bool {
 	start := 0
 	alive := atomic.Bool{}
 	ctx, cancel := context.WithCancel(context.TODO())
@@ -85,9 +103,14 @@ func (s *Scan) pingCheck(ipSeg string) bool {
 				return
 			default:
 			}
-			if s.ping(common.GenIP(ipSeg, idx), ctx) {
-				alive.Store(true)
-				cancel()
+			tip := common.GenIP(ipSeg, idx)
+			if s.ping(tip, ctx) {
+				if perHost {
+					color.Green("%s is alive", tip)
+				} else {
+					alive.Store(true)
+					cancel()
+				}
 			}
 		}(start)
 	}

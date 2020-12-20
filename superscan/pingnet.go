@@ -28,6 +28,7 @@ func init() {
 	if myOS == "windows" {
 		myCommandOutput = "TTL="
 		myShell = "CMD /c "
+		myCommand = "ping -n 1 -w 1"
 	} else if myOS == "darwin" {
 		myCommand = "ping -c 1 -W 1"
 		myCommandOutput = ", 0.0%"
@@ -79,6 +80,11 @@ func (s *Scan) pingCheck(ipSeg string) bool {
 			defer func() {
 				wg.Done()
 			}()
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
 			if s.ping(common.GenIP(ipSeg, idx), ctx) {
 				alive.Store(true)
 				cancel()

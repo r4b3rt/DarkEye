@@ -43,7 +43,7 @@ func runApp() {
 
 func initMainWin(mainWin *ui.MainWindow) {
 	//FoFa
-	LoadFoFa(mainWin)
+	LoadAsset(mainWin)
 	//subDomain
 	LoadSubDomain(mainWin)
 	//Spider

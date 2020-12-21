@@ -1,7 +1,6 @@
 package plugins
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -45,7 +44,7 @@ func (plg *Plugins) PreCheck() {
 		preCheckFuncs[i](plg)
 		i++
 	}
-	if plg.PortOpened || len(plg.Cracked) != 0 {
+	if len(plg.Cracked) != 0 {
 		output(plg)
 	}
 }
@@ -159,14 +158,14 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 
 func output(plg *Plugins) {
 	output, _ := json.Marshal(plg.Cracked)
-	var out bytes.Buffer
-	_ = json.Indent(&out, output, "", "\t")
+	//var out bytes.Buffer
+	//_ = json.Indent(&out, output, "", "\t")
 	if plg.highLight {
 		color.Green("\n[√] %s %s:%s %v\n",
-			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, out.String())
+			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, string(output))
 	} else {
 		color.Yellow("\n[√] %s %s:%s %v\n",
-			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, out.String())
+			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, string(output))
 	}
 }
 

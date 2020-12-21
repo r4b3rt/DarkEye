@@ -118,7 +118,7 @@ func (f *Fofa) parseHtml(query string, body []byte, page int) (stop bool) {
 		return
 	}
 	for _, blk := range blocks {
-		node := ipNode{
+		node := IpNode{
 			Ip: query,
 		}
 		//获取超链接
@@ -152,7 +152,7 @@ func (f *Fofa) parseHtml(query string, body []byte, page int) (stop bool) {
 		node.Alive = common.IsAlive(node.Ip, node.Port, 5000)
 
 		//保存结果
-		f.ipNodes = append(f.ipNodes, node)
+		f.IpNodes = append(f.IpNodes, node)
 	}
 	f.ErrChannel <- common.LogBuild("fofa",
 		fmt.Sprintf("%s: 完成第%d页解析", query, page), common.INFO)

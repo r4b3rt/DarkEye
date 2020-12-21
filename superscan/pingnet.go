@@ -121,7 +121,7 @@ func (s *Scan) pingCheck(ipSeg string, perHost bool) bool {
 func (s *Scan) ping(ip string, ctx context.Context) bool {
 	cmd := strings.Split(myShell, " ")
 	c := exec.CommandContext(ctx, cmd[0], cmd[1], myCommand+" "+ip)
-	common.HideCmd(c)
+	//common.HideCmd(c)
 	b, _ := c.Output()
 	if b != nil {
 		return bytes.Contains(b, []byte(myCommandOutput))
@@ -146,7 +146,7 @@ func (s *Scan) pingPrepare() {
 	if n != 0 {
 		myShell = cmd
 	}
-	color.Yellow("使用命令Shell环境'%s'", myShell)
+	color.Yellow("\n使用命令Shell环境'%s'", myShell)
 	color.Yellow("使用探测命令 '%s'检查网络 ", myCommand)
 	color.Yellow("使用关键字' %s' 确定网络是否存在", myCommandOutput)
 }

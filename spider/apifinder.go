@@ -1,34 +1,37 @@
 package spider
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gocolly/colly"
 	"github.com/zsdevX/DarkEye/common"
 	"net/url"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
 func (sp *Spider) ApiFinder() {
 	myUrls := strings.Split(sp.Url, ",")
+	sp.sensitiveInterface = make([]SensitiveInterface, 0)
 	for _, myUrl := range myUrls {
-		sp.sensitiveInterface = make([]SensitiveInterface, 0)
 		sp.ApiFinderUrl(myUrl)
-		w, file, _, err := common.CreateCSV(myUrl,
-			[]string{"敏感接口", "敏感等级"})
-		if err != nil {
-			sp.ErrChannel <- common.LogBuild("spider",
-				fmt.Sprintf("创建记录文件失败:"+err.Error()), common.INFO)
-			_ = file.Close()
-			return
-		}
-		for _, s := range sp.sensitiveInterface {
-			_ = w.Write([]string{s.API, strconv.Itoa(s.Level)})
-		}
-		w.Flush()
-		_ = file.Close()
 	}
+
+	if len(sp.sensitiveInterface) == 0 {
+		sp.ErrChannel <- common.LogBuild("spider",
+			fmt.Sprintf("获取信息%s:%s", sp.Query, "无信息"), common.INFO)
+		return
+	}
+	res, _ := json.Marshal(sp.sensitiveInterface)
+
+	filename, err := common.Write2CSV(sp.Query+"spider", res)
+	if err != nil {
+		sp.ErrChannel <- common.LogBuild("spider",
+			fmt.Sprintf("获取信息%s:%s", sp.Query, err.Error()), common.FAULT)
+		return
+	}
+	sp.ErrChannel <- common.LogBuild("spider",
+		fmt.Sprintf("收集信息任务完成，有效数量%d, 已保存结果:%s", len(sp.sensitiveInterface), filename), common.INFO)
 }
 
 func (sp *Spider) ApiFinderUrl(myUrl string) {

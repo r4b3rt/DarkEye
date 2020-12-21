@@ -46,75 +46,14 @@
       <property name="geometry">
        <rect>
         <x>60</x>
-        <y>80</y>
+        <y>10</y>
         <width>691</width>
-        <height>451</height>
+        <height>381</height>
        </rect>
       </property>
       <property name="readOnly">
        <bool>true</bool>
       </property>
-     </widget>
-     <widget class="QSplitter" name="splitter_3">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>40</y>
-        <width>681</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <widget class="QLabel" name="fofa_asset_label">
-       <property name="text">
-        <string>资产IP</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="fofa_asset_ip">
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="placeholderText">
-        <string>f.u.c.1-f.u.c.254,f.u.c.k</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="fofa_interval_label">
-       <property name="text">
-        <string>检索周期(秒)</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="fofa_interval">
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>3</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="placeholderText">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="fofa_session_label">
-       <property name="text">
-        <string>会话</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="fofa_session">
-       <property name="text">
-        <string>_fofapro_ars_session=</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="placeholderText">
-        <string>_fofapro_ars_session=ooxx</string>
-       </property>
-      </widget>
      </widget>
      <widget class="QSplitter" name="splitter_4">
       <property name="geometry">
@@ -144,24 +83,194 @@
        </property>
       </widget>
      </widget>
+     <widget class="QToolBox" name="asset_toolBox">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>400</y>
+        <width>681</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="page_5">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>681</width>
+         <height>53</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>ZoomEye</string>
+       </attribute>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>10</y>
+          <width>681</width>
+          <height>29</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="zoomeye_asset_label">
+           <property name="text">
+            <string>搜索</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="zoomeuye_search">
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="zoomeye_assetkey_label">
+           <property name="text">
+            <string>API-KEY</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="zoomeye_key">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_6">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>681</width>
+         <height>53</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>FoFa</string>
+       </attribute>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>10</y>
+          <width>681</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="fofa_asset_label">
+           <property name="text">
+            <string>资产IP</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="fofa_asset_ip">
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>f.u.c.1-f.u.c.254,f.u.c.k</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="fofa_interval_label">
+           <property name="text">
+            <string>检索周期(秒)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="fofa_interval">
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="text">
+            <string>3</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="fofa_session_label">
+           <property name="text">
+            <string>会话</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="fofa_session">
+           <property name="text">
+            <string>_fofapro_ars_session=</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>_fofapro_ars_session=ooxx</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QSplitter" name="splitter_3">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>540</y>
+        <width>151</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QRadioButton" name="zoomeye_radioButton">
+       <property name="text">
+        <string>ZoomEye</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="fofa_radioButton">
+       <property name="text">
+        <string>Fofa</string>
+       </property>
+      </widget>
+     </widget>
     </widget>
     <widget class="QWidget" name="st_tab">
      <attribute name="title">
       <string>子域收集</string>
      </attribute>
-     <widget class="QLabel" name="st_key_label">
-      <property name="geometry">
-       <rect>
-        <x>482</x>
-        <y>50</y>
-        <width>110</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>SecurityTrails Key</string>
-      </property>
-     </widget>
      <widget class="QTextEdit" name="st_log">
       <property name="geometry">
        <rect>
@@ -173,89 +282,6 @@
       </property>
       <property name="readOnly">
        <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QComboBox" name="st_apikeylist">
-      <property name="geometry">
-       <rect>
-        <x>608</x>
-        <y>50</y>
-        <width>105</width>
-        <height>28</height>
-       </rect>
-      </property>
-      <property name="editable">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="st_domain_brute">
-      <property name="geometry">
-       <rect>
-        <x>123</x>
-        <y>50</y>
-        <width>125</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string/>
-      </property>
-     </widget>
-     <widget class="QLabel" name="st_domain_brute_label">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>50</y>
-        <width>52</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>爆破长度</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="st_domain_brute_rate_label">
-      <property name="geometry">
-       <rect>
-        <x>265</x>
-        <y>50</y>
-        <width>63</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>爆破频率/s</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="st_domain_brute_rate">
-      <property name="geometry">
-       <rect>
-        <x>340</x>
-        <y>50</y>
-        <width>125</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string/>
       </property>
      </widget>
      <widget class="QSplitter" name="splitter">
@@ -286,63 +312,146 @@
        </property>
       </widget>
      </widget>
-     <widget class="QSplitter" name="splitter_5">
+     <widget class="QWidget" name="">
       <property name="geometry">
        <rect>
         <x>60</x>
         <y>20</y>
-        <width>661</width>
-        <height>21</height>
+        <width>691</width>
+        <height>28</height>
        </rect>
       </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLabel" name="st_domain_label">
+         <property name="text">
+          <string>域名</string>
+         </property>
+         <property name="buddy">
+          <cstring>st_domain_label</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="st_domain">
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string>a.com,b.com,c.com</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="st_dns_label">
+         <property name="text">
+          <string>域名服务器</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="st_dns">
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string>192.168.1.1:53</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="st_domain_brute_mode_label">
+         <property name="text">
+          <string>爆破模式</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="st_domain_brute_mode">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>50</y>
+        <width>691</width>
+        <height>28</height>
+       </rect>
       </property>
-      <widget class="QLabel" name="st_domain_label">
-       <property name="text">
-        <string>域名</string>
-       </property>
-       <property name="buddy">
-        <cstring>st_domain_label</cstring>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="st_domain">
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="placeholderText">
-        <string>a.com,b.com,c.com</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="st_dns_label">
-       <property name="text">
-        <string>域名服务器</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="st_dns">
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="placeholderText">
-        <string>192.168.1.1:53</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="st_domain_brute_mode_label">
-       <property name="text">
-        <string>爆破模式</string>
-       </property>
-      </widget>
-      <widget class="QCheckBox" name="st_domain_brute_mode">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QLabel" name="st_domain_brute_label">
+         <property name="text">
+          <string>爆破长度</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="st_domain_brute">
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="st_domain_brute_rate_label">
+         <property name="text">
+          <string>爆破频率/s</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="st_domain_brute_rate">
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="st_key_label">
+         <property name="text">
+          <string>SecurityTrails Key</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="st_apikeylist">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <zorder>splitter</zorder>
      <zorder>splitter_5</zorder>
@@ -399,15 +508,15 @@
        <number>0</number>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
-         <height>28</height>
+         <width>581</width>
+         <height>79</height>
         </rect>
        </property>
        <attribute name="label">
@@ -543,56 +652,63 @@
          <string>启用</string>
         </property>
        </widget>
-       <widget class="QSplitter" name="splitter_6">
+       <widget class="QWidget" name="">
         <property name="geometry">
          <rect>
           <x>10</x>
           <y>30</y>
-          <width>561</width>
-          <height>21</height>
+          <width>571</width>
+          <height>23</height>
          </rect>
         </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <widget class="QLabel" name="search_key_label">
-         <property name="toolTip">
-          <string>API申请地址: https://serpstack.com/</string>
-         </property>
-         <property name="text">
-          <string>APIKey</string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="search_key">
-         <property name="toolTip">
-          <string>API申请地址: https://serpstack.com/</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-         <property name="placeholderText">
-          <string>f9c8878e81ooxxooxxx20bc92d0498e34ec</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="search_query_label">
-         <property name="text">
-          <string>查询条件</string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="search_query">
-         <property name="toolTip">
-          <string>google hack</string>
-         </property>
-         <property name="text">
-          <string>site:ooxx.com filetype:txt</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-         <property name="placeholderText">
-          <string>google hack</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QLabel" name="search_key_label">
+           <property name="toolTip">
+            <string>API申请地址: https://serpstack.com/</string>
+           </property>
+           <property name="text">
+            <string>APIKey</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="search_key">
+           <property name="toolTip">
+            <string>API申请地址: https://serpstack.com/</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>f9c8878e81ooxxooxxx20bc92d0498e34ec</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="search_query_label">
+           <property name="text">
+            <string>查询条件</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="search_query">
+           <property name="toolTip">
+            <string>google hack</string>
+           </property>
+           <property name="text">
+            <string>site:ooxx.com filetype:txt</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="placeholderText">
+            <string>google hack</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </widget>
      </widget>

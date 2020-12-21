@@ -1,6 +1,6 @@
 package fofa
 
-type ipNode struct {
+type IpNode struct {
 	Ip     string
 	Domain string
 	Title  string
@@ -16,7 +16,7 @@ type Fofa struct {
 	FofaSession string `json:"fofa_session"`
 	Pages       int    `json:"pages"`
 
-	ipNodes    []ipNode
+	IpNodes    []IpNode    `json:"-"`
 	ErrChannel chan string `json:"-"`
 	Stop       int32       `json:"-"`
 }

@@ -76,6 +76,12 @@ func (s *Scan) preCheck() {
 		DescCallback: s.BarDescriptionCallback,
 	}
 	plg.PreCheck()
+	if len(plg.Cracked) == 0 {
+		return
+	}
+	plg.TargetPort = "-"
+	plg.TargetProtocol = "-"
+	s.Callback(&plg)
 }
 
 func (s *Scan) IsFireWallNotForbidden() bool {

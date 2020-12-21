@@ -1,18 +1,19 @@
 package subdomain
 
-type ipInfo struct {
-	ip         string
+type IpInfo struct {
+	Ip         string
 	Isp        string `json:"isp"`
 	RegionName string `json:"regionName"`
 }
 
-type dnsInfo struct {
-	domain string
-	ip     []ipInfo
-	cname  string
+type DnsInfo struct {
+	Domain string
+	Ip     []IpInfo
+	Cname  string
 	//
-	title  string
-	server string
+	Title  string
+	Server string
+	Code   int32
 }
 
 type SubDomain struct {
@@ -25,8 +26,8 @@ type SubDomain struct {
 	BruteLength string
 
 	ErrChannel chan string `json:"-"`
-	dns        []dnsInfo
-	Stop       int32 `json:"-"`
+	Dns        []DnsInfo   `json:"-"`
+	Stop       int32       `json:"-"`
 }
 
 func NewConfig() SubDomain {

@@ -2,7 +2,7 @@ package common
 
 import (
 	"bufio"
-	"encoding/csv"
+	"bytes"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,19 +18,20 @@ func GenFileName(filename string) string {
 	return saveFile
 }
 
-func CreateCSV(fileName string, cols []string) (*csv.Writer, *os.File, string, error) {
-	fileName = GenFileName(fileName)
-	f, err := os.Create(fileName)
-	if err != nil {
-		return nil, nil, "", err
+func Write2CSV(filename string, jsonObject []byte) (string, error) {
+	filename = GenFileName(filename)
+	if jsonObject == nil {
+		return filename, nil
 	}
-	_, _ = f.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
-	w := csv.NewWriter(f)
-	_ = w.Write(cols)
-	return w, f, fileName, nil
+	w, err := os.Create(filename)
+	if err != nil {
+		return filename, err
+	}
+	defer w.Close()
+	return filename, Convert(bytes.NewReader(jsonObject), w)
 }
 
-func GenDicFromFile(filename string) []string{
+func GenDicFromFile(filename string) []string {
 	if filename == "" {
 		return nil
 	}

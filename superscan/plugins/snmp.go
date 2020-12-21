@@ -13,6 +13,7 @@ func snmpCheck(plg *Plugins) {
 	plg.TargetPort = "161"
 	if snmpConn(plg) == OKDone {
 		plg.TargetProtocol = "snmp"
+		plg.PortOpened = true
 	}
 }
 

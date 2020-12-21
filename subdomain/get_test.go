@@ -26,17 +26,6 @@ func Test_get(t *testing.T) {
 	}
 }
 
-//go test
-func Test_parseTag(t *testing.T) {
-	d := dnsInfo{
-		domain: "ooxx.com",
-	}
-	s := SubDomain{
-	}
-	s.parseTag(&d)
-	fmt.Println(d)
-}
-
 func Test_brute(t *testing.T) {
 	s := SubDomain{
 		ApiKey:      "**************",

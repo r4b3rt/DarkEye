@@ -6,6 +6,7 @@ import (
 	"github.com/zsdevX/DarkEye/fofa"
 	"github.com/zsdevX/DarkEye/spider"
 	"github.com/zsdevX/DarkEye/subdomain"
+	"github.com/zsdevX/DarkEye/zoomeye"
 	"io/ioutil"
 	"path/filepath"
 )
@@ -23,9 +24,10 @@ func init() {
 
 type config struct {
 	SubDomain subdomain.SubDomain `json:"sub_domain"`
-	Fofa           fofa.Fofa                     `json:"fofa"`
-	Spider         spider.Spider                 `json:"spider"`
-	Valid          bool                          `json:"valid"`
+	Fofa      fofa.Fofa           `json:"fofa"`
+	Zoomeye   zoomeye.ZoomEye     `json:"zoomeye"`
+	Spider    spider.Spider       `json:"spider"`
+	Valid     bool                `json:"valid"`
 }
 
 func loadCfg() error {
@@ -36,6 +38,7 @@ func loadCfg() error {
 			mConfig.Fofa = fofa.NewConfig()
 			mConfig.SubDomain = subdomain.NewConfig()
 			mConfig.Spider = spider.NewConfig()
+			mConfig.Zoomeye = zoomeye.New()
 		}
 	}()
 	data, err := ioutil.ReadFile(mConfigFile)

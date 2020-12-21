@@ -52,17 +52,6 @@ var (
 	mFileSync = sync.RWMutex{}
 )
 
-func recordInit() {
-	var err error
-	_, mFile, mFileName, err = common.CreateCSV("superScan",
-		[]string{"IP", "端口", "协议", "插件信息"})
-	if err != nil {
-		panic("创建记录文件失败" + err.Error())
-	}
-	mCsvWriter = csv.NewWriter(mFile)
-	fmt.Println("记录结果将保存在", mFileName)
-}
-
 func main() {
 	//  debug/pprof
 	/*
@@ -141,21 +130,6 @@ func networkCheck() {
 	s.PingNet(*mIp)
 }
 
-func NewScan(ip string) *Scan {
-	return &Scan{
-		Ip:                     ip,
-		TimeOut:                *mTimeOut,
-		ActivePort:             *mActivePort,
-		PortRange:              *mPortList,
-		ThreadNumber:           *mThread,
-		NoTrust:                *mNoTrust,
-		PluginWorker:           *mPluginWorker,
-		Callback:               myCallback,
-		BarCallback:            myBarCallback,
-		BarDescriptionCallback: myBarDescUpdate,
-	}
-}
-
 //修改插件参数
 func loadPlugins() {
 	//设置poc的反弹检测参数
@@ -178,6 +152,21 @@ func loadPlugins() {
 		color.Green("rate limit enable <= %v pps\n", mPps.Limit())
 	}
 	plugins.GlobalConfig.Pps = mPps
+}
+
+func NewScan(ip string) *Scan {
+	return &Scan{
+		Ip:                     ip,
+		TimeOut:                *mTimeOut,
+		ActivePort:             *mActivePort,
+		PortRange:              *mPortList,
+		ThreadNumber:           *mThread,
+		NoTrust:                *mNoTrust,
+		PluginWorker:           *mPluginWorker,
+		Callback:               myCallback,
+		BarCallback:            myBarCallback,
+		BarDescriptionCallback: myBarDescUpdate,
+	}
 }
 
 func myBarDescUpdate(a string) {
@@ -225,4 +214,18 @@ func NewBar(max int) *progressbar.ProgressBar {
 	)
 	_ = bar.RenderBlank()
 	return bar
+}
+
+func recordInit() {
+	var err error
+	mFileName, _ = common.Write2CSV("superScan", nil)
+	f, err := os.Create(mFileName)
+	if err != nil {
+		return
+	}
+	_, _ = f.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
+	w := csv.NewWriter(f)
+	_ = w.Write([]string{"IP", "端口", "协议", "插件信息"})
+	mCsvWriter = csv.NewWriter(f)
+	color.Yellow("记录结果将保存在%s", mFileName)
 }

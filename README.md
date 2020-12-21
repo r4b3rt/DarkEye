@@ -4,6 +4,14 @@
 信息主要来源：SecurityTrails、FoFa、google、网站API接口。
 本项目不具备攻击性，漏洞的利用分析主要依靠人。
 ```
+
+# 404StarLink 2.0 - Galaxy
+![](https://github.com/knownsec/404StarLink-Project/raw/master/logo.png)
+
+DarkEye 是 404Team [星链计划2.0](https://github.com/knownsec/404StarLink2.0-Galaxy)中的一环，如果对DarkEye 有任何疑问又或是想要找小伙伴交流，可以参考星链计划的加群方式。
+
+- [https://github.com/knownsec/404StarLink2.0-Galaxy#community](https://github.com/knownsec/404StarLink2.0-Galaxy#community)
+
 功能介绍
 ===
 ### 超级扫描
@@ -17,7 +25,7 @@
 * 支持长亭xray官方poc解析，poc文件可从下列列表白嫖：
     https://github.com/chaitin/xray/tree/master/pocs
     https://github.com/Laura0xiaoshizi/xray_pocs
-6、收集结果自动报告输出。
+* 收集结果自动报告输出。
 ```
 
 #### 帮助

@@ -16,8 +16,8 @@ type Web struct {
 type NetBios struct {
 	HostName  string   `json:",omitempty"`
 	UserName  string   `json:",omitempty"`
-	WorkGroup string   `json:",omitempty"`
 	Ip        []string `json:",omitempty"`
+	Shares    []string `json:",omitempty"`
 }
 
 type Poc struct {
@@ -56,14 +56,14 @@ type Plugins struct {
 
 type Config struct {
 	//自定义字典
-	UserList        []string
-	PassList        []string
+	UserList []string
+	PassList []string
 	//Poc反弹验证地址
 	ReverseUrl      string
 	ReverseCheckUrl string
 	//发包速度限制
-	Pps             *rate.Limiter
-	RateWait        func(*rate.Limiter)
+	Pps      *rate.Limiter
+	RateWait func(*rate.Limiter)
 }
 
 //check list

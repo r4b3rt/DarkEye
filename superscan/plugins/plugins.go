@@ -41,7 +41,7 @@ func (plg *Plugins) PreCheck() {
 	//2、此处未做发包限制
 	i := 0
 	for i < PluginPreCheckNR {
-		plg.DescCallback(fmt.Sprintf("Cracking pre-check %s", plg.TargetIp))
+		plg.DescCallback(fmt.Sprintf("Cracking initiated %s", plg.TargetIp))
 		preCheckFuncs[i](plg)
 		i++
 	}
@@ -121,9 +121,10 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 						pass = "空"
 					}
 					plg.Cracked = append(plg.Cracked, Account{Username: username, Password: pass})
-					plg.Unlock()
 					plg.TargetProtocol = pid
 					plg.highLight = true
+					plg.Unlock()
+
 					cancel()
 					return
 				case OKWait:
@@ -161,10 +162,10 @@ func output(plg *Plugins) {
 	var out bytes.Buffer
 	_ = json.Indent(&out, output, "", "\t")
 	if plg.highLight {
-		color.Green("\n[√]%s %s:%s %v\n",
+		color.Green("\n[√] %s %s:%s %v\n",
 			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, out.String())
 	} else {
-		color.Yellow("\n[√]%s %s:%s %v\n",
+		color.Yellow("\n[√] %s %s:%s %v\n",
 			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, out.String())
 	}
 }

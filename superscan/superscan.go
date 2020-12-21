@@ -27,6 +27,8 @@ var (
 	mPortList              = flag.String("port-list", common.PortList, "端口范围,默认1000+常用端口")
 	mUserList              = flag.String("user-file", "", "用户名字典文件")
 	mPassList              = flag.String("pass-file", "", "密码字典文件")
+	mU                     = flag.String("U", "", "用户名字典:root,test")
+	mP                     = flag.String("P", "", "密码:123456,1q2w3e")
 	mNoTrust               = flag.Bool("no-trust", false, "由端口判定协议改为指纹方式判断协议,速度慢点")
 	mPluginWorker          = flag.Int("plugin-worker", 2, "单协议爆破密码时，线程个数")
 	mRateLimiter           = flag.Int("pps", 0, "扫描工具整体发包频率n/秒, 该选项可避免线程过多发包会占有带宽导致丢失目标端口")
@@ -74,19 +76,7 @@ func main() {
 		plugins.SupportPlugin()
 		return
 	}
-	if *mRateLimiter > 0 {
-		//每秒发包*mRateLimiter，缓冲10个
-		mPps = rate.NewLimiter(rate.Every(1000000*time.Microsecond/time.Duration(*mRateLimiter)), 10)
-		color.Green("rate limit enable <= %v pps\n", mPps.Limit())
-	}
-
-	//改变默认插件参数
-	plugins.GlobalConfig.ReverseUrl = *mPocReverse
-	plugins.GlobalConfig.ReverseCheckUrl = *mPocReverseCheck
-	plugins.GlobalConfig.UserList = common.GenDicFromFile(*mUserList)
-	plugins.GlobalConfig.PassList = common.GenDicFromFile(*mPassList)
-	plugins.GlobalConfig.Pps = mPps
-
+	loadPlugins()
 	color.Red(common.Banner)
 	common.SetRLimit()
 	runtime.GOMAXPROCS(runtime.NumCPU())
@@ -164,6 +154,30 @@ func NewScan(ip string) *Scan {
 		BarCallback:            myBarCallback,
 		BarDescriptionCallback: myBarDescUpdate,
 	}
+}
+
+//修改插件参数
+func loadPlugins() {
+	//设置poc的反弹检测参数
+	plugins.GlobalConfig.ReverseUrl = *mPocReverse
+	plugins.GlobalConfig.ReverseCheckUrl = *mPocReverseCheck
+	//设置自定义文件字典替代内置字典
+	plugins.GlobalConfig.UserList = common.GenDicFromFile(*mUserList)
+	plugins.GlobalConfig.PassList = common.GenDicFromFile(*mPassList)
+	//设置字典替代内置字典
+	if *mU != "" {
+		plugins.GlobalConfig.UserList = strings.Split(*mU, ",")
+	}
+	if *mP != "" {
+		plugins.GlobalConfig.PassList = strings.Split(*mP, ",")
+	}
+	//设置发包频率
+	if *mRateLimiter > 0 {
+		//每秒发包*mRateLimiter，缓冲10个
+		mPps = rate.NewLimiter(rate.Every(1000000*time.Microsecond/time.Duration(*mRateLimiter)), 10)
+		color.Green("rate limit enable <= %v pps\n", mPps.Limit())
+	}
+	plugins.GlobalConfig.Pps = mPps
 }
 
 func myBarDescUpdate(a string) {

@@ -1,9 +1,10 @@
 package plugins
-//没找到特别好的库
+
 import (
-	"github.com/stacktitan/smb/smb"
+	"github.com/hirochachacha/go-smb2"
 	"github.com/zsdevX/DarkEye/superscan/dic"
-	"strconv"
+	"golang.org/x/net/context"
+	"net"
 	"strings"
 	"time"
 )
@@ -29,17 +30,8 @@ func msbCheck(plg *Plugins) {
 
 func smbConn(plg *Plugins, user, pass string) (ok int) {
 	ok = OKNext
-	port, _ := strconv.Atoi(plg.TargetPort)
-	options := smb.Options{
-		Host:        plg.TargetIp,
-		Port:        port,
-		User:        user,
-		Password:    pass,
-		Domain:      "",
-		Workstation: "",
-		TimeOut:     time.Duration(plg.TimeOut) * time.Millisecond,
-	}
-	session, err := smb.NewSession(options, false)
+	conn, err := net.DialTimeout("tcp", plg.TargetIp+":"+plg.TargetPort,
+		time.Duration(plg.TimeOut)*time.Millisecond)
 	if err != nil {
 		if strings.Contains(err.Error(), "connection reset by peer") {
 			//连接限制
@@ -53,9 +45,32 @@ func smbConn(plg *Plugins, user, pass string) (ok int) {
 		ok = OKStop
 		return
 	}
-	defer session.Close()
-	if session.IsAuthenticated {
-		ok = OKDone
+	defer conn.Close()
+
+	d := &smb2.Dialer{
+		Initiator: &smb2.NTLMInitiator{
+			User:     user,
+			Password: pass,
+		},
 	}
+	ctx, _ := context.WithTimeout(context.TODO(), time.Millisecond*time.Duration(plg.TimeOut))
+	s, err := d.DialContext(ctx, conn)
+	if err != nil {
+		ok = OKStop
+		return
+	}
+	defer s.Logoff()
+
+	names, err := s.ListSharenames()
+	if err != nil {
+		ok = OKStop
+		return
+	}
+	ok = OKDone
+	ck := Account{}
+	ck.Shares = names
+	plg.Lock()
+	plg.Cracked = append(plg.Cracked, ck)
+	plg.Unlock()
 	return
 }

@@ -1,7 +1,7 @@
 package plugins
 
-//代码我抄的
-//检测结果基本不准确！抽空抄msf的
+//代码我抄的,出处不详。
+//检测结果基本不准确 :(
 
 import (
 	"encoding/binary"

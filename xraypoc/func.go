@@ -35,6 +35,7 @@ func myReverseCheck(reverse *xraypoc_celtypes.Reverse, timeout int64) bool {
 	return false
 }
 
+//UrlConvertString add comment
 func UrlConvertString(url *xraypoc_celtypes.UrlType) (myUrl string) {
 	if url.Scheme == "" {
 		return
@@ -53,6 +54,7 @@ func UrlConvertString(url *xraypoc_celtypes.UrlType) (myUrl string) {
 	return
 }
 
+//StringConvertUrl add comment
 func StringConvertUrl(myUrl string) (*xraypoc_celtypes.UrlType, error) {
 	u, err := url.Parse(myUrl)
 	if err != nil {

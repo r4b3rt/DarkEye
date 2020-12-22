@@ -1,4 +1,3 @@
-//抄的"github.com/shadow1ng/fscan/common"，很棒的项目！
 package plugins
 
 import (
@@ -14,6 +13,7 @@ func init() {
 	preCheckFuncs[NetBiosPre] = nbCheck
 }
 
+//抄的"github.com/shadow1ng/fscan/common"，很棒的项目！
 var (
 	buffer_v1, _ = hex.DecodeString("05000b03100000004800000001000000b810b810000000000100000000000100c4fefc9960521b10bbcb00aa0021347a00000000045d888aeb1cc9119fe808002b10486002000000")
 	buffer_v2, _ = hex.DecodeString("050000031000000018000000010000000000000000000500")

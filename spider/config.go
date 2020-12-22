@@ -1,10 +1,12 @@
 package spider
 
+//SensitiveInterface add comment
 type SensitiveInterface struct {
 	API string
 	Level int
 }
 
+//Spider add comment
 type Spider struct {
 	//spider
 	Url               string `json:"url"`

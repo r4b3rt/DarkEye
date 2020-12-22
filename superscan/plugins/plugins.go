@@ -16,6 +16,7 @@ var (
 	checkFuncs    = map[int]func(*Plugins){}
 	preCheckFuncs = map[int]func(*Plugins){}
 	supportPlugin = map[string]string{}
+	//GlobalConfig add comment
 	GlobalConfig  = Config{
 		ReverseUrl:      "qvn0kc.ceye.io",
 		ReverseCheckUrl: "http://api.ceye.io/v1/records?token=066f3d242991929c823ac85bb60f4313&type=http&filter=",
@@ -49,6 +50,7 @@ func (plg *Plugins) PreCheck() {
 	}
 }
 
+//Check add comment
 func (plg *Plugins) Check() {
 	GlobalConfig.RateWait(GlobalConfig.Pps) //活跃端口发包限制
 	plg.DescCallback(fmt.Sprintf("Crack %s:%s", "*."+plg.TargetIp[len(plg.TargetIp) - 3:], plg.TargetPort))
@@ -169,6 +171,7 @@ func output(plg *Plugins) {
 	}
 }
 
+//SupportPlugin add comment
 func SupportPlugin() {
 	for _, v := range supportPlugin {
 		color.Green("%v,", v)

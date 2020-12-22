@@ -9,6 +9,7 @@ import (
 	"strconv"
 )
 
+//LoadAsset add comment
 func LoadAsset(mainWindow *ui.MainWindow) {
 	assetBanner(mainWindow)
 	mainWindow.Fofa_session.SetText(mConfig.Fofa.FofaSession)

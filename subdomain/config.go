@@ -1,11 +1,13 @@
 package subdomain
 
+//IpInfo add comment
 type IpInfo struct {
 	Ip         string
 	Isp        string `json:"isp"`
 	RegionName string `json:"regionName"`
 }
 
+//DnsInfo add comment
 type DnsInfo struct {
 	Domain string
 	Ip     []IpInfo
@@ -16,6 +18,7 @@ type DnsInfo struct {
 	Code   int32
 }
 
+//SubDomain add comment
 type SubDomain struct {
 	Queries     string `json:"queries"`
 	ApiKey      string `json:"api_key"`
@@ -30,6 +33,7 @@ type SubDomain struct {
 	Stop       int32       `json:"-"`
 }
 
+//NewConfig add comment
 func NewConfig() SubDomain {
 	return SubDomain{
 		IpCheck:     true,

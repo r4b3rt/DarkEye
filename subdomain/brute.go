@@ -61,17 +61,16 @@ func genSource(target []string, source string, length int) []string {
 			target = append(target, string(v))
 		}
 		return target
-	} else {
-		t := target
-		for _, v1 := range source {
-			for _, v2 := range t {
-				v := string(v1) + string(v2)
-				if len(v) != length {
-					continue
-				}
-				target = append(target, v)
-			}
-		}
-		return target
 	}
+	t := target
+	for _, v1 := range source {
+		for _, v2 := range t {
+			v := string(v1) + string(v2)
+			if len(v) != length {
+				continue
+			}
+			target = append(target, v)
+		}
+	}
+	return target
 }

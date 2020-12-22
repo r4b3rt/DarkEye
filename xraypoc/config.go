@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 )
 
+//Poc add comment
 type Poc struct {
 	Name   string            `yaml:"name"`
 	Set    map[string]string `yaml:"set"`
@@ -13,6 +14,7 @@ type Poc struct {
 	Detail Detail            `yaml:"detail"`
 }
 
+//Rules add comment
 type Rules struct {
 	Method          string            `yaml:"method"`
 	Path            string            `yaml:"path"`
@@ -23,6 +25,7 @@ type Rules struct {
 	Expression      string            `yaml:"expression"`
 }
 
+//Detail add comment
 type Detail struct {
 	Author      string   `yaml:"author"`
 	Links       []string `yaml:"links"`
@@ -30,11 +33,13 @@ type Detail struct {
 	Version     string   `yaml:"version"`
 }
 
+//XarYPoc add comment
 type XArYPoc struct {
 	ReverseUrl      string
 	ReverseUrlCheck string
 }
 
+//LoadPoc add comment
 func LoadPoc(fileName string) (*Poc, error) {
 	p := &Poc{}
 	yamlFile, err := ioutil.ReadFile(fileName)
@@ -48,6 +53,7 @@ func LoadPoc(fileName string) (*Poc, error) {
 	return p, err
 }
 
+//LoadPocByData add comment
 func LoadPocByData(data []byte) (*Poc, error) {
 	if data == nil {
 		return nil, fmt.Errorf("NoData")

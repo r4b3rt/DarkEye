@@ -6,25 +6,30 @@ import (
 	"net/http"
 )
 
+//SearchInformation add comment
 type SearchInformation struct {
 	TotalResults int `json:"total_results"`
 }
 
+//ResponseError add comment
 type ResponseError struct {
 	Info string `json:"info"`
 }
 
+//OrganicResult add comment
 type OrganicResult struct {
 	Title string        `json:"title"`
 	Url   string        `json:"url"`
 }
 
+//Response add comment
 type Response struct {
 	Error ResponseError `json:"error"`
 	SearchInformation SearchInformation `json:"search_information"`
 	OrganicResults    []OrganicResult   `json:"organic_results"`
 }
 
+//Search add comment
 func (s *Spider) Search() {
 	s.ErrChannel <- common.LogBuild("[+]", "正在生成搜索结果", common.INFO)
 	defer func() {

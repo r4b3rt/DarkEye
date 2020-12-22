@@ -1,5 +1,6 @@
 package fofa
 
+//IpNode add comment
 type IpNode struct {
 	Ip     string
 	Domain string

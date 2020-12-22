@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+//New: add comment
 func New(ip string) *Scan {
 	return &Scan{
 		Ip:                     ip,
@@ -20,6 +21,7 @@ func New(ip string) *Scan {
 	}
 }
 
+//Run: add comment
 func (s *Scan) Run() {
 	s.preCheck()
 	fromTo, tot := common.GetPortRange(s.PortRange)
@@ -32,7 +34,7 @@ func (s *Scan) Run() {
 			go func(port int) {
 				for {
 					s.Check(port)
-					if !s.IsFireWallNotForbidden() {
+					if !s.isFireWallNotForbidden() {
 						//被防火墙策略限制探测，等待恢复期（恢复期比较傻，需要优化）。
 						time.Sleep(time.Second * 10)
 						//恢复后从中断的端口重新检测
@@ -49,6 +51,7 @@ func (s *Scan) Run() {
 	wg.Wait()
 }
 
+//Check: add comment
 func (s *Scan) Check(p int) {
 	defer func() {
 		s.BarCallback(1)
@@ -84,7 +87,7 @@ func (s *Scan) preCheck() {
 	s.Callback(&plg)
 }
 
-func (s *Scan) IsFireWallNotForbidden() bool {
+func (s *Scan) isFireWallNotForbidden() bool {
 	//为0不矫正
 	if s.ActivePort == "0" {
 		return true

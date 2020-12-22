@@ -37,7 +37,7 @@ func init() {
 	}
 }
 
-//将网络分若干个C段，每个C段为最小单位整体扫描
+//PingNet: 将网络分若干个C段，每个C段为最小单位整体扫描
 func (s *Scan) PingNet(ipList string) {
 	s.pingPrepare()
 	ips := strings.Split(ipList, ",")
@@ -108,9 +108,9 @@ func (s *Scan) pingCheck(ipSeg string, perHost bool) bool {
 			tip := common.GenIP(ipSeg, idx)
 			ok := false
 			if mPrivileged {
-				ok = s.pingWithPrivileged(tip, ctx) == nil
+				ok = s.pingWithPrivileged(ctx, tip) == nil
 			} else {
-				ok = s.ping(tip, ctx)
+				ok = s.ping(ctx, tip)
 			}
 			if ok {
 				if perHost {
@@ -126,7 +126,7 @@ func (s *Scan) pingCheck(ipSeg string, perHost bool) bool {
 	return alive.Load()
 }
 
-func (s *Scan) pingWithPrivileged(ip string, ctx context.Context) error {
+func (s *Scan) pingWithPrivileged(ctx context.Context, ip string) error {
 	data := []byte{8, 0, 247, 255, 0, 0, 0, 0}
 	d := net.Dialer{Timeout: time.Duration(s.TimeOut) * time.Millisecond}
 	conn, err := d.DialContext(ctx, "ip4:icmp", ip)
@@ -147,7 +147,7 @@ func (s *Scan) pingWithPrivileged(ip string, ctx context.Context) error {
 	return nil
 }
 
-func (s *Scan) ping(ip string, ctx context.Context) bool {
+func (s *Scan) ping(ctx context.Context, ip string) bool {
 	cmd := strings.Split(myShell, " ")
 	c := exec.CommandContext(ctx, cmd[0], cmd[1], myCommand+" "+ip)
 	//common.HideCmd(c)
@@ -185,10 +185,3 @@ func (s *Scan) pingPrepare() {
 	color.Yellow("使用关键字' %s' 确定网络是否存在", myCommandOutput)
 }
 
-type ICMP struct {
-	Type        uint8
-	Code        uint8
-	CheckSum    uint16
-	Identifier  uint16
-	SequenceNum uint16
-}

@@ -14,6 +14,7 @@ var (
 	ipApiLimit = rate.NewLimiter(rate.Every(1500*time.Millisecond), 40) //burst 40，以后1.5秒分配资源
 )
 
+//todo: add comment
 func (s *SubDomain) Run() {
 	queries := strings.Split(s.Queries, ",")
 	s.Dns = make([]DnsInfo, 0)

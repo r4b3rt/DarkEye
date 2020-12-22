@@ -13,7 +13,7 @@ import (
 
 func (p *XArYPoc) Check(data []byte, pocFileName, myUrl string) (bool, error) {
 	poc, err := LoadPocByData(data)
-	if poc == nil {
+	if poc == nil || err != nil {
 		poc, err = LoadPoc(pocFileName)
 		if err != nil {
 			return false, err

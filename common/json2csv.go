@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-// Convert JSON to CSV
+//Convert: Convert JSON to CSV
 func Convert(r io.Reader, w io.Writer) error {
 	dec := json.NewDecoder(r)
 

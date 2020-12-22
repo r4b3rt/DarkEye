@@ -14,10 +14,10 @@ type Web struct {
 }
 
 type NetBios struct {
-	HostName  string   `json:",omitempty"`
-	UserName  string   `json:",omitempty"`
-	Ip        []string `json:",omitempty"`
-	Shares    []string `json:",omitempty"`
+	HostName string   `json:",omitempty"`
+	UserName string   `json:",omitempty"`
+	Ip       []string `json:",omitempty"`
+	Shares   []string `json:",omitempty"`
 }
 
 type Poc struct {

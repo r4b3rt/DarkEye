@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/k0kubun/go-ansi"
 	"github.com/schollz/progressbar"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
@@ -193,7 +192,6 @@ func myBarCallback(i int) {
 
 func NewBar(max int) *progressbar.ProgressBar {
 	bar := progressbar.NewOptions(max,
-		progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
 		progressbar.OptionSetDescription(fmt.Sprintf("%-32s", "Cracking...")),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowIts(),

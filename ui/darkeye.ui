@@ -30,7 +30,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="fofa_tab">
        <attribute name="title">
@@ -50,7 +50,10 @@
         <item row="0" column="1" rowspan="4" colspan="3">
          <widget class="QTextEdit" name="fofa_log">
           <property name="readOnly">
-           <bool>true</bool>
+           <bool>false</bool>
+          </property>
+          <property name="placeholderText">
+           <string>资产收集</string>
           </property>
          </widget>
         </item>
@@ -386,8 +389,14 @@
         </item>
         <item row="0" column="1" colspan="3">
          <widget class="QTextEdit" name="st_log">
+          <property name="documentTitle">
+           <string/>
+          </property>
           <property name="readOnly">
-           <bool>true</bool>
+           <bool>false</bool>
+          </property>
+          <property name="placeholderText">
+           <string>子域名收集</string>
           </property>
          </widget>
         </item>
@@ -447,6 +456,9 @@
          <widget class="QTextEdit" name="spider_log">
           <property name="readOnly">
            <bool>true</bool>
+          </property>
+          <property name="placeholderText">
+           <string>敏感接口和信息收集</string>
           </property>
          </widget>
         </item>

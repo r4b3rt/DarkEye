@@ -68,7 +68,7 @@ func ms17010Check(plg *Plugins) {
 		if n != int(byteCount)+45 {
 			fmt.Println("invalid session setup AndX response")
 		} else {
-			// two continous null bytes indicates end of a unicode string
+			// two continues null bytes indicates end of a unicode string
 			for i := 10; i < len(sessionSetupResponse)-1; i++ {
 				if sessionSetupResponse[i] == 0 && sessionSetupResponse[i+1] == 0 {
 					os = string(sessionSetupResponse[10:i])

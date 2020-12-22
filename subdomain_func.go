@@ -4,6 +4,7 @@ import (
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/subdomain"
 	"github.com/zsdevX/DarkEye/ui"
+	"strings"
 )
 
 func subDomainUICtl(mainWindow *ui.MainWindow, brute bool) {
@@ -37,7 +38,7 @@ func LoadSubDomain(mainWindow *ui.MainWindow) {
 		if mainWindow.St_apikeylist.CurrentText() != mConfig.SubDomain.ApiKey {
 			mainWindow.St_apikeylist.AddItems([]string{mainWindow.St_apikeylist.CurrentText()})
 		}
-		mConfig.SubDomain.ApiKey = mainWindow.St_apikeylist.CurrentText()
+		mConfig.SubDomain.ApiKey = strings.Trim(mainWindow.St_apikeylist.CurrentText(), "\n")
 
 		mConfig.SubDomain.ErrChannel = logC
 		if err := saveCfg(); err != nil {

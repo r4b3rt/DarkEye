@@ -15,6 +15,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
@@ -22,6 +23,7 @@ var (
 	myCommand       = "ping -c 1 -w 1"
 	myCommandOutput = "ttl="
 	myShell         = "sh -c "
+	mPrivileged     = false
 )
 
 func init() {
@@ -104,7 +106,13 @@ func (s *Scan) pingCheck(ipSeg string, perHost bool) bool {
 			default:
 			}
 			tip := common.GenIP(ipSeg, idx)
-			if s.ping(tip, ctx) {
+			ok := false
+			if mPrivileged {
+				ok = s.pingWithPrivileged(tip, ctx) == nil
+			} else {
+				ok = s.ping(tip, ctx)
+			}
+			if ok {
 				if perHost {
 					color.Green("%s is alive", tip)
 				} else {
@@ -116,6 +124,27 @@ func (s *Scan) pingCheck(ipSeg string, perHost bool) bool {
 	}
 	wg.Wait()
 	return alive.Load()
+}
+
+func (s *Scan) pingWithPrivileged(ip string, ctx context.Context) error {
+	data := []byte{8, 0, 247, 255, 0, 0, 0, 0}
+	d := net.Dialer{Timeout: time.Duration(s.TimeOut) * time.Millisecond}
+	conn, err := d.DialContext(ctx, "ip4:icmp", ip)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	if _, err := conn.Write(data); err != nil {
+		return err
+	}
+	_ = conn.SetReadDeadline(time.Now().Add(time.Millisecond * time.Duration(s.TimeOut)))
+	recv := make([]byte, 1024)
+	_, err = conn.Read(recv)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *Scan) ping(ip string, ctx context.Context) bool {
@@ -130,6 +159,11 @@ func (s *Scan) ping(ip string, ctx context.Context) bool {
 }
 
 func (s *Scan) pingPrepare() {
+	if s.pingWithPrivileged("127.0.0.1", context.Background()) == nil {
+		mPrivileged = true
+		return
+	}
+	color.Yellow("当前为非管理权限模式，需要使用原生的命令（例如：ping）检测。请设置命令参数：")
 	var cmd string
 	_, _ = fmt.Fprintf(os.Stderr, "输入探测命令(default: %s):", myCommand)
 	n, _ := fmt.Scanln(&cmd)
@@ -149,4 +183,12 @@ func (s *Scan) pingPrepare() {
 	color.Yellow("\n使用命令Shell环境'%s'", myShell)
 	color.Yellow("使用探测命令 '%s'检查网络 ", myCommand)
 	color.Yellow("使用关键字' %s' 确定网络是否存在", myCommandOutput)
+}
+
+type ICMP struct {
+	Type        uint8
+	Code        uint8
+	CheckSum    uint16
+	Identifier  uint16
+	SequenceNum uint16
 }

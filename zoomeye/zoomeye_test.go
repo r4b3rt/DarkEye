@@ -3,18 +3,18 @@ package zoomeye
 import (
 	"fmt"
 	"testing"
-	"time"
 )
 
 func Test_zoomEye(t *testing.T) {
 	z := New()
-	z.Query = "ip:27.17.15.195"
-	z.ApiKey = "21540Bf6-6EAE-7fD2E-369c-96B6Cd3109c"
+	z.Query = "title:aaa"
+	z.ApiKey = "563e7683-2B49-03589-4655-377840a766a"
+	z.Pages = "3"
+	z.ErrChannel = make(chan string, 10)
 	go z.Run()
 
 	for {
 		msg := <-z.ErrChannel
 		fmt.Println(msg)
 	}
-	time.Sleep(10 * time.Second)
 }

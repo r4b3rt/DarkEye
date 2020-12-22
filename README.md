@@ -45,14 +45,21 @@ go build poc.go
 
 ### 互联网信息搜集
 - 支持从zoomEye（需key）、FoFa（免key）收集资产信息。
-- 支持子域爆破、SecurityTrails收集子域信息，并扩展支持提取域名解析的ip、cname、地域、标题。（50个域名/1key，多申请:))
+- 支持子域爆破、SecurityTrails收集子域信息，并扩展支持提取域名解析的ip、cname、地域、标题)
 - 爬取网站（含js、html、xml、json等）贪婪搜索返回内容中任何位置可能存在的接口路径; 敏感路径分级;
-- 支持google hack爬取数据，无需翻墙但是需要到https://serpstack.com/申请key（1key/100次/每月, 多申请:)）
+- 支持google hack爬取数据，无需翻墙。
 - csv格式报告输出  
 
+#### APIKEYS
+
+ | 提供商|申请地址|数量｜
+ |-----|----|
+ |ZoomEye  | https://www.zoomeye.org/profile | 每月免费1w/资源｜
+ |SecurityTrails | https://securitytrails.com/ | 每月免费50个请求 ｜
+ |googleSearch | https://serpstack.com/ | 每月免费100次/每月｜
 #### ✨ Demo
 主界面
-![avatar](screenshot/darkeye.jpg)
+![avatar](screenshot/darkeye.gif)
 
 
 ## 支持平台

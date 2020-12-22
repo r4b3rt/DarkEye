@@ -3,6 +3,7 @@ package zoomeye
 type ZoomEye struct {
 	ApiKey string `json:"api-key"`
 	Query  string `json:"query"`
+	Pages  string `json:"-"`
 
 	Results    Results     `json:"-"`
 	ErrChannel chan string `json:"-"`

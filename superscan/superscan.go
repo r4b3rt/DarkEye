@@ -38,7 +38,7 @@ var (
 	mPocReverseCheck       = flag.String("reverse-check-url", "http://api.ceye.io/v1/records?token=066f3d242991929c823ac85bb60f4313&type=http&filter=", "CEye API")
 	mOnlyCheckAliveNetwork = flag.Bool("only-check-alive", false, "检查有活跃主机的网段")
 
-	mMaxIPDetect = 16
+	mMaxIPDetect = 32
 	mFile        *os.File
 	mCsvWriter   *csv.Writer
 	mFileName    string
@@ -170,12 +170,11 @@ func NewScan(ip string) *Scan {
 }
 
 func myBarDescUpdate(a string) {
-	b := fmt.Sprintf("%-64s", a)
-	if len(a) > 64 {
-		b = a[:61] + "..."
+	b := fmt.Sprintf("%-32s", a)
+	if len(a) > 32 {
+		b = a[:(32 - 3)] + "..."
 	}
 	mBar.Describe(b)
-	_ = mBar.RenderBlank()
 }
 
 func myCallback(a interface{}) {
@@ -195,8 +194,7 @@ func myBarCallback(i int) {
 func NewBar(max int) *progressbar.ProgressBar {
 	bar := progressbar.NewOptions(max,
 		progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
-		progressbar.OptionSetDescription(fmt.Sprintf("%-64s", "Cracking...")),
-		progressbar.OptionSetWriter(os.Stderr),
+		progressbar.OptionSetDescription(fmt.Sprintf("%-32s", "Cracking...")),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowIts(),
 		progressbar.OptionOnCompletion(func() {

@@ -51,7 +51,7 @@ func (plg *Plugins) PreCheck() {
 
 func (plg *Plugins) Check() {
 	GlobalConfig.RateWait(GlobalConfig.Pps) //活跃端口发包限制
-	plg.DescCallback(fmt.Sprintf("Cracking %s:%s", plg.TargetIp, plg.TargetPort))
+	plg.DescCallback(fmt.Sprintf("Crack %s:%s", "*."+plg.TargetIp[len(plg.TargetIp) - 3:], plg.TargetPort))
 	if !plg.PortOpened &&
 		common.IsAlive(plg.TargetIp, plg.TargetPort, plg.TimeOut) != common.Alive {
 		return
@@ -105,8 +105,8 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 					pass = ""
 				}
 				pass = strings.Replace(pass, "%user%", username, -1)
-				plg.DescCallback(fmt.Sprintf("Cracking %s %s:%s %s/%s",
-					pid, plg.TargetIp, plg.TargetPort, username, pass))
+				plg.DescCallback(fmt.Sprintf("Crack %s %s:%s %s/%s",
+					pid,"*."+plg.TargetIp[len(plg.TargetIp) - 3:], plg.TargetPort, username, pass))
 				//限速
 				GlobalConfig.RateWait(GlobalConfig.Pps)
 				ok := callback(plg, username, pass)

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/therecipe/qt/core"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/fofa"
 	"github.com/zsdevX/DarkEye/ui"
@@ -14,7 +15,8 @@ func LoadAsset(mainWindow *ui.MainWindow) {
 	mainWindow.Fofa_asset_ip.SetText(mConfig.Fofa.Ip)
 	mainWindow.Fofa_interval.SetText(strconv.Itoa(mConfig.Fofa.Interval))
 	mainWindow.Zoomeuye_search.SetText(mConfig.Zoomeye.Query)
-	mainWindow.Zoomeye_key.SetCurrentText(mConfig.Zoomeye.ApiKey)
+	mainWindow.Zoomeye_apikey.SetText(mConfig.Zoomeye.ApiKey)
+	mainWindow.Zoomeuye_page.SetText("-1")
 	mainWindow.Zoomeye_radioButton.SetCheckable(true)
 
 	logC, runCtl := logChannel(mainWindow.Fofa_log)
@@ -34,8 +36,9 @@ func LoadAsset(mainWindow *ui.MainWindow) {
 			common.StartIt(&mConfig.Fofa.Stop)
 		} else {
 			mConfig.Zoomeye = zoomeye.New()
-			mConfig.Zoomeye.ApiKey = mainWindow.Zoomeye_key.CurrentText()
+			mConfig.Zoomeye.ApiKey = mainWindow.Zoomeye_apikey.Text()
 			mConfig.Zoomeye.Query = mainWindow.Zoomeuye_search.Text()
+			mConfig.Zoomeye.Pages = mainWindow.Zoomeuye_page.Text()
 			mConfig.Zoomeye.ErrChannel = logC
 			if err := saveCfg(); err != nil {
 				logC <- common.LogBuild("UI", "保存配置失败:"+err.Error(), common.FAULT)
@@ -73,10 +76,10 @@ func LoadAsset(mainWindow *ui.MainWindow) {
 }
 
 func assetBanner(mainWindow *ui.MainWindow) {
+	mainWindow.Fofa_log.SetAlignment(core.Qt__AlignLeft)
 	mainWindow.Fofa_log.SetText(`
-	关于ZoomEye: 
-		* 速度快!
-		* 搜索语法请参考 https://www.zoomeye.org
-		* API-KEY登录 https://www.zoomeye.org/profile 获取,每月免费10w/资源!
+关于ZoomEye:
+* 高级语法：https://www.zoomeye.org
+* API-KEY： https://www.zoomeye.org/profile获取,每月免费1w/资源!
 `)
 }

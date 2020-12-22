@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-func (z *ZoomEye) runAPI() {
-	url := fmt.Sprintf("https://api.zoomeye.org/host/search?query=%s", url2.QueryEscape(z.Query))
+func (z *ZoomEye) runAPI(page int) {
+	url := fmt.Sprintf("https://api.zoomeye.org/host/search?query=%s&page=%d", url2.QueryEscape(z.Query), page)
 	req := common.HttpRequest{
 		Url:     url,
 		TimeOut: time.Duration(5),

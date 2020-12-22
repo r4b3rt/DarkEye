@@ -5,7 +5,7 @@ import (
 	"syscall"
 )
 
-//SetRLimit: add comment
+//SetRLimit add comment
 func SetRLimit() {
 	//设置max file
 	rLimit := syscall.Rlimit{
@@ -16,6 +16,6 @@ func SetRLimit() {
 	_ = syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 }
 
-//HideCmd: add comment
+//HideCmd add comment
 func HideCmd(c *exec.Cmd) {
 }

@@ -5,11 +5,11 @@ import (
 	"syscall"
 )
 
-//SetRLimit: add comment
+//SetRLimit add comment
 func SetRLimit() {
 }
 
-//HideCmd: add comment
+//HideCmd add comment
 func HideCmd(c *exec.Cmd) {
 	c.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 }

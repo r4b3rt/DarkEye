@@ -25,6 +25,7 @@ type Spider struct {
 	sensitiveInterface []SensitiveInterface
 }
 
+//NewConfig add comment
 func NewConfig() Spider {
 	return Spider{
 		LocalLink: true,

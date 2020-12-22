@@ -10,11 +10,12 @@ import (
 	"strings"
 )
 
+//ApiFinder add comment
 func (sp *Spider) ApiFinder() {
 	myUrls := strings.Split(sp.Url, ",")
 	sp.sensitiveInterface = make([]SensitiveInterface, 0)
 	for _, myUrl := range myUrls {
-		sp.ApiFinderUrl(myUrl)
+		sp.apiFinderUrl(myUrl)
 	}
 
 	if len(sp.sensitiveInterface) == 0 {
@@ -34,7 +35,7 @@ func (sp *Spider) ApiFinder() {
 		fmt.Sprintf("收集信息任务完成，有效数量%d, 已保存结果:%s", len(sp.sensitiveInterface), filename), common.INFO)
 }
 
-func (sp *Spider) ApiFinderUrl(myUrl string) {
+func (sp *Spider) apiFinderUrl(myUrl string) {
 	c := sp.setup(myUrl)
 	if c == nil {
 		return

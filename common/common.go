@@ -37,12 +37,12 @@ func init() {
 	logFile = filepath.Join(BaseDir, logFile)
 }
 
-//GenHumanSecond: add comment
+//GenHumanSecond add comment
 func GenHumanSecond(base int) int {
 	return base
 }
 
-//TrimUseless: add comment
+//TrimUseless add comment
 func TrimUseless(a string) string {
 	//a = strings.Replace(a, " ", " ", -1)
 	a = strings.Replace(a, "\n", "", -1)
@@ -51,17 +51,17 @@ func TrimUseless(a string) string {
 	return a
 }
 
-//StartIt: add comment
+//StartIt add comment
 func StopIt(stop *int32) {
 	atomic.StoreInt32(stop, 1)
 }
 
-//StartIt: add comment
+//StartIt add comment
 func StartIt(stop *int32) {
 	atomic.StoreInt32(stop, 0)
 }
 
-//ShouldStop: add comment
+//ShouldStop add comment
 func ShouldStop(stop *int32) bool {
 	return atomic.LoadInt32(stop) == 1
 }
@@ -81,7 +81,7 @@ func preNUm(data byte) int {
 	return num
 }
 
-//ISUtf8: add comment
+//ISUtf8 add comment
 func ISUtf8(data []byte) bool {
 	i := 0
 	for i < len(data) {

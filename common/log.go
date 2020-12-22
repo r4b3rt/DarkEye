@@ -21,7 +21,7 @@ var (
 	logFile = "dark_eye.log"
 )
 
-//LogBuild: add comment
+//LogBuild add comment
 func LogBuild(module string, logCt string, level int) string {
 	return fmt.Sprintf("%s /%s/ %s",
 		logDesc[level],

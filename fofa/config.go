@@ -10,7 +10,7 @@ type IpNode struct {
 	Alive  int
 }
 
-//todo: add comment
+//Fofa add comment
 type Fofa struct {
 	Interval    int    `json:"interval"`
 	Ip          string `json:"ip"`
@@ -22,7 +22,7 @@ type Fofa struct {
 	Stop       int32       `json:"-"`
 }
 
-//todo: add comment
+//NewConfig add comment
 func NewConfig() Fofa {
 	return Fofa{
 		Interval:    3,

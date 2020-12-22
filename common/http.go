@@ -23,7 +23,7 @@ const (
 	TimeOut = 3
 )
 
-//HttpRequest: add comment
+//HttpRequest add comment
 type HttpRequest struct {
 	Method  string
 	Url     string
@@ -34,7 +34,7 @@ type HttpRequest struct {
 	TimeOut          time.Duration
 }
 
-//HttpResponse: add comment
+//HttpResponse add comment
 type HttpResponse struct {
 	Status          int32
 	ResponseHeaders map[string]string
@@ -42,7 +42,7 @@ type HttpResponse struct {
 	ContentType     string
 }
 
-//Go: add comment
+//Go add comment
 func (m *HttpRequest) Go() (*HttpResponse, error) {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -98,7 +98,7 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 	return &response, nil
 }
 
-//GetHttpTitle :add comment
+//GetHttpTitle add comment
 func GetHttpTitle(proto, domain string, timeOutSec int) (server, title string, code int32) {
 	url := fmt.Sprintf(proto+"://%s", domain)
 	userAgent := UserAgents[0]

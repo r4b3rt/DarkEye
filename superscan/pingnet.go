@@ -37,7 +37,7 @@ func init() {
 	}
 }
 
-//PingNet: 将网络分若干个C段，每个C段为最小单位整体扫描
+//PingNet 将网络分若干个C段，每个C段为最小单位整体扫描
 func (s *Scan) PingNet(ipList string) {
 	s.pingPrepare()
 	ips := strings.Split(ipList, ",")
@@ -106,7 +106,7 @@ func (s *Scan) pingCheck(ipSeg string, perHost bool) bool {
 			default:
 			}
 			tip := common.GenIP(ipSeg, idx)
-			ok := false
+			var ok bool
 			if mPrivileged {
 				ok = s.pingWithPrivileged(ctx, tip) == nil
 			} else {
@@ -159,7 +159,7 @@ func (s *Scan) ping(ctx context.Context, ip string) bool {
 }
 
 func (s *Scan) pingPrepare() {
-	if s.pingWithPrivileged("127.0.0.1", context.Background()) == nil {
+	if s.pingWithPrivileged(context.Background(), "127.0.0.1") == nil {
 		mPrivileged = true
 		return
 	}

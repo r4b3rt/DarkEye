@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+//Run add comment
 func (f *Fofa) Run() {
 	//初始化用来存储结果
 	f.IpNodes = make([]IpNode, 0)

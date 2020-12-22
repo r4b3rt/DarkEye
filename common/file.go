@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-//GenFileName: add comment
+//GenFileName add comment
 func GenFileName(filename string) string {
 	saveFile := filename + "_" + time.Now().Format("2006/1/2 15:04:05")
 	saveFile = strings.Replace(saveFile, " ", "_", -1)
@@ -19,7 +19,7 @@ func GenFileName(filename string) string {
 	return saveFile
 }
 
-//Write2CSV: add comment
+//Write2CSV add comment
 func Write2CSV(filename string, jsonObject []byte) (string, error) {
 	filename = GenFileName(filename)
 	if jsonObject == nil {
@@ -33,7 +33,7 @@ func Write2CSV(filename string, jsonObject []byte) (string, error) {
 	return filename, Convert(bytes.NewReader(jsonObject), w)
 }
 
-//GenDicFromFile: add comment
+//GenDicFromFile add comment
 func GenDicFromFile(filename string) []string {
 	if filename == "" {
 		return nil

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-//New: add comment
+//New add comment
 func New(ip string) *Scan {
 	return &Scan{
 		Ip:                     ip,
@@ -21,7 +21,7 @@ func New(ip string) *Scan {
 	}
 }
 
-//Run: add comment
+//Run add comment
 func (s *Scan) Run() {
 	s.preCheck()
 	fromTo, tot := common.GetPortRange(s.PortRange)
@@ -51,7 +51,7 @@ func (s *Scan) Run() {
 	wg.Wait()
 }
 
-//Check: add comment
+//Check add comment
 func (s *Scan) Check(p int) {
 	defer func() {
 		s.BarCallback(1)

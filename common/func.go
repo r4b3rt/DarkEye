@@ -13,13 +13,13 @@ import (
 	"time"
 )
 
-//todo: add comment
+//FromTo add comment
 type FromTo struct {
 	From int
 	To   int
 }
 
-//todo: add comment
+//GetIPRange add comment
 func GetIPRange(ip string) (base string, start int, end string, err error) {
 	err = fmt.Errorf(LogBuild("common.func", "IP格式错误(eg. 1.1.1.1-1.1.1.255)", FAULT))
 	re := regexp.MustCompile(`\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}-\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}|\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`)
@@ -44,7 +44,7 @@ func GetIPRange(ip string) (base string, start int, end string, err error) {
 	return
 }
 
-//GenIP: add comment
+//GenIP add comment
 func GenIP(ipSeg string, ip int) string {
 	a := make([]byte, 4)
 	x := net.ParseIP(ipSeg).To4()
@@ -53,14 +53,14 @@ func GenIP(ipSeg string, ip int) string {
 	return net.IPv4(a[0], a[1], a[2], a[3]).String()
 }
 
-//CompareIP: add comment
+//CompareIP add comment
 func CompareIP(a, b string) int64 {
 	x := binary.BigEndian.Uint32(net.ParseIP(a).To4())
 	y := binary.BigEndian.Uint32(net.ParseIP(b).To4())
 	return int64(x) - int64(y)
 }
 
-//GetPortRange: add comment
+//GetPortRange add comment
 func GetPortRange(portRange string) ([]FromTo, int) {
 	res := make([]FromTo, 0)
 	tot := 0
@@ -84,7 +84,7 @@ func GetPortRange(portRange string) ([]FromTo, int) {
 	return res, tot
 }
 
-//ImportFiles: add comment
+//ImportFiles add comment
 func ImportFiles(f, cnt string) (string, error) {
 	file, err := os.Open(f)
 	r := ""
@@ -113,7 +113,7 @@ func ImportFiles(f, cnt string) (string, error) {
 	return r, nil
 }
 
-//IsAlive: add comment
+//IsAlive add comment
 func IsAlive(ip, port string, millTimeOut int) int {
 	ctx, cancel := context.WithTimeout(context.TODO(), time.Duration(millTimeOut)*time.Millisecond)
 	defer cancel()

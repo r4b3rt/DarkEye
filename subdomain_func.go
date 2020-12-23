@@ -22,6 +22,8 @@ func LoadSubDomain(mainWindow *ui.MainWindow) {
 	mainWindow.St_domain.SetText(mConfig.SubDomain.BruteLength)
 	logC, runCtl := logChannel(mainWindow.St_log)
 
+	mainWindow.St_log.SetText("子域获取、爆破")
+
 	subDomainUICtl(mainWindow, mConfig.SubDomain.Brute)
 	mainWindow.St_domain_brute_mode.ConnectClicked(func(brute bool) {
 		subDomainUICtl(mainWindow, brute)

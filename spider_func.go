@@ -17,6 +17,7 @@ func LoadSpider(mainWindow *ui.MainWindow) {
 	mainWindow.Search_query.SetText(mConfig.Spider.Query)
 
 	logC, runCtl := logChannel(mainWindow.Spider_log)
+	mainWindow.Spider_log.SetText("敏感信息、接口收集")
 	//Action
 	mainWindow.Spider_start.ConnectClicked(func(bool) {
 		//清空

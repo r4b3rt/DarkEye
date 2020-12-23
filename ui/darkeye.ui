@@ -20,6 +20,11 @@
    <layout class="QGridLayout" name="gridLayout_9">
     <item row="0" column="0">
      <widget class="QTabWidget" name="main_tab">
+      <property name="font">
+       <font>
+        <family>Hiragino Sans GB</family>
+       </font>
+      </property>
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
       </property>
@@ -39,6 +44,11 @@
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
          <widget class="QRadioButton" name="zoomeye_radioButton">
+          <property name="font">
+           <font>
+            <family>Hiragino Sans GB</family>
+           </font>
+          </property>
           <property name="text">
            <string>ZoomEye</string>
           </property>
@@ -49,6 +59,11 @@
         </item>
         <item row="0" column="1" rowspan="4" colspan="3">
          <widget class="QTextEdit" name="fofa_log">
+          <property name="font">
+           <font>
+            <family>Hiragino Sans GB</family>
+           </font>
+          </property>
           <property name="readOnly">
            <bool>false</bool>
           </property>
@@ -59,6 +74,11 @@
         </item>
         <item row="1" column="0">
          <widget class="QFrame" name="frame">
+          <property name="font">
+           <font>
+            <family>Hiragino Sans GB</family>
+           </font>
+          </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
@@ -68,6 +88,11 @@
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="0">
             <widget class="QLabel" name="zoomeye_asset_label">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="text">
               <string>搜索</string>
              </property>
@@ -75,6 +100,11 @@
            </item>
            <item row="0" column="1" colspan="2">
             <widget class="QLineEdit" name="zoomeuye_search">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="layoutDirection">
               <enum>Qt::LeftToRight</enum>
              </property>
@@ -91,6 +121,11 @@
            </item>
            <item row="0" column="3">
             <widget class="QLabel" name="zoomeye_asset_page_label">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="text">
               <string>前</string>
              </property>
@@ -98,6 +133,11 @@
            </item>
            <item row="0" column="4">
             <widget class="QLineEdit" name="zoomeuye_page">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="toolTip">
               <string>-1页表示获取所有</string>
              </property>
@@ -117,6 +157,11 @@
            </item>
            <item row="0" column="5">
             <widget class="QLabel" name="zoomeye_asset_page_label_2">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="text">
               <string>页</string>
              </property>
@@ -124,6 +169,11 @@
            </item>
            <item row="1" column="0" colspan="2">
             <widget class="QLabel" name="zoomeye_assetkey_label">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="text">
               <string>API-KEY</string>
              </property>
@@ -131,6 +181,11 @@
            </item>
            <item row="1" column="2" colspan="3">
             <widget class="QLineEdit" name="zoomeye_apikey">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="layoutDirection">
               <enum>Qt::LeftToRight</enum>
              </property>
@@ -150,6 +205,11 @@
         </item>
         <item row="2" column="0">
          <widget class="QRadioButton" name="fofa_radioButton">
+          <property name="font">
+           <font>
+            <family>Hiragino Sans GB</family>
+           </font>
+          </property>
           <property name="text">
            <string>FoFa</string>
           </property>
@@ -157,6 +217,11 @@
         </item>
         <item row="3" column="0" rowspan="2">
          <widget class="QFrame" name="frame_2">
+          <property name="font">
+           <font>
+            <family>Hiragino Sans GB</family>
+           </font>
+          </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
@@ -166,6 +231,11 @@
           <layout class="QGridLayout" name="gridLayout">
            <item row="0" column="0" colspan="2">
             <widget class="QLabel" name="fofa_asset_label">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="text">
               <string>资产IP</string>
              </property>
@@ -173,6 +243,11 @@
            </item>
            <item row="0" column="2">
             <widget class="QLineEdit" name="fofa_asset_ip">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
@@ -183,6 +258,11 @@
            </item>
            <item row="0" column="3">
             <widget class="QLabel" name="fofa_interval_label">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="text">
               <string>周期(秒)</string>
              </property>
@@ -190,6 +270,11 @@
            </item>
            <item row="0" column="4">
             <widget class="QLineEdit" name="fofa_interval">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="layoutDirection">
               <enum>Qt::LeftToRight</enum>
              </property>
@@ -206,6 +291,11 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="fofa_session_label">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="text">
               <string>会话</string>
              </property>
@@ -213,6 +303,11 @@
            </item>
            <item row="1" column="1" colspan="4">
             <widget class="QLineEdit" name="fofa_session">
+             <property name="font">
+              <font>
+               <family>Hiragino Sans GB</family>
+              </font>
+             </property>
              <property name="text">
               <string>_fofapro_ars_session=</string>
              </property>
@@ -229,6 +324,11 @@
         </item>
         <item row="4" column="1">
          <widget class="QPushButton" name="fofa_start">
+          <property name="font">
+           <font>
+            <family>Hiragino Sans GB</family>
+           </font>
+          </property>
           <property name="text">
            <string>开始</string>
           </property>
@@ -236,6 +336,11 @@
         </item>
         <item row="4" column="2">
          <widget class="QPushButton" name="fofa_stop">
+          <property name="font">
+           <font>
+            <family>Hiragino Sans GB</family>
+           </font>
+          </property>
           <property name="text">
            <string>停止</string>
           </property>
@@ -243,6 +348,11 @@
         </item>
         <item row="4" column="3">
          <widget class="QPushButton" name="fofa_clear">
+          <property name="font">
+           <font>
+            <family>Hiragino Sans GB</family>
+           </font>
+          </property>
           <property name="text">
            <string>清空</string>
           </property>
@@ -264,71 +374,7 @@
            <enum>QFrame::Raised</enum>
           </property>
           <layout class="QGridLayout" name="gridLayout_4">
-           <item row="0" column="0">
-            <widget class="QLabel" name="st_domain_label">
-             <property name="text">
-              <string>域名</string>
-             </property>
-             <property name="buddy">
-              <cstring>st_domain_label</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="st_domain">
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="placeholderText">
-              <string>a.com,b.com,c.com</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="st_dns_label">
-             <property name="text">
-              <string>域名服务器</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="st_dns">
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="placeholderText">
-              <string>192.168.1.1:53</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="st_domain_brute_mode_label">
-             <property name="text">
-              <string>爆破模式</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QCheckBox" name="st_domain_brute_mode">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="st_domain_brute_label">
-             <property name="text">
-              <string>爆破长度</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
+           <item row="4" column="2">
             <widget class="QLineEdit" name="st_domain_brute">
              <property name="layoutDirection">
               <enum>Qt::LeftToRight</enum>
@@ -344,14 +390,14 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="5" column="0">
             <widget class="QLabel" name="st_domain_brute_rate_label">
              <property name="text">
               <string>爆破频率/s</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="5" column="2">
             <widget class="QLineEdit" name="st_domain_brute_rate">
              <property name="layoutDirection">
               <enum>Qt::LeftToRight</enum>
@@ -367,14 +413,78 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
+           <item row="0" column="2">
+            <widget class="QLineEdit" name="st_domain">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="placeholderText">
+              <string>a.com,b.com,c.com</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="st_domain_brute_mode_label">
+             <property name="text">
+              <string>爆破模式</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="st_domain_label">
+             <property name="text">
+              <string>域名</string>
+             </property>
+             <property name="buddy">
+              <cstring>st_domain_label</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="st_dns_label">
+             <property name="text">
+              <string>域名服务器</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLineEdit" name="st_dns">
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="placeholderText">
+              <string>192.168.1.1:53</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QCheckBox" name="st_domain_brute_mode">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="st_domain_brute_label">
+             <property name="text">
+              <string>爆破长度</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
             <widget class="QLabel" name="st_key_label">
              <property name="text">
               <string>SecurityTrails Key</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="0" colspan="2">
+           <item row="2" column="2">
             <widget class="QComboBox" name="st_apikeylist">
              <property name="acceptDrops">
               <bool>false</bool>
@@ -422,8 +532,9 @@
          </widget>
         </item>
        </layout>
-       <zorder>splitter</zorder>
-       <zorder>splitter_5</zorder>
+       <zorder>st_start</zorder>
+       <zorder>st_stop</zorder>
+       <zorder>st_clear</zorder>
        <zorder>st_log</zorder>
        <zorder>frame_3</zorder>
       </widget>

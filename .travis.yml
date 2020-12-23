@@ -1,6 +1,1 @@
-language: go
 
-go:
-  - tip
-
-script: cd superscan && ./build all 

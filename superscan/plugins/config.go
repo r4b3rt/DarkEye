@@ -56,7 +56,7 @@ type Plugins struct {
 	TimeOut        int `json:"-"`
 	DescCallback   func(string)
 	highLight      bool
-	sync.RWMutex //protect 'Cracked'
+	sync.RWMutex   //protect 'Cracked'
 }
 
 //Config add comment
@@ -93,7 +93,7 @@ const (
 	//SmbSrv add comment
 	SmbSrv
 	//WEBSrv add comment
-	WEBSrv  //放到最后
+	WEBSrv //放到最后
 	//PluginNr add comment
 	PluginNR
 )
@@ -125,6 +125,6 @@ const (
 	OKForbidden
 	//OKNoAuth add comment
 	OKNoAuth
-	//OKStop
+	//OKStop add comment
 	OKStop
 )

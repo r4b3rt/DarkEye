@@ -184,4 +184,3 @@ func (s *Scan) pingPrepare() {
 	color.Yellow("使用探测命令 '%s'检查网络 ", myCommand)
 	color.Yellow("使用关键字' %s' 确定网络是否存在", myCommandOutput)
 }
-

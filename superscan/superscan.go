@@ -54,9 +54,9 @@ var (
 func main() {
 	//  debug/pprof
 	/*
-	go func() {
-		fmt.Println(http.ListenAndServe("localhost:10000", nil))
-	}()
+		go func() {
+			fmt.Println(http.ListenAndServe("localhost:10000", nil))
+		}()
 	*/
 	color.Yellow("超级弱口令、系统Vulnerable检测\n")
 	flag.Parse()
@@ -173,7 +173,7 @@ func newScan(ip string) *Scan {
 func myBarDescUpdate(a string) {
 	b := fmt.Sprintf("%-32s", a)
 	if len(a) > 32 {
-		b = a[:(32 - 3)] + "..."
+		b = a[:(32-3)] + "..."
 	}
 	mBar.Describe(b)
 }

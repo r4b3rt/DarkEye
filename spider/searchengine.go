@@ -18,13 +18,13 @@ type ResponseError struct {
 
 //OrganicResult add comment
 type OrganicResult struct {
-	Title string        `json:"title"`
-	Url   string        `json:"url"`
+	Title string `json:"title"`
+	Url   string `json:"url"`
 }
 
 //Response add comment
 type Response struct {
-	Error ResponseError `json:"error"`
+	Error             ResponseError     `json:"error"`
 	SearchInformation SearchInformation `json:"search_information"`
 	OrganicResults    []OrganicResult   `json:"organic_results"`
 }

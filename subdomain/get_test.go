@@ -67,8 +67,8 @@ func Test_GenBruteSource(t *testing.T) {
 	i := 0
 	for length > 0 {
 		target = genSource(target, common.LowCaseAlpha+"0123456789", i+1)
-		length --
-		i ++
+		length--
+		i++
 	}
 	if len(target) != 36+36*36+36*36*36 {
 		t.Fail()

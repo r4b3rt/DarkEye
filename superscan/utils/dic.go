@@ -14,7 +14,7 @@ var (
 	dictionaryDic = "../dic"
 )
 
-func main() () {
+func main() {
 	f, _ := os.OpenFile(dictionaryDic, os.O_RDONLY, os.ModeDir)
 	defer f.Close()
 

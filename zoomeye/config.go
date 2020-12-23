@@ -69,7 +69,5 @@ type Protocol struct {
 
 //ZoomEye add comment
 func New() ZoomEye {
-	return ZoomEye{
-
-	}
+	return ZoomEye{}
 }

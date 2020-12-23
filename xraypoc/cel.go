@@ -41,12 +41,12 @@ type CustomLib struct {
 	envOptions []cel.EnvOption
 }
 
-//CompileOptions
+//CompileOptions add comment
 func (cus *CustomLib) CompileOptions() []cel.EnvOption {
 	return cus.envOptions
 }
 
-//UpdateOptions
+//UpdateOptions add comment
 func (cus *CustomLib) UpdateOptions(param string, declType *expr.Type) {
 	//动态注入类型
 	opts := cel.Declarations(
@@ -55,7 +55,7 @@ func (cus *CustomLib) UpdateOptions(param string, declType *expr.Type) {
 	cus.envOptions = append(cus.envOptions, opts)
 }
 
-//ProgramOptions
+//ProgramOptions add comment
 func (cus *CustomLib) ProgramOptions() []cel.ProgramOption {
 	return []cel.ProgramOption{
 		cel.Functions(

@@ -7,7 +7,6 @@ import (
 	"strconv"
 )
 
-
 //Run add comment
 func (z *ZoomEye) Run() {
 	tot, _ := strconv.Atoi(z.Pages)

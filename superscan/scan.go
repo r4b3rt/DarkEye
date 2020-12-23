@@ -97,7 +97,7 @@ func (s *Scan) isFireWallNotForbidden() bool {
 		if common.IsAlive(s.Ip, s.ActivePort, s.TimeOut) == common.Alive {
 			return true
 		}
-		maxRetries --
+		maxRetries--
 	}
 	return false
 }

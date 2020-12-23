@@ -57,7 +57,7 @@ func (s *SubDomain) getSecurityTrails(query string) {
 	}
 }
 
-func (s *SubDomain) fetchSubDomainResults(req *common.HttpRequest, query string) (*common.HttpResponse) {
+func (s *SubDomain) fetchSubDomainResults(req *common.HttpRequest, query string) *common.HttpResponse {
 	retry := 0
 	for {
 		if common.ShouldStop(&s.Stop) {

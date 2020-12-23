@@ -95,7 +95,7 @@ func gracefulStop(start, stop *widgets.QPushButton, runCtl chan bool) {
 		case <-runCtl:
 			jumpOut = true
 		case <-tick.C:
-			sec ++
+			sec++
 			stop.SetText(fmt.Sprintf("等待%d秒", 60-sec))
 		}
 		if jumpOut {

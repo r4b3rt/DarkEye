@@ -6,7 +6,7 @@ import (
 
 const (
 	//INFO add comment
-	INFO  = 1
+	INFO = 1
 	//FAULT add comment
 	FAULT = 2
 	//ALERT add comment

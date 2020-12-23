@@ -126,7 +126,7 @@ func loadParams(poc *Poc, params map[string]interface{}, env *cel.Env) error {
 		/*Note
 		*'newReverse'预处理中处理化
 		*'Payload'通常为Set最后的变量，需等到其它变量初始化完成
-		*/
+		 */
 		if v == "newReverse()" ||
 			k == "payload" {
 			continue

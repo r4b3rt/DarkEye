@@ -1,5 +1,6 @@
 package main
 
+//Scan add comment
 type Scan struct {
 	//需配置参数
 	Ip           string `json:"ip"`

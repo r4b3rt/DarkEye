@@ -54,7 +54,7 @@ func mssqlConn(plg *Plugins, user, pass string) (ok int) {
 	if err = db.Ping(); err == nil {
 		ok = OKDone
 	} else {
-		if strings.Contains(err.Error(),"login error: mssql:") {
+		if strings.Contains(err.Error(), "login error: mssql:") {
 			return
 		}
 		color.Red(err.Error())

@@ -19,9 +19,9 @@ import (
 
 const (
 	//Die add comment
-	Die     = 1
+	Die = 1
 	//Alive add comment
-	Alive   = 2
+	Alive = 2
 	//TimeOut add comment
 	TimeOut = 3
 )

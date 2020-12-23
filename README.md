@@ -1,5 +1,7 @@
 <h1 align="center">👏👏👏 欢迎使用 DarkEye 👏👏👏</h1>
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/zsdevX/DarkEye)](https://goreportcard.com/report/github.com/zsdevX/DarkEye)
+
 > 从互联网收集目标信息。
 
 > 资产弱口令、脆弱性检查。

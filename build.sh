@@ -57,6 +57,7 @@ clean() {
     rm -rf darwin
     rm -rf windows
     cd superscan && ./build.sh clean && cd -
+    find . -type f -name "*.go"|xargs gofmt -s -w
 }
 
 clean

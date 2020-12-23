@@ -78,6 +78,7 @@ func main() {
 	Start()
 }
 
+//Start add comment
 func Start() {
 	//初始化scan对象
 	ips := strings.Split(*mIp, ",")
@@ -93,7 +94,7 @@ func Start() {
 			if common.CompareIP(nip, end) > 0 {
 				break
 			}
-			s := NewScan(nip)
+			s := newScan(nip)
 			s.ActivePort = "0"
 			_, t := common.GetPortRange(s.PortRange)
 			tot += t
@@ -104,7 +105,7 @@ func Start() {
 	color.Green(fmt.Sprintf("已加载%d个IP,共计%d个端口,启动检测线程数%d,同时可检测IP数量%d",
 		len(mScans), tot, *mThread, mMaxIPDetect))
 	//建立进度条
-	mBar = NewBar(tot)
+	mBar = newBar(tot)
 	if len(mScans) == 1 {
 		//单IP支持校正
 		mScans[0].ActivePort = *mActivePort
@@ -125,7 +126,7 @@ func Start() {
 }
 
 func networkCheck() {
-	s := NewScan("")
+	s := newScan("")
 	s.PingNet(*mIp)
 }
 
@@ -153,7 +154,8 @@ func loadPlugins() {
 	plugins.GlobalConfig.Pps = mPps
 }
 
-func NewScan(ip string) *Scan {
+//NewScan add comment
+func newScan(ip string) *Scan {
 	return &Scan{
 		Ip:                     ip,
 		TimeOut:                *mTimeOut,
@@ -190,7 +192,7 @@ func myBarCallback(i int) {
 	_ = mBar.Add(i)
 }
 
-func NewBar(max int) *progressbar.ProgressBar {
+func newBar(max int) *progressbar.ProgressBar {
 	bar := progressbar.NewOptions(max,
 		progressbar.OptionSetDescription(fmt.Sprintf("%-32s", "Cracking...")),
 		progressbar.OptionShowCount(),

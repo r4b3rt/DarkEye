@@ -106,6 +106,7 @@ func gracefulStop(start, stop *widgets.QPushButton, runCtl chan bool) {
 	stop.SetText("停止")
 }
 
+//QSystemTrayIconWithCustomSlot add comment
 type QSystemTrayIconWithCustomSlot struct {
 	widgets.QSystemTrayIcon
 	_ func() `slot:"triggerSlot"`
@@ -125,6 +126,7 @@ func logChannel(view *widgets.QTextEdit) (chan string, chan bool) {
 }
 
 var (
+	//QSS add comment
 	QSS = `
 QMainWindow {
 	background-color:#1e1d23;

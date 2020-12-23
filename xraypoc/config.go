@@ -33,7 +33,7 @@ type Detail struct {
 	Version     string   `yaml:"version"`
 }
 
-//XarYPoc add comment
+//XArYPoc add comment
 type XArYPoc struct {
 	ReverseUrl      string
 	ReverseUrlCheck string

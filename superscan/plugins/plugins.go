@@ -113,12 +113,12 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 				GlobalConfig.RateWait(GlobalConfig.Pps)
 				ok := callback(plg, username, pass)
 				switch ok {
-				case OKNoauth:
+				case OKNoAuth:
 					fallthrough
 				case OKDone:
 					//密码正确一次退出
 					plg.Lock()
-					if pass == "" || ok == OKNoauth {
+					if pass == "" || ok == OKNoAuth {
 						pass = "空"
 					}
 					plg.Cracked = append(plg.Cracked, Account{Username: username, Password: pass})

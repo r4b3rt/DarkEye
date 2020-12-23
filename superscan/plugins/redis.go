@@ -41,7 +41,7 @@ func redisConn(plg *Plugins, _ string, pass string) (ok int) {
 		}
 	} else {
 		if strings.Contains(err.Error(), " without any password configured") {
-			ok = OKNoauth
+			ok = OKNoAuth
 			return
 		}
 		//账号密码错误

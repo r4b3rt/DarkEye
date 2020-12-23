@@ -20,7 +20,7 @@ func Test_Spider(t *testing.T) {
 	}()
 
 	sp.Run()
-	time.Sleep(time.Second*10)
+	time.Sleep(time.Second * 10)
 }
 
 func Test_Search(t *testing.T) {

@@ -19,6 +19,7 @@ import (
 	"time"
 )
 
+//Eval add comment
 func Eval(env *cel.Env, expression string, params map[string]interface{}) (ref.Val, error) {
 	ast, iss := env.Compile(expression)
 	if iss.Err() != nil {
@@ -35,14 +36,17 @@ func Eval(env *cel.Env, expression string, params map[string]interface{}) (ref.V
 	return out, nil
 }
 
+//CustomLib add comment
 type CustomLib struct {
 	envOptions []cel.EnvOption
 }
 
+//CompileOptions
 func (cus *CustomLib) CompileOptions() []cel.EnvOption {
 	return cus.envOptions
 }
 
+//UpdateOptions
 func (cus *CustomLib) UpdateOptions(param string, declType *expr.Type) {
 	//动态注入类型
 	opts := cel.Declarations(
@@ -51,6 +55,7 @@ func (cus *CustomLib) UpdateOptions(param string, declType *expr.Type) {
 	cus.envOptions = append(cus.envOptions, opts)
 }
 
+//ProgramOptions
 func (cus *CustomLib) ProgramOptions() []cel.ProgramOption {
 	return []cel.ProgramOption{
 		cel.Functions(
@@ -306,6 +311,7 @@ func (cus *CustomLib) ProgramOptions() []cel.ProgramOption {
 	}
 }
 
+//NewCustomLib add comment
 func NewCustomLib() *CustomLib {
 	return &CustomLib{
 		envOptions: []cel.EnvOption{

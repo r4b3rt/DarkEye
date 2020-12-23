@@ -1,5 +1,6 @@
 package zoomeye
 
+//ZoomEye add comment
 type ZoomEye struct {
 	ApiKey string `json:"api-key"`
 	Query  string `json:"query"`
@@ -10,6 +11,7 @@ type ZoomEye struct {
 	Stop       int32       `json:"-"`
 }
 
+//Results add comment
 type Results struct {
 	Error   string
 	Message string
@@ -20,6 +22,7 @@ type Results struct {
 	Matches   []TargetInfo `json:"matches"`
 }
 
+//TargetInfo add comment
 type TargetInfo struct {
 	Ip           string       `json:"ip"`
 	City         City         `json:"city"`
@@ -30,18 +33,22 @@ type TargetInfo struct {
 	Honeypot     int          `json:"honeypot"`
 }
 
+//City add comment
 type City struct {
 	Names []string `json:"names"`
 }
 
+//Country add comment
 type Country struct {
 	Names []string `json:"names"`
 }
 
+//Subdivisions add comment
 type Subdivisions struct {
 	Names []string `json:"names"`
 }
 
+//PortInfo add comment
 type PortInfo struct {
 	Port     int    `json:"port"`
 	Title    string `json:"title"`
@@ -53,12 +60,14 @@ type PortInfo struct {
 	App      string `json:"app"`
 }
 
+//Protocol add comment
 type Protocol struct {
 	Application string `json:"application"`
 	Transport   string `json:"transport"`
 	Probe       string `json:"probe"`
 }
 
+//ZoomEye add comment
 func New() ZoomEye {
 	return ZoomEye{
 

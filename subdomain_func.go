@@ -13,6 +13,7 @@ func subDomainUICtl(mainWindow *ui.MainWindow, brute bool) {
 	mainWindow.St_domain_brute.SetDisabled(!brute)
 }
 
+//LoadSubDomain add comment
 func LoadSubDomain(mainWindow *ui.MainWindow) {
 	mainWindow.St_apikeylist.SetCurrentText(mConfig.SubDomain.ApiKey)
 	mainWindow.St_dns.SetText(mConfig.SubDomain.DnsServer)

@@ -8,6 +8,7 @@ import (
 	"strconv"
 )
 
+//LoadSpider add comment
 func LoadSpider(mainWindow *ui.MainWindow) {
 	mainWindow.Spider_deps.SetText(strconv.Itoa(mConfig.Spider.MaxDeps))
 	mainWindow.Spider_url.SetText(mConfig.Spider.Url)

@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+//Check add comment
 func (p *XArYPoc) Check(data []byte, pocFileName, myUrl string) (bool, error) {
 	poc, err := LoadPocByData(data)
 	if poc == nil || err != nil {

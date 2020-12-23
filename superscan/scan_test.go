@@ -20,6 +20,6 @@ func Test_Run(t *testing.T) {
 }
 
 func Test_pingNet(t *testing.T) {
-	s := NewScan("")
+	s := newScan("")
 	s.PingNet("192.168.1.1-192.168.255.255")
 }

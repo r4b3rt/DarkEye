@@ -57,7 +57,7 @@ func postgresConn(plg *Plugins, user, pass string) (ok int) {
 		if strings.Contains(err.Error(), "password authentication") {
 			return
 		}
-	//	color.Red(err.Error() + user + pass)
+		//	color.Red(err.Error() + user + pass)
 		ok = OKStop
 	}
 	return

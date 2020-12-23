@@ -5,12 +5,16 @@ import (
 )
 
 const (
+	//INFO add comment
 	INFO  = 1
+	//FAULT add comment
 	FAULT = 2
+	//ALERT add comment
 	ALERT = 3
 )
 
 var (
+	//Console unused
 	Console = false
 	logDesc = []string{
 		0:     "None",

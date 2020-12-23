@@ -15,9 +15,9 @@ func init() {
 
 //抄的"github.com/shadow1ng/fscan/common"，很棒的项目！
 var (
-	buffer_v1, _ = hex.DecodeString("05000b03100000004800000001000000b810b810000000000100000000000100c4fefc9960521b10bbcb00aa0021347a00000000045d888aeb1cc9119fe808002b10486002000000")
-	buffer_v2, _ = hex.DecodeString("050000031000000018000000010000000000000000000500")
-	buffer_v3, _ = hex.DecodeString("0900ffff0000")
+	bufferV1, _ = hex.DecodeString("05000b03100000004800000001000000b810b810000000000100000000000100c4fefc9960521b10bbcb00aa0021347a00000000045d888aeb1cc9119fe808002b10486002000000")
+	bufferV2, _ = hex.DecodeString("050000031000000018000000010000000000000000000500")
+	bufferV3, _ = hex.DecodeString("0900ffff0000")
 )
 
 func nbCheck(plg *Plugins) {
@@ -32,20 +32,20 @@ func nbConn(plg *Plugins) {
 	}
 	_ = conn.SetDeadline(time.Now().Add(time.Duration(plg.TimeOut) * time.Millisecond))
 	defer conn.Close()
-	_, _ = conn.Write(buffer_v1)
+	_, _ = conn.Write(bufferV1)
 	reply := make([]byte, 4096)
 	_, err = conn.Read(reply)
 	if err != nil {
 		return
 	}
-	_, _ = conn.Write(buffer_v2)
+	_, _ = conn.Write(bufferV2)
 	if n, err := conn.Read(reply); err != nil || n < 42 {
 		return
 	}
 	text := reply[42:]
 
 	for i := 0; i < len(text)-5; i++ {
-		if bytes.Equal(text[i:i+6], buffer_v3) {
+		if bytes.Equal(text[i:i+6], bufferV3) {
 			text = text[:i-4]
 			ck := collectNbi(text)
 			plg.Lock()

@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+//ConvertDeclType add comment
 func ConvertDeclType(value string) *expr.Type {
 	if strings.HasPrefix(value, "randomInt") {
 		return decls.Int

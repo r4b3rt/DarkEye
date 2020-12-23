@@ -16,7 +16,7 @@ func memcachedCheck(plg *Plugins) {
 	if !plg.NoTrust && plg.TargetPort != "11211" {
 		return
 	}
-	if MemcachedUnAuth(plg) {
+	if memcachedUnAuth(plg) {
 		plg.Cracked = append(plg.Cracked, Account{Username: "空", Password: "空"})
 		plg.PortOpened = true
 		plg.highLight = true
@@ -25,7 +25,7 @@ func memcachedCheck(plg *Plugins) {
 	}
 }
 
-func MemcachedUnAuth(plg *Plugins) (ok bool) {
+func memcachedUnAuth(plg *Plugins) (ok bool) {
 	conn, err := net.DialTimeout("tcp",
 		fmt.Sprintf("%s:%s", plg.TargetIp, plg.TargetPort), time.Duration(plg.TimeOut)*time.Millisecond)
 	if err != nil {

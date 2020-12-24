@@ -52,7 +52,10 @@ func (sp *Spider) apiFinderUrl(myUrl string) {
 
 	sp.requestLinkExtract(c)
 	sp.responseResultExtract(c)
-	_ = c.Visit(myUrl)
+	err := c.Visit(myUrl)
+	if err != nil {
+		sp.ErrChannel <- common.LogBuild("spider", sp.Url+":"+err.Error(), common.FAULT)
+	}
 }
 
 func (sp *Spider) responseResultExtract(c *colly.Collector) {
@@ -112,9 +115,8 @@ func (sp *Spider) setup(myUrl string) *colly.Collector {
 			sp.ErrChannel <- common.LogBuild("spider", err.Error(), common.FAULT)
 			return nil
 		}
-		allowDomain = url.Host
+		allowDomain = strings.Split(url.Host,":")[0]
 	}
-
 	c := colly.NewCollector(
 		colly.DisallowedURLFilters(
 			regexp.MustCompile(sp.DisAllowedRequest),

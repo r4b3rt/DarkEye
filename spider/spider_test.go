@@ -9,7 +9,7 @@ import (
 func Test_Spider(t *testing.T) {
 	sp := NewConfig()
 	sp.ErrChannel = make(chan string, 10)
-	sp.Url = "http://ooxx"
+	sp.Url = "http://esc.sribs.com.cn:8080"
 	sp.MaxDeps = 2
 
 	go func() {

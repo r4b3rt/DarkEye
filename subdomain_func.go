@@ -36,7 +36,7 @@ func LoadSubDomain(mainWindow *ui.MainWindow) {
 		mConfig.SubDomain.Queries = mainWindow.St_domain.Text()
 		mConfig.SubDomain.BruteRate = mainWindow.St_domain.Text()
 		mConfig.SubDomain.BruteLength = mainWindow.St_domain.Text()
-		mainWindow.St_domain_brute_mode.IsChecked()
+		mConfig.SubDomain.Brute = mainWindow.St_domain_brute_mode.IsChecked()
 
 		if mainWindow.St_apikeylist.CurrentText() != mConfig.SubDomain.ApiKey {
 			mainWindow.St_apikeylist.AddItems([]string{mainWindow.St_apikeylist.CurrentText()})

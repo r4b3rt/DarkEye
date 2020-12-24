@@ -3,7 +3,7 @@
 export GO111MODULE=off
 
 build_super() {
-    cd superscan && ./build.sh all
+    cd superscan && ./build.sh all && cd -
 }
 
 build_mac() {
@@ -75,6 +75,12 @@ case "$1" in
         build_super
         ;;
     "clean")
+        clean
+        ;;
+    "all")
+        build_mac
+        build_win
+        build_super
         clean
         ;;
       *)

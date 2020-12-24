@@ -14,6 +14,7 @@ func snmpCheck(plg *Plugins) {
 	if snmpConn(plg) == OKDone {
 		plg.TargetProtocol = "snmp"
 		plg.PortOpened = true
+		plg.highLight = true
 	}
 }
 

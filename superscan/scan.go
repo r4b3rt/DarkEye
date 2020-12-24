@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/fatih/color"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
 	"strconv"
@@ -23,7 +24,14 @@ func New(ip string) *Scan {
 
 //Run add comment
 func (s *Scan) Run() {
-	s.preCheck()
+	wg0 := sync.WaitGroup{}
+	wg0.Add(1)
+	go func() {
+		s.preCheck()
+		wg0.Done()
+	}()
+	defer wg0.Wait()
+
 	fromTo, tot := common.GetPortRange(s.PortRange)
 	taskAlloc := make(chan int, s.ThreadNumber)
 	wg := sync.WaitGroup{}
@@ -56,6 +64,16 @@ func (s *Scan) Check(p int) {
 	defer func() {
 		s.BarCallback(1)
 	}()
+
+	if s.ActivePort != "0" {
+		if common.IsAlive(s.Ip, strconv.Itoa(p), s.TimeOut) == common.Alive {
+			color.Green("\n%s %s:%s %v\n", "[√]",
+				s.Ip, strconv.Itoa(p), "Opened")
+		}
+		//开启防火墙检测仅判断端口，不爆破
+		return
+	}
+
 	plg := plugins.Plugins{
 		TargetIp:     s.Ip,
 		TargetPort:   strconv.Itoa(p),
@@ -73,6 +91,11 @@ func (s *Scan) Check(p int) {
 }
 
 func (s *Scan) preCheck() {
+	if s.ActivePort != "0" {
+		//开启防火墙检测仅判断端口，不探测
+		return
+	}
+
 	plg := plugins.Plugins{
 		TargetIp:     s.Ip,
 		TimeOut:      s.TimeOut,

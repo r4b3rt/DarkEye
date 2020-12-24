@@ -20,15 +20,15 @@ func (sp *Spider) ApiFinder() {
 
 	if len(sp.sensitiveInterface) == 0 {
 		sp.ErrChannel <- common.LogBuild("spider",
-			fmt.Sprintf("获取信息%s:%s", sp.Query, "无信息"), common.INFO)
+			fmt.Sprintf("获取信息%s:%s", sp.Url, "无信息"), common.INFO)
 		return
 	}
 	res, _ := json.Marshal(sp.sensitiveInterface)
 
-	filename, err := common.Write2CSV(sp.Query+"spider", res)
+	filename, err := common.Write2CSV(sp.Url+"spider", res)
 	if err != nil {
 		sp.ErrChannel <- common.LogBuild("spider",
-			fmt.Sprintf("获取信息%s:%s", sp.Query, err.Error()), common.FAULT)
+			fmt.Sprintf("获取信息%s:%s", sp.Url, err.Error()), common.FAULT)
 		return
 	}
 	sp.ErrChannel <- common.LogBuild("spider",

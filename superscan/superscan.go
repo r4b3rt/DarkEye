@@ -171,9 +171,9 @@ func newScan(ip string) *Scan {
 }
 
 func myBarDescUpdate(a string) {
-	b := fmt.Sprintf("%-32s", a)
-	if len(a) > 32 {
-		b = a[:(32 - 3)] + "..."
+	b := fmt.Sprintf("%-24s", a)
+	if len(a) > 24 {
+		b = a[:(24 - 3)] + "..."
 	}
 	mBar.Describe(b)
 }
@@ -194,7 +194,7 @@ func myBarCallback(i int) {
 
 func newBar(max int) *progressbar.ProgressBar {
 	bar := progressbar.NewOptions(max,
-		progressbar.OptionSetDescription(fmt.Sprintf("%-32s", "Cracking...")),
+		progressbar.OptionSetDescription(fmt.Sprintf("%-24s", "Cracking...")),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowIts(),
 		progressbar.OptionOnCompletion(func() {

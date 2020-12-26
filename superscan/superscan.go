@@ -21,16 +21,16 @@ import (
 
 var (
 	mIp                    = flag.String("ip", "127.0.0.1", "a.b.c.1-254")
-	mTimeOut               = flag.Int("timeout", 3000, "单位ms")
-	mThread                = flag.Int("thread", 32, "扫单IP线程数")
+	mTimeOut               = flag.Int("timeout", 3000, "网络超时请求单位ms")
+	mThread                = flag.Int("thread", 128, "每个IP的使用的爆破线程数")
+	mPluginWorker          = flag.Int("plugin-worker", 2, "单协议爆破密码时，使用的线程数")
+	mRateLimiter           = flag.Int("pps", 0, "扫描工具整体发包频率n/秒, 该选项可避免线程过多发包会占有带宽导致丢失目标端口")
 	mPortList              = flag.String("port-list", common.PortList, "端口范围,默认1000+常用端口")
 	mUserList              = flag.String("user-file", "", "用户名字典文件")
 	mPassList              = flag.String("pass-file", "", "密码字典文件")
 	mU                     = flag.String("U", "", "用户名字典:root,test")
 	mP                     = flag.String("P", "", "密码:123456,1q2w3e")
 	mNoTrust               = flag.Bool("no-trust", false, "由端口判定协议改为指纹方式判断协议,速度慢点")
-	mPluginWorker          = flag.Int("plugin-worker", 2, "单协议爆破密码时，线程个数")
-	mRateLimiter           = flag.Int("pps", 0, "扫描工具整体发包频率n/秒, 该选项可避免线程过多发包会占有带宽导致丢失目标端口")
 	mActivePort            = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
 	mListPlugin            = flag.Bool("list-plugin", false, "列出支持的爆破协议")
 	mPocReverse            = flag.String("reverse-url", "qvn0kc.ceye.io", "CEye 标识")
@@ -173,7 +173,7 @@ func newScan(ip string) *Scan {
 func myBarDescUpdate(a string) {
 	b := fmt.Sprintf("%-32s", a)
 	if len(a) > 32 {
-		b = a[:(32-3)] + "..."
+		b = a[:(32 - 3)] + "..."
 	}
 	mBar.Describe(b)
 }
@@ -216,7 +216,7 @@ func newBar(max int) *progressbar.ProgressBar {
 
 func recordInit() {
 	var err error
-	mFileName, _ = common.Write2CSV("superScan", nil)
+	mFileName, _ = common.Write2CSV("super_scan", nil)
 	f, err := os.Create(mFileName)
 	if err != nil {
 		return

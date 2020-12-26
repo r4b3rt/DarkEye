@@ -12,10 +12,16 @@ import (
 //GenFileName add comment
 func GenFileName(filename string) string {
 	saveFile := filename + "_" + time.Now().Format("2006/1/2 15:04:05")
-	saveFile = strings.Replace(saveFile, " ", "_", -1)
-	saveFile = strings.Replace(saveFile, ":", "_", -1)
-	saveFile = strings.Replace(saveFile, "/", "_", -1) + ".csv"
-	saveFile = filepath.Join(BaseDir, saveFile)
+	fmtFileName := ""
+	for _, v := range saveFile {
+		if (v >= 'a' && v <= 'z') || (v >= '0' && v <= '9') {
+			fmtFileName += string(v)
+		} else {
+			fmtFileName += "_"
+		}
+	}
+	fmtFileName += ".csv"
+	saveFile = filepath.Join(BaseDir, fmtFileName)
 	return saveFile
 }
 

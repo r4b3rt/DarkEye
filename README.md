@@ -30,15 +30,14 @@
 ```bash
 ./supercan  -ip 192.168.1.1-192.168.255.255
 ```
-3. 活跃网段检测
+3. 活跃主机检查
 ```bash
-./supercan  -ip 192.168.1.1-192.168.255.255 -only-check-alive
+仅检查网段
+./supercan  -ip 192.168.1.1-192.168.255.255 -only-alive-network
+检查所有主机
+./supercan  -ip 192.168.1.1-192.168.255.255 -only-alive-host
 ```
-4. 活跃主机检查（仅C段）
-```bash
-./supercan  -ip 192.168.1.1 -only-check-alive
-```
-5. Poc测试
+5. POC测试
 ```bash
 cd superscan/util
 go build poc.go

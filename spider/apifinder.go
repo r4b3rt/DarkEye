@@ -115,7 +115,7 @@ func (sp *Spider) setup(myUrl string) *colly.Collector {
 			sp.ErrChannel <- common.LogBuild("spider", err.Error(), common.FAULT)
 			return nil
 		}
-		allowDomain = strings.Split(url.Host,":")[0]
+		allowDomain = strings.Split(url.Host, ":")[0]
 	}
 	c := colly.NewCollector(
 		colly.DisallowedURLFilters(

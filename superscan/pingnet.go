@@ -38,15 +38,10 @@ func init() {
 }
 
 //PingNet 将网络分若干个C段，每个C段为最小单位整体扫描
-func (s *Scan) PingNet(ipList string) {
+func (s *Scan) PingNet(ipList string, dump bool) {
 	s.pingPrepare()
 	ips := strings.Split(ipList, ",")
 	for _, ip := range ips {
-		if !strings.Contains(ip, "-") {
-			//如果没有范围，则探测该段下所有ip活跃情况
-			s.pingHost(ip)
-			continue
-		}
 		//如果有'-'，则只探测网段存活
 		base, _, end, err := common.GetIPRange(ip)
 		if err != nil {
@@ -56,7 +51,7 @@ func (s *Scan) PingNet(ipList string) {
 		ipSeg := net.ParseIP(base).To4()
 		for {
 			ipSeg[3] = 0
-			if s.pingCheck(ipSeg.String(), false) {
+			if s.pingCheck(ipSeg.String(), dump) {
 				color.Green("%s is alive", ipSeg.String())
 			} else {
 				color.Yellow("%s is died", ipSeg.String())
@@ -163,7 +158,7 @@ func (s *Scan) pingPrepare() {
 		mPrivileged = true
 		return
 	}
-	color.Yellow("当前为非管理权限模式，需要使用原生的命令（例如：ping）检测。请设置命令参数：")
+	color.Yellow("当前为非管理权限模式，请切换管理员运行。\n如果不具备管理员权限需要设置原生的命令（例如：ping）检测。请设置命令参数：")
 	var cmd string
 	_, _ = fmt.Fprintf(os.Stderr, "输入探测命令(default: %s):", myCommand)
 	n, _ := fmt.Scanln(&cmd)

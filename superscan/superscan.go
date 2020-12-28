@@ -28,14 +28,15 @@ var (
 	mPortList              = flag.String("port-list", common.PortList, "端口范围,默认1000+常用端口")
 	mUserList              = flag.String("user-file", "", "用户名字典文件")
 	mPassList              = flag.String("pass-file", "", "密码字典文件")
-	mU                     = flag.String("U", "", "用户名字典:root,test")
-	mP                     = flag.String("P", "", "密码:123456,1q2w3e")
+	mU                     = flag.String("user", "", "用户名字典:root,test")
+	mP                     = flag.String("pass", "", "密码:123456,1q2w3e")
 	mNoTrust               = flag.Bool("no-trust", false, "由端口判定协议改为指纹方式判断协议,速度慢点")
 	mActivePort            = flag.String("alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
 	mListPlugin            = flag.Bool("list-plugin", false, "列出支持的爆破协议")
 	mPocReverse            = flag.String("reverse-url", "qvn0kc.ceye.io", "CEye 标识")
 	mPocReverseCheck       = flag.String("reverse-check-url", "http://api.ceye.io/v1/records?token=066f3d242991929c823ac85bb60f4313&type=http&filter=", "CEye API")
-	mOnlyCheckAliveNetwork = flag.Bool("only-check-alive", false, "检查有活跃主机的网段")
+	mOnlyCheckAliveNetwork = flag.Bool("only-alive-network", false, "检查有活跃主机的网段(ping)")
+	mOnlyCheckAliveHost    = flag.Bool("only-alive-host", false, "检查有活跃主机(ping)")
 
 	mMaxIPDetect = 32
 	mFile        *os.File
@@ -70,8 +71,8 @@ func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	//活跃网段检测
-	if *mOnlyCheckAliveNetwork {
-		networkCheck()
+	if *mOnlyCheckAliveNetwork || *mOnlyCheckAliveHost {
+		networkCheck(*mOnlyCheckAliveHost)
 		return
 	}
 	recordInit()
@@ -125,9 +126,9 @@ func Start() {
 	color.Red("Done")
 }
 
-func networkCheck() {
+func networkCheck(dump bool) {
 	s := newScan("")
-	s.PingNet(*mIp)
+	s.PingNet(*mIp, dump)
 }
 
 //修改插件参数
@@ -173,7 +174,7 @@ func newScan(ip string) *Scan {
 func myBarDescUpdate(a string) {
 	b := fmt.Sprintf("%-24s", a)
 	if len(a) > 24 {
-		b = a[:(24 - 3)] + "..."
+		b = a[:(24-3)] + "..."
 	}
 	mBar.Describe(b)
 }

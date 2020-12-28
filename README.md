@@ -37,7 +37,7 @@
 检查所有主机
 ./supercan  -ip 192.168.1.1-192.168.255.255 -only-alive-host
 ```
-5. POC测试
+4. POC测试
 ```bash
 cd superscan/util
 go build poc.go

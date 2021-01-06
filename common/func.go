@@ -99,8 +99,7 @@ func ImportFiles(f, cnt string) (string, error) {
 		if strings.HasPrefix(one, "#") {
 			continue
 		}
-		one = strings.TrimSpace(one)
-		one = strings.Trim(one, "\r\n")
+		one = TrimLRS.ReplaceAllString(one, "")
 		if one == "" {
 			continue
 		}

@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/csv"
 	"encoding/json"
+	"golang.org/x/text/encoding/simplifiedchinese"
 	"io"
 	"sort"
 	"strconv"
@@ -50,7 +51,8 @@ func Convert(r io.Reader, w io.Writer) error {
 	for i := range rows {
 		record := make([]string, 0, len(columns))
 		for _, col := range colRecord {
-			record = append(record, rows[i][col])
+			d := formatCsvStr(rows[i][col])
+			record = append(record, d)
 		}
 		if err := cw.Write(record); err != nil {
 			return err
@@ -107,4 +109,17 @@ func addValue(path string, values map[string]string, v interface{}) {
 			addValue(p, values, value[i])
 		}
 	}
+}
+
+func formatCsvStr(d string) (result string) {
+	result = d
+	defer func() {
+		result = TrimLRS.ReplaceAllString(result, " ")
+	}()
+	if ISUtf8([]byte(d)) {
+		if message, err := simplifiedchinese.GBK.NewDecoder().String(d); err == nil {
+			return message
+		}
+	}
+	return
 }

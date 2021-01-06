@@ -27,7 +27,7 @@ func (s *SubDomain) Run() {
 		return
 	}
 	dns, _ := json.Marshal(s.Dns)
-	filename, err := common.Write2CSV(s.Queries+"subDomain", dns)
+	filename, err := common.Write2CSV("subDomain", dns)
 	if err != nil {
 		s.ErrChannel <- common.LogBuild("foFa",
 			fmt.Sprintf("获取信息%s:%s", s.Queries, err.Error()), common.FAULT)

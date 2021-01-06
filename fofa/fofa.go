@@ -20,7 +20,7 @@ func (f *Fofa) Run() {
 		return
 	}
 	nodes, _ := json.Marshal(f.IpNodes)
-	filename, err := common.Write2CSV(f.Ip+"foFa", nodes)
+	filename, err := common.Write2CSV("foFa", nodes)
 	if err != nil {
 		f.ErrChannel <- common.LogBuild("foFa",
 			fmt.Sprintf("获取信息%s:%s", f.Ip, err.Error()), common.FAULT)

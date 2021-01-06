@@ -8,8 +8,8 @@ import (
 func Test_zoomEye(t *testing.T) {
 	z := New()
 	z.Query = "title:aaa"
-	z.ApiKey = "563e7683-2B49-03589-4655-377840a766a"
-	z.Pages = "3"
+	z.ApiKey = "DF885877-5e59-e5de4-f4df-1ad9cea4e5b"
+	z.Pages = "1"
 	z.ErrChannel = make(chan string, 10)
 	go z.Run()
 

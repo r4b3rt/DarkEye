@@ -5,24 +5,17 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
 
 //GenFileName add comment
 func GenFileName(filename string) string {
-	saveFile := filename + "_" + time.Now().Format("2006/1/2 15:04:05")
-	fmtFileName := ""
-	for _, v := range saveFile {
-		if (v >= 'a' && v <= 'z') || (v >= '0' && v <= '9') {
-			fmtFileName += string(v)
-		} else {
-			fmtFileName += "_"
-		}
-	}
-	fmtFileName += ".csv"
-	saveFile = filepath.Join(BaseDir, fmtFileName)
-	return saveFile
+	saveFile := filename + "_" + time.Now().Format("2006/1/2 15:04:05") + ".csv"
+	re := regexp.MustCompile(" |/|:")
+	saveFile = re.ReplaceAllString(saveFile, "_")
+	return filepath.Join(BaseDir, saveFile)
 }
 
 //Write2CSV add comment
@@ -36,6 +29,7 @@ func Write2CSV(filename string, jsonObject []byte) (string, error) {
 		return filename, err
 	}
 	defer w.Close()
+	_, _ = w.WriteString("\xEF\xBB\xBF")
 	return filename, Convert(bytes.NewReader(jsonObject), w)
 }
 
@@ -56,8 +50,7 @@ func GenDicFromFile(filename string) []string {
 		if strings.HasPrefix(one, "#") {
 			continue
 		}
-		one = strings.TrimSpace(one)
-		one = strings.Trim(one, "\r\n")
+		one = TrimLR.ReplaceAllString(one, "")
 		result = append(result, one)
 	}
 	return result

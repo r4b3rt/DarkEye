@@ -34,7 +34,7 @@ type HttpRequest struct {
 	Headers map[string]string
 
 	NoFollowRedirect bool
-	TimeOut          time.Duration
+	TimeOut          time.Duration //秒
 }
 
 //HttpResponse add comment
@@ -71,7 +71,7 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 		return nil, err
 	}
 	for k, v := range m.Headers {
-		req.Header.Set(k, v)
+		req.Header[k] = []string{v}
 	}
 	resp, err := cli.Do(req)
 	if err != nil {
@@ -132,8 +132,7 @@ func GetHttpTitle(proto, domain string, timeOutSec int) (server, title string, c
 			title = message
 		}
 	}
-	title = TrimUseless(title)
-
+	title = TrimLRS.ReplaceAllString(title, "")
 	return
 }
 

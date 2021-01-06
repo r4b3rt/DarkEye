@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
+	"regexp"
 	"sync/atomic"
 	"time"
 )
 
 var (
+	//TrimLRS trim "\r\n "
+	TrimLRS, _ = regexp.Compile("\n|\r| ")
+	//TrimLR trim \r\n
+	TrimLR, _ = regexp.Compile("\n|\r")
 	//BaseDir add comment
 	BaseDir = "."
 	//UserAgents add comment
@@ -46,15 +50,6 @@ func init() {
 //GenHumanSecond add comment
 func GenHumanSecond(base int) int {
 	return base
-}
-
-//TrimUseless add comment
-func TrimUseless(a string) string {
-	//a = strings.Replace(a, " ", " ", -1)
-	a = strings.Replace(a, "\n", "", -1)
-	a = strings.Replace(a, "\r", "", -1)
-	a = strings.Replace(a, ",", " ", -1)
-	return a
 }
 
 //StopIt add comment

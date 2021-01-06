@@ -14,7 +14,5 @@ func Test_getIPRange(t *testing.T) {
 		if CompareIP(nip, end) > 0 {
 			break
 		}
-		fmt.Println(nip)
-		start++
 	}
 }

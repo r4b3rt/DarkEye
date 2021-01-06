@@ -125,7 +125,7 @@ func (f *Fofa) parseHtml(query string, body []byte, page int) (stop bool) {
 		items := htmlquery.Find(blk, "//*[@class='re-domain']/a[@href]")
 		if items == nil {
 			items = htmlquery.Find(blk, "//*[@class='re-domain']")
-			node.Domain = common.TrimUseless(htmlquery.InnerText(items[0]))
+			node.Domain = common.TrimLRS.ReplaceAllString(htmlquery.InnerText(items[0]), "")
 		} else {
 			node.Domain = htmlquery.SelectAttr(items[0], "href")
 		}
@@ -142,11 +142,11 @@ func (f *Fofa) parseHtml(query string, body []byte, page int) (stop bool) {
 		}
 		//获取指纹
 		items = htmlquery.Find(blk, "//*[@class='scroll-wrap-res']")
-		node.Finger = common.TrimUseless(htmlquery.InnerText(items[0]))
+		node.Finger = common.TrimLRS.ReplaceAllString(htmlquery.InnerText(items[0]), "")
 
 		//获取端口
 		items = htmlquery.Find(blk, "//*[@class='re-port ar']/a")
-		node.Port = common.TrimUseless(htmlquery.InnerText(items[0]))
+		node.Port = common.TrimLRS.ReplaceAllString(htmlquery.InnerText(items[0]), "")
 
 		//检查端口是否有效
 		node.Alive = common.IsAlive(node.Ip, node.Port, 5000)

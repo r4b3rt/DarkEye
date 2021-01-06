@@ -54,12 +54,16 @@ func (z *ZoomEye) Run() {
 		return
 	}
 
-	filename, err := common.Write2CSV(z.Query+"_zoomEye_", match)
+	filename, err := common.Write2CSV("zoomEye", match)
 	if err != nil {
 		z.ErrChannel <- common.LogBuild("zoomEye",
 			fmt.Sprintf("获取信息%s:%s", z.Query, err.Error()), common.FAULT)
 		return
 	}
-	z.ErrChannel <- common.LogBuild("zoomEye",
-		fmt.Sprintf("收集信息任务完成，有效数量%d, 已保存结果:%s", len(targets), filename), common.INFO)
+	if len(targets) == 0 {
+		z.ErrChannel <- common.LogBuild("zoomEye", "无结果", common.INFO)
+	} else {
+		z.ErrChannel <- common.LogBuild("zoomEye",
+			fmt.Sprintf("收集信息任务完成，有效数量%d, 已保存结果:%s", len(targets), filename), common.INFO)
+	}
 }

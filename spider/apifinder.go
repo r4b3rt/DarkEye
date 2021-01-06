@@ -25,7 +25,7 @@ func (sp *Spider) ApiFinder() {
 	}
 	res, _ := json.Marshal(sp.sensitiveInterface)
 
-	filename, err := common.Write2CSV(sp.Url+"spider", res)
+	filename, err := common.Write2CSV("spider", res)
 	if err != nil {
 		sp.ErrChannel <- common.LogBuild("spider",
 			fmt.Sprintf("获取信息%s:%s", sp.Url, err.Error()), common.FAULT)

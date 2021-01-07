@@ -4,7 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
+	"regexp"
 	"strconv"
+)
+
+var (
+	fmtBannerRe = regexp.MustCompile(`(?U:(?is:HTTP\/.*\r\n\r\n))`)
 )
 
 //Run add comment
@@ -33,6 +38,7 @@ func (z *ZoomEye) Run() {
 				fmt.Sprintf("获取异常%s:%s", z.Query, "z.Results.Total != z.Results.Available"), common.INFO)
 			break
 		}
+		formatBanner(z.Results.Matches)
 		targets = append(targets, z.Results.Matches...)
 		if idx == 1 && z.Pages == "-1" {
 			tot = z.Results.Total / 20
@@ -53,7 +59,6 @@ func (z *ZoomEye) Run() {
 			fmt.Sprintf("获取信息%s:%s", z.Query, err.Error()), common.FAULT)
 		return
 	}
-
 	filename, err := common.Write2CSV("zoomEye", match)
 	if err != nil {
 		z.ErrChannel <- common.LogBuild("zoomEye",
@@ -65,5 +70,13 @@ func (z *ZoomEye) Run() {
 	} else {
 		z.ErrChannel <- common.LogBuild("zoomEye",
 			fmt.Sprintf("收集信息任务完成，有效数量%d, 已保存结果:%s", len(targets), filename), common.INFO)
+	}
+}
+
+func formatBanner(targets []TargetInfo) {
+	for k, t := range targets {
+		if t.PortInfo.Banner != "" {
+			targets[k].PortInfo.Banner = fmtBannerRe.FindString(t.PortInfo.Banner)
+		}
 	}
 }

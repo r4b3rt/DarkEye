@@ -116,9 +116,10 @@ func formatCsvStr(d string) (result string) {
 	defer func() {
 		result = TrimLRS.ReplaceAllString(result, " ")
 	}()
+
 	if ISUtf8([]byte(d)) {
-		if message, err := simplifiedchinese.GBK.NewDecoder().String(d); err == nil {
-			return message
+		if message, err := simplifiedchinese.GBK.NewDecoder().String(result); err == nil {
+			result = message
 		}
 	}
 	return

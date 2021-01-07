@@ -50,14 +50,14 @@ type Subdivisions struct {
 
 //PortInfo add comment
 type PortInfo struct {
-	Port     int    `json:"port"`
-	Title    string `json:"title"`
-	Banner   string `json:"banner"`
-	Service  string `json:"service"`
-	Hostname string `json:"hostname"`
-	Device   string `json:"device"`
-	Os       string `json:"os"`
-	App      string `json:"app"`
+	Port     int      `json:"port"`
+	Title    []string `json:"title"`
+	Banner   string   `json:"banner"`
+	Service  string   `json:"service"`
+	Hostname string   `json:"hostname"`
+	Device   string   `json:"device"`
+	Os       string   `json:"os"`
+	App      string   `json:"app"`
 }
 
 //Protocol add comment

@@ -60,7 +60,6 @@ func smbConn(plg *Plugins, user, pass string) (ok int) {
 		return
 	}
 	defer s.Logoff()
-
 	names, err := s.ListSharenames()
 	if err != nil {
 		ok = OKStop

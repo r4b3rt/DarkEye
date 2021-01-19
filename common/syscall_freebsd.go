@@ -19,3 +19,7 @@ func SetRLimit() {
 //HideCmd add comment
 func HideCmd(c *exec.Cmd) {
 }
+
+func AutoRun(app string, run bool) error {
+	return nil
+}

@@ -218,7 +218,7 @@ QLineEdit
     padding: 1px;
     border-style: solid;
     border: 1px solid #1e1e1e;
-    border-radius: 5;
+    border-radius: 0;
 }
 
 QPushButton
@@ -228,7 +228,7 @@ QPushButton
     border-width: 1px;
     border-color: #1e1e1e;
     border-style: solid;
-    border-radius: 6;
+    border-radius: 0;
     padding: 3px;
     font-size: 12px;
     padding-left: 5px;

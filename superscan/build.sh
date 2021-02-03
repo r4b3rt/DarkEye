@@ -30,17 +30,19 @@ build_all() {
     GOOS=linux GOARCH=mips64le go build  -ldflags "${ldflag}" -o ../dist/superscan_linux_mips64le
     GOOS=linux GOARCH=mips GOMIPS=softfloat go build  -ldflags "${ldflag}" -o ../dist/superscan_linux_mips
     GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "${ldflag}" -o ../dist/superscan_linux_mipsle
+    cd ../dist && upx -9 superscan_windows* && cd -
+    cd ../dist && upx -9 superscan_linux_386 && cd -
+    cd ../dist && upx -9 superscan_linux_amd64 && cd -
+    cd ../dist && upx -9 superscan_darwin_* && cd -
 }
 
 clean() {
     rm -f dic/*.go
-    rm -rf db_poc/*.go
 }
 
 clean
 
 cd utils && go run dic.go && cd -
-cd utils && go run poc.go && cd -
 
 case "$1" in
     "mac")

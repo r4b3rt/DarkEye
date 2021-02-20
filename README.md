@@ -16,9 +16,6 @@
 - 支持常用协议弱口令爆破。
 - 支持获取标题和中间件。
 - 支持绕过防火墙频率限制扫描（限单IP）。
-- 支持长亭xray官方poc解析，poc文件可从下列列表白嫖：
-    https://github.com/chaitin/xray/tree/master/pocs
-    https://github.com/Laura0xiaoshizi/xray_pocs
 - 支持CSV格式报告导出。
 
 #### 🚀快速使用 
@@ -37,12 +34,7 @@
 检查所有主机
 ./supercan  -ip 192.168.1.1-192.168.255.255 -only-alive-host
 ```
-4. POC测试
-```bash
-cd superscan/util
-go build poc.go
-./poc -test -test-poc ../db_poc/shiro.yml -test-url http://www.baidu.com
-```
+
 #### ✨ Demo
 ![avatar](screenshot/superscan.jpg)
 

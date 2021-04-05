@@ -180,7 +180,7 @@ func (s *superScanRuntime) initializer(ctx context.Context) {
 
 func (s *superScanRuntime) newBar(max int) *progressbar.ProgressBar {
 	bar := progressbar.NewOptions(max,
-		progressbar.OptionSetDescription(s.IpList),
+		progressbar.OptionSetDescription("["+s.IpList+"]"),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowIts(),
 		progressbar.OptionOnCompletion(func() {

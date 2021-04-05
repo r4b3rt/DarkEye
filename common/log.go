@@ -19,8 +19,8 @@ var (
 	logDesc = []string{
 		0:     "None",
 		INFO:  `[!]`,
-		FAULT: `<font color="red">[x]</font>`,
-		ALERT: `<font color="green">[√]</font>`,
+		FAULT: `[x]`,
+		ALERT: `[√]`,
 	}
 	logFile = "dark_eye.log"
 )

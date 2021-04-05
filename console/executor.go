@@ -66,6 +66,7 @@ func (ctx *RequestContext) runCmd(args []string) {
 		}
 		ctx.running.Store(true)
 		go func() {
+			color.Green("%s %s", ctx.CmdArgs[0], "Running!")
 			ModuleFuncs[moduleId(ctx.CmdArgs[0])].start(mContext.ctx)
 			ctx.running.Store(false)
 			color.Green("%s %s", ctx.CmdArgs[0], "Done!")

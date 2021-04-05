@@ -74,9 +74,9 @@ func usageForAll() {
 	fmt.Println("Options:")
 	fmt.Println("	-i", "bool")
 	fmt.Println("		Launch the darkEye framework", "(default: false)")
-	fmt.Println("	superScan")
-	fmt.Println("		only superScan")
-	fmt.Println("	analysis")
-	fmt.Println("		only analysis")
 
+	for n := range ModuleFuncs {
+		fmt.Println(fmt.Sprintf("	%s", n))
+		fmt.Println(fmt.Sprintf("		only %s", n))
+	}
 }

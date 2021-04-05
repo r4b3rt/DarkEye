@@ -65,7 +65,7 @@ func (ctx *RequestContext) zoomEyeArgumentsCompleter(args []string) []prompt.Sug
 	if len(args) <= 1 {
 		return filterSuggestions(runCompleteCheck(zoomEyeSuggestions, ctx.CmdArgs,
 			[]string{
-				"-api-key",
+				"-api",
 			}), ctx.CmdArgs)
 	}
 	switch args[0] {

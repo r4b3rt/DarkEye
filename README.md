@@ -73,7 +73,7 @@ df [moduleId]
 ### Analysis
 
 * 数据统一存储`analysis.s3db`
-* SQL查询语法
+* ***SQL查询语法***
 #### 🚀快速使用  
 <img src="screenshot/analysis.png" style="zoom:50%;" />
 

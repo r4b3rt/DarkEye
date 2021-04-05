@@ -38,12 +38,9 @@ func (a *zoomEyeRuntime) compileArgs(cmd []string) error {
 	search := []string{"-search"}
 	s := ""
 	for _, c := range cmd {
-		switch c {
-		case "-api":
-			fallthrough
-		case "-page":
+		if strings.HasPrefix(c, "-api") || strings.HasPrefix(c, "-page") {
 			ret = append(ret, strings.SplitN(c, " ", 2)...)
-		default:
+		} else {
 			s += strings.ReplaceAll(c, " ", "") + " "
 		}
 	}
@@ -88,30 +85,28 @@ func (a *zoomEyeRuntime) start(ctx context.Context) {
 				fmt.Println(m)
 			default:
 			}
-			msg := <-z.ErrChannel
-			fmt.Println(msg)
 		}
 	}()
-	matches := z.Run()
-	for _, m := range matches {
-		e := &analysisEntity{
-			Ip:              m.Ip,
-			Port:            strconv.Itoa(m.Port),
-			Country:         m.Country,
-			Service:         m.Service,
-			Url:             m.Url,
-			Title:           m.Title,
-			WebServer:       m.App,
-			WebResponseCode: int32(m.HttpCode),
-			Hostname:        m.Hostname,
-			Os:              m.Os,
-			Device:          m.Device,
-			Banner:          m.Banner,
-			Version:         m.Version,
-			ExtraInfo:       m.ExtraInfo,
-			RDns:            m.RDns,
+	if matches := z.Run(); matches != nil {
+		for _, m := range matches {
+			e := &analysisEntity{
+				Ip:              m.Ip,
+				Port:            strconv.Itoa(m.Port),
+				Country:         m.Country,
+				Service:         m.Service,
+				Url:             m.Url,
+				Title:           m.Title,
+				WebServer:       m.App,
+				WebResponseCode: int32(m.HttpCode),
+				Hostname:        m.Hostname,
+				Os:              m.Os,
+				Device:          m.Device,
+				Banner:          m.Banner,
+				Version:         m.Version,
+				ExtraInfo:       m.ExtraInfo,
+				RDns:            m.RDns,
+			}
+			analysisRuntimeOptions.createOrUpdate(e)
 		}
-		analysisRuntimeOptions.createOrUpdate(e)
 	}
-
 }

@@ -1,87 +1,97 @@
-<h1 align="center">👏👏👏 欢迎使用 DarkEye 👏👏👏</h1>
+<h1 align="center">👏👏👏 欢迎使用 DarkEye Framework👏👏👏</h1>
 
 ![Go Report Card](https://img.shields.io/github/release-date/zsdevX/DarkEye) [![Go Report Card](https://goreportcard.com/badge/github.com/zsdevX/DarkEye)](https://goreportcard.com/report/github.com/zsdevX/DarkEye)
 
 
-> 从互联网收集目标信息。
+> DF(DarkEye Framework)集成SuperScan(端口扫描)、ZoomEye（资产扫描）、XRay（脆弱性检查）等工具一体。
 
-> 资产弱口令、脆弱性检查。
+> <u>**特色：DF平台通过分析引擎（Analysis）将各个孤立的工具关联起来，以实现数据互通、自动化的渗透测试。**</u>
 
-## 功能介绍
+## 工作模式
+
+### 交互式
+
+```bash
+df -i
+```
+
+<img src="screenshot/dfi.png" style="zoom:50%;" />
 
 
-### 超级扫描
-- 支持范围扫描（IP、端口）。
-- 支持活跃网段、主机。
-- 支持常用协议弱口令爆破。
-- 支持获取标题和中间件。
-- 支持绕过防火墙频率限制扫描（限单IP）。
-- 支持CSV格式报告导出。
 
-#### 🚀快速使用 
+### 非交互式
+
+```bash
+查看帮助:
+df [moduleId]
+		Tips: moduleId = 【superScan,zoomEye,analysis】
+```
+
+## 模块介绍
+
+### SuperScan
+- 扫描目标灵活配置
+
+- 支持活跃网段、主机检测
+
+- 支持常用协议弱口令爆破
+
+- 支持获取标题和中间件
+
+- 支持绕过防火墙频率限制扫描（仅单个IP有效）
+
+  <img src="screenshot/superscan.png" style="zoom:50%;" />
+
+🚀快速使用 
+
 1. 查看帮助
 ```bash
-./supercan  -h
+./df supercan
 ```
 2. 口令爆破+脆弱性检查
 ```bash
-./supercan  -ip 192.168.1.1-192.168.255.255
+./df supercan -ip 192.168.1.1-192.168.255.255
 ```
 3. 活跃主机检查
 ```bash
 仅检查网段
-./supercan  -ip 192.168.1.1-192.168.255.255 -only-alive-network
+./df supercan -ip 192.168.1.1-192.168.255.255 -only-alive-network
 检查所有主机
-./supercan  -ip 192.168.1.1-192.168.255.255 -only-alive-host
+./df supercan -ip 192.168.1.1-192.168.255.255 -only-alive-host
 ```
 
-#### ✨ Demo
-![avatar](screenshot/superscan.jpg)
+### ZoomEye
+- https://www.zoomeye.org/
 
-### 互联网信息搜集
-- 支持从zoomEye、FoFa（免key）收集资产信息。
-- 支持子域爆破、SecurityTrails收集子域信息，并扩展支持提取域名解析的ip、cname、地域、标题)
-- 支持爬取网站（含js、html、xml、json等），贪婪搜索爬取数据中任何位置可能存在的接口路径; 敏感信息分级;
-- 支持google hack爬取数据，无需翻墙。
-- 支持CSV格式报告输出  
+|  | 提供商   | 申请地址 | 数量 |
+| ----- | --------- | ----------- | ------- |
+| 1 | ZoomEye |   https://www.zoomeye.org/profile          |    每月免费1w/资源     |
 
-#### 关于APIKEYS
- |  | 提供商   | 申请地址 | 数量 |
- | ----- | --------- | ----------- | ------- |
- | 1 | ZoomEye |   https://www.zoomeye.org/profile          |    每月免费1w/资源     |
- | 2  | SecurityTrails     |  https://securitytrails.com/    |    每月免费50个请求      |
- | 3  | googleSearch     | https://serpstack.com/    |    每月免费100次/每月     |
- 
-#### ✨ Demo
-![avatar](screenshot/darkeye.gif)
+#### 🚀快速使用 
+![avatar](screenshot/zoomeye.png)
 
+### Analysis
+
+* 数据统一存储`analysis.s3db`
+* SQL查询语法
+#### 🚀快速使用  
+<img src="screenshot/analysis.png" style="zoom:50%;" />
 
 ## 支持平台
-全平台
+
+```
+Windows、Linux、MacOs、Arm、Mips[el]、FreeBsd ...
+```
 
 
 ## 🛠 编译安装
 
-### QT环境
-互联网信息搜集功能是基于QT的图形界面，需安装golangQT支持库。
-```qt
-参考: https://github.com/therecipe/qt/wiki/Installation
-```
-
-### 互联网信息搜集
-```golnag
+```bash
 git clone https://github.com/zsdevX/DarkEye.git
 cd DarkEye
 ./build all
-编译好后文件都自动发布到dist目录下
-```
 
-### 超级扫描
-```golang
-git clone https://github.com/zsdevX/DarkEye.git
-cd DarkEye/superscan
-./build all
-编译好后文件都自动发布到../dist目录下
+Tips:编译好后文件都自动发布到dist目录下
 ```
 
 # 404StarLink 2.0 - Galaxy

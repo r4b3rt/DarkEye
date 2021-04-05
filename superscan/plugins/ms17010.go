@@ -20,13 +20,8 @@ var (
 	trans2SessionSetupRequest, _ = hex.DecodeString("0000004eff534d4232000000001807c00000000000000000000000000008fffe000841000f0c0000000100000000000000a6d9a40000000c00420000004e0001000e000d0000000000000000000000000000")
 )
 
-func init() {
-	supportPlugin["ms17010"] = "ms17010"
-	preCheckFuncs[Ms17010Pre] = ms17010Check
-}
-
-func ms17010Check(plg *Plugins) {
-	plg.TargetPort = "445"
+func ms17010Check(plg *Plugins, f *funcDesc) {
+	plg.TargetPort = f.port
 	conn, err := net.DialTimeout("tcp",
 		plg.TargetIp+":"+plg.TargetPort, time.Millisecond*time.Duration(plg.TimeOut))
 	if err != nil {
@@ -101,15 +96,9 @@ func ms17010Check(plg *Plugins) {
 	}
 
 	if reply[9] == 0x05 && reply[10] == 0x02 && reply[11] == 0x00 && reply[12] == 0xc0 {
-		cracked := Account{}
 		plg.highLight = true
 		plg.PortOpened = true
-		cracked.Desc = "MS17-010 " + os
-		defer func() {
-			plg.Lock()
-			plg.Cracked = append(plg.Cracked, cracked)
-			plg.Unlock()
-		}()
+		plg.NetBios.Os = "MS17-010 " + os
 		// detect present of DOUBLEPULSAR SMB implant
 		trans2SessionSetupRequest[28] = treeID[0]
 		trans2SessionSetupRequest[29] = treeID[1]
@@ -122,7 +111,7 @@ func ms17010Check(plg *Plugins) {
 			return
 		}
 		if reply[34] == 0x51 {
-			cracked.Desc += "DoublePulsar SMB IMPLANT"
+			plg.NetBios.Os = "DoublePulsar SMB IMPLANT " + os
 		}
 	}
 

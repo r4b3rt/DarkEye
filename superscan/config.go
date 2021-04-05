@@ -1,4 +1,4 @@
-package main
+package superscan
 
 //Scan add comment
 type Scan struct {
@@ -7,13 +7,10 @@ type Scan struct {
 	PortRange    string `json:"port_range"`
 	ActivePort   string `json:"active_port"`
 	ThreadNumber int    `json:"thread_number"`
-	NoTrust      bool
-	PluginWorker int
 
 	//任务执行结果
 	TimeOut int `json:"timeout"`
 	//
-	Callback               func(interface{}) `json:"-"`
-	BarCallback            func(i int)       `json:"-"`
-	BarDescriptionCallback func(i string)    `json:"-"`
+	Callback    func(interface{}) `json:"-"`
+	BarCallback func(i int)       `json:"-"`
 }

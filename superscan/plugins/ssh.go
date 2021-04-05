@@ -2,30 +2,14 @@ package plugins
 
 import (
 	"fmt"
-	"github.com/zsdevX/DarkEye/superscan/dic"
 	"golang.org/x/crypto/ssh"
 	"net"
 	"strings"
 	"time"
 )
 
-var (
-	sshUsername = make([]string, 0)
-	sshPassword = make([]string, 0)
-)
-
-func init() {
-	checkFuncs[SSHSrv] = sshCheck
-	sshUsername = dic.DIC_USERNAME_SSH
-	sshPassword = dic.DIC_PASSWORD_SSH
-	supportPlugin["ssh"] = "ssh"
-}
-
-func sshCheck(plg *Plugins) {
-	if !plg.NoTrust && plg.TargetPort != "22" {
-		return
-	}
-	crack("ssh", plg, sshUsername, sshPassword, sshConn)
+func sshCheck(plg *Plugins, f *funcDesc) {
+	crack(f.name, plg, f.user, f.pass, sshConn)
 }
 
 func sshConn(plg *Plugins, user string, pass string) (ok int) {

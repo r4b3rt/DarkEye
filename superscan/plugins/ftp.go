@@ -3,27 +3,12 @@ package plugins
 import (
 	"fmt"
 	"github.com/jlaffaye/ftp"
-	"github.com/zsdevX/DarkEye/superscan/dic"
 	"time"
 )
 
-var (
-	ftpUsername = make([]string, 0)
-	ftpPassword = make([]string, 0)
-)
 
-func init() {
-	checkFuncs[FtpSrv] = ftpCheck
-	ftpUsername = dic.DIC_USERNAME_FTP
-	ftpPassword = dic.DIC_PASSWORD_FTP
-	supportPlugin["ftp"] = "ftp"
-}
-
-func ftpCheck(plg *Plugins) {
-	if !plg.NoTrust && plg.TargetPort != "21" {
-		return
-	}
-	crack("ftp", plg, ftpUsername, ftpPassword, ftpConn)
+func ftpCheck(plg *Plugins, f *funcDesc) {
+	crack(f.name, plg, f.user, f.pass, ftpConn)
 }
 
 func ftpConn(plg *Plugins, user string, pass string) (ok int) {

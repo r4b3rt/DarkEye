@@ -3,32 +3,14 @@ package plugins
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-sql-driver/mysql"
-	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var (
-	mysqlUsername = make([]string, 0)
-	mysqlPassword = make([]string, 0)
-)
-
-func init() {
-	checkFuncs[MysqlSrv] = mysqlCheck
-	mysqlUsername = dic.DIC_USERNAME_MYSQL
-	mysqlPassword = dic.DIC_PASSWORD_MYSQL
-	_ = mysql.SetLogger(mysqlLogger(&mysqlNoLogger{}))
-	supportPlugin["mysql"] = "mysql"
-}
-
-func mysqlCheck(plg *Plugins) {
-	if !plg.NoTrust && plg.TargetPort != "3306" {
-		return
-	}
-	crack("mysql", plg, mysqlUsername, mysqlPassword, mysqlConn)
+func mysqlCheck(plg *Plugins, f *funcDesc) {
+	crack(f.name, plg, f.user, f.pass, mysqlConn)
 }
 
 func mysqlConn(plg *Plugins, user string, pass string) (ok int) {

@@ -1,14 +1,14 @@
 package zoomeye
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/tidwall/gjson"
 	"github.com/zsdevX/DarkEye/common"
 	url2 "net/url"
 	"time"
 )
 
-func (z *ZoomEye) runAPI(page int) {
+func (z *ZoomEye) run(page int) *gjson.Result {
 	url := fmt.Sprintf("https://api.zoomeye.org/host/search?query=%s&page=%d", url2.QueryEscape(z.Query), page)
 	req := common.HttpRequest{
 		Url:     url,
@@ -23,17 +23,18 @@ func (z *ZoomEye) runAPI(page int) {
 	if err != nil && response == nil {
 		z.ErrChannel <- common.LogBuild("zoomEye",
 			fmt.Sprintf("获取信息失败%s:%s", z.Query, err.Error()), common.FAULT)
-		return
+		return nil
 	}
 	switch response.Status {
 	case 201:
 		z.ErrChannel <- common.LogBuild("zoomEye", "不支持相关展示", common.FAULT)
 	case 200:
-		_ = json.Unmarshal(response.Body, &z.Results)
+		ret := gjson.GetBytes(response.Body, "matches")
+		return &ret
 	default:
 		//4xx错误
 		z.ErrChannel <- common.LogBuild("zoomEye",
 			fmt.Sprintf("获取信息失败%s:%s", z.Query, string(response.Body)), common.FAULT)
-		return
 	}
+	return nil
 }

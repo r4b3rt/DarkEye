@@ -3,47 +3,23 @@ package plugins
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/fatih/color"
 	"github.com/zsdevX/DarkEye/common"
-	"golang.org/x/time/rate"
 	"strings"
 	"sync"
-	"time"
-)
-
-var (
-	checkFuncs    = map[int]func(*Plugins){}
-	preCheckFuncs = map[int]func(*Plugins){}
-	supportPlugin = map[string]string{}
-	//GlobalConfig add comment
-	GlobalConfig = Config{
-		ReverseUrl:      "qvn0kc.ceye.io",
-		ReverseCheckUrl: "http://api.ceye.io/v1/records?token=066f3d242991929c823ac85bb60f4313&type=http&filter=",
-		RateWait: func(r *rate.Limiter) {
-			if r == nil {
-				return
-			}
-			for {
-				if r.Allow() {
-					break
-				} else {
-					time.Sleep(time.Millisecond * 10)
-				}
-			}
-		},
-	}
 )
 
 //PreCheck add comment
 func (plg *Plugins) PreCheck() {
+	if ShouldStop() {
+		return
+	}
 	//预处理注意：
 	//1、该链上的处理为固定端口，主要为UDP或特殊协议
 	//2、此处未做发包限制
 	i := 0
-	for i < PluginPreCheckNR {
-		plg.DescCallback(fmt.Sprintf("Cracking initiated %s", plg.TargetIp))
-		preCheckFuncs[i](plg)
+	for _, v := range preCheckFuncs {
+		v.doit(plg, &v)
 		i++
 	}
 	if len(plg.Cracked) != 0 {
@@ -53,8 +29,10 @@ func (plg *Plugins) PreCheck() {
 
 //Check add comment
 func (plg *Plugins) Check() {
+	if ShouldStop() {
+		return
+	}
 	GlobalConfig.RateWait(GlobalConfig.Pps) //活跃端口发包限制
-	plg.DescCallback(fmt.Sprintf("Crack %s:%s", "*."+plg.TargetIp[len(plg.TargetIp)-3:], plg.TargetPort))
 	if !plg.PortOpened &&
 		common.IsAlive(plg.TargetIp, plg.TargetPort, plg.TimeOut) != common.Alive {
 		return
@@ -63,16 +41,18 @@ func (plg *Plugins) Check() {
 	plg.Cracked = make([]Account, 0)
 	i := 0
 	//爆破链
-	for i < PluginNR {
-		checkFuncs[i](plg)
-		//未找到密码
-		if plg.TargetProtocol != "" {
-			output(plg)
-			break
+	for _, v := range checkFuncs {
+		if plg.available(v.name, v.port) {
+			v.doit(plg, &v)
+			//未找到密码
+			if plg.TargetProtocol != "" {
+				output(plg)
+				break
+			}
 		}
 		i++
 	}
-	if i >= PluginNR {
+	if i >= len(checkFuncs) {
 		color.Yellow("\n%s %s:%s %v\n", "[√]",
 			plg.TargetIp, plg.TargetPort, "Opened")
 	}
@@ -89,7 +69,7 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(len(dictUser))
-	limiter := make(chan int, plg.Worker)
+	limiter := make(chan int, GlobalConfig.Thread)
 	ctx, cancel := context.WithCancel(context.TODO())
 	for _, user := range dictUser {
 		limiter <- 1
@@ -98,6 +78,9 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 				<-limiter
 				wg.Done()
 			}()
+			if ShouldStop() {
+				return
+			}
 			for _, pass := range dictPass {
 				select {
 				case <-ctx.Done():
@@ -108,8 +91,6 @@ func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(
 					pass = ""
 				}
 				pass = strings.Replace(pass, "%user%", username, -1)
-				plg.DescCallback(fmt.Sprintf("Crack %s %s:%s %s/%s",
-					pid, "*."+plg.TargetIp[len(plg.TargetIp)-3:], plg.TargetPort, username, pass))
 				//限速
 				GlobalConfig.RateWait(GlobalConfig.Pps)
 				ok := callback(plg, username, pass)
@@ -172,9 +153,49 @@ func output(plg *Plugins) {
 	}
 }
 
+func (plg *Plugins) available(name, port string) bool {
+	//强制指纹识别的协议
+	if port == "" {
+		return true
+	}
+	if plg.TargetPort != port {
+		if GlobalConfig.UsingPlugin == "" {
+			return false
+		}
+	}
+	return true
+}
+
 //SupportPlugin add comment
 func SupportPlugin() {
-	for _, v := range supportPlugin {
-		color.Green("%v,", v)
+	list := ""
+	defer func() {
+		color.Green("%v", list)
+	}()
+
+	if GlobalConfig.UsingPlugin != "" {
+		list += GlobalConfig.UsingPlugin
+		return
 	}
+	for k := range checkFuncs {
+		list += k + " "
+	}
+
+	for k := range preCheckFuncs {
+		list += k + " "
+	}
+	strings.TrimSpace(list)
+}
+
+func ShouldStop() bool {
+	select {
+	case <-GlobalConfig.Ctx.Done():
+		GlobalConfig.Stop.Store(true)
+		return true
+	default:
+		if GlobalConfig.Stop.Load() {
+			return true
+		}
+	}
+	return false
 }

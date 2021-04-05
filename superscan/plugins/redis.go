@@ -2,28 +2,12 @@ package plugins
 
 import (
 	"github.com/go-redis/redis"
-	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 	"time"
 )
 
-var (
-	redisUsername = make([]string, 0)
-	redisPassword = make([]string, 0)
-)
-
-func init() {
-	checkFuncs[RedisSrv] = redisCheck
-	redisUsername = dic.DIC_USERNAME_REDIS
-	redisPassword = dic.DIC_PASSWORD_REDIS
-	supportPlugin["redis"] = "redis"
-}
-
-func redisCheck(plg *Plugins) {
-	if !plg.NoTrust && plg.TargetPort != "6379" {
-		return
-	}
-	crack("redis", plg, redisUsername, redisPassword, redisConn)
+func redisCheck(plg *Plugins, f *funcDesc) {
+	crack(f.name, plg, f.user, f.pass, redisConn)
 }
 
 func redisConn(plg *Plugins, _ string, pass string) (ok int) {

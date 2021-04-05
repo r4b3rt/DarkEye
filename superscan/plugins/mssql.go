@@ -4,30 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 	"time"
 
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
-var (
-	mssqlUsername = make([]string, 0)
-	mssqlPassword = make([]string, 0)
-)
-
-func init() {
-	checkFuncs[MSSQLSrv] = mssqlCheck
-	mssqlUsername = dic.DIC_USERNAME_SQLSERVER
-	mssqlPassword = dic.DIC_PASSWORD_SQLSERVER
-	supportPlugin["mssql"] = "mssql"
-}
-
-func mssqlCheck(plg *Plugins) {
-	if !plg.NoTrust && plg.TargetPort != "1433" {
-		return
-	}
-	crack("mssql", plg, mssqlUsername, mssqlPassword, mssqlConn)
+func mssqlCheck(plg *Plugins, f *funcDesc) {
+	crack(f.name, plg, f.user, f.pass, mssqlConn)
 }
 
 func mssqlConn(plg *Plugins, user, pass string) (ok int) {

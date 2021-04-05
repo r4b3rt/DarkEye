@@ -9,11 +9,11 @@ import (
 	"time"
 )
 
-func basicAuthCheck(plg *Plugins, user, pass []string) {
-	crack(plg.TargetProtocol, plg, user, pass, basicAuthConn)
+func _401AuthCheck(plg *Plugins, user, pass []string) {
+	crack(plg.TargetProtocol, plg, user, pass, _401AuthConn)
 }
 
-func basicAuthConn(plg *Plugins, user string, pass string) (ok int) {
+func _401AuthConn(plg *Plugins, user string, pass string) (ok int) {
 	ok = OKNext
 
 	url := fmt.Sprintf("http://%s:%s%s", plg.TargetIp, plg.TargetPort, plg.tmp.urlPath)

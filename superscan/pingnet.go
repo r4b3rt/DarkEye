@@ -1,6 +1,6 @@
 //快速发现内网有效的网段
 //native的方法有需要root权限，所以暂时用自动自带的ping
-package main
+package superscan
 
 import (
 	"bytes"
@@ -65,18 +65,6 @@ func (s *Scan) PingNet(ipList string, dump bool) {
 			ipSeg = net.ParseIP(common.GenIP(ipSeg.String(), 1)).To4()
 		}
 	}
-}
-
-func (s *Scan) pingHost(ip string) {
-	base, _, _, err := common.GetIPRange(ip)
-	if err != nil {
-		color.Red("%v", err)
-		return
-	}
-	ipSeg := net.ParseIP(base).To4()
-	ipSeg[3] = 0
-	s.pingCheck(ipSeg.String(), true)
-
 }
 
 //最小的ping单位：1个c段

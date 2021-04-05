@@ -1,4 +1,4 @@
-package main
+package superscan
 
 import (
 	"github.com/fatih/color"
@@ -8,19 +8,6 @@ import (
 	"sync"
 	"time"
 )
-
-//New add comment
-func New(ip string) *Scan {
-	return &Scan{
-		Ip:                     ip,
-		ActivePort:             "80",
-		PortRange:              common.PortList,
-		Callback:               callback,
-		BarCallback:            barCallback,
-		ThreadNumber:           200,
-		BarDescriptionCallback: descCallback,
-	}
-}
 
 //Run add comment
 func (s *Scan) Run() {
@@ -38,8 +25,16 @@ func (s *Scan) Run() {
 	wg.Add(tot)
 	for _, p := range fromTo {
 		for p.From <= p.To {
+			//Task
 			taskAlloc <- 1
 			go func(port int) {
+				defer func() {
+					<-taskAlloc
+					wg.Done()
+				}()
+				if plugins.ShouldStop() {
+					return
+				}
 				for {
 					s.Check(port)
 					if !s.isFireWallNotForbidden() {
@@ -50,8 +45,6 @@ func (s *Scan) Run() {
 					}
 					break
 				}
-				<-taskAlloc
-				wg.Done()
 			}(p.From)
 			p.From++
 		}
@@ -75,13 +68,10 @@ func (s *Scan) Check(p int) {
 	}
 
 	plg := plugins.Plugins{
-		TargetIp:     s.Ip,
-		TargetPort:   strconv.Itoa(p),
-		TimeOut:      s.TimeOut,
-		PortOpened:   false,
-		NoTrust:      s.NoTrust,
-		Worker:       s.PluginWorker,
-		DescCallback: s.BarDescriptionCallback,
+		TargetIp:   s.Ip,
+		TargetPort: strconv.Itoa(p),
+		TimeOut:    s.TimeOut,
+		PortOpened: false,
 	}
 	plg.Check()
 	if !plg.PortOpened {
@@ -97,9 +87,8 @@ func (s *Scan) preCheck() {
 	}
 
 	plg := plugins.Plugins{
-		TargetIp:     s.Ip,
-		TimeOut:      s.TimeOut,
-		DescCallback: s.BarDescriptionCallback,
+		TargetIp: s.Ip,
+		TimeOut:  s.TimeOut,
 	}
 	plg.PreCheck()
 	if len(plg.Cracked) == 0 {
@@ -125,14 +114,14 @@ func (s *Scan) isFireWallNotForbidden() bool {
 	return false
 }
 
-func callback(a interface{}) {
-	//todo
-}
-
-func barCallback(i int) {
-	//todo
-}
-
-func descCallback(i string) {
-	//todo
+//New add comment
+func New(ip string) *Scan {
+	return &Scan{
+		Ip:           ip,
+		ActivePort:   "80",
+		ThreadNumber: 200,
+		PortRange:    common.PortList,
+		Callback:     func(interface{}) {},
+		BarCallback:  func(int) {},
+	}
 }

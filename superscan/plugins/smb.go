@@ -2,30 +2,14 @@ package plugins
 
 import (
 	"github.com/hirochachacha/go-smb2"
-	"github.com/zsdevX/DarkEye/superscan/dic"
 	"golang.org/x/net/context"
 	"net"
 	"strings"
 	"time"
 )
 
-var (
-	smbUsername = make([]string, 0)
-	smbPassword = make([]string, 0)
-)
-
-func init() {
-	checkFuncs[SmbSrv] = msbCheck
-	smbUsername = dic.DIC_USERNAME_SMB
-	smbPassword = dic.DIC_PASSWORD_SMB
-	supportPlugin["smb"] = "smb"
-}
-
-func msbCheck(plg *Plugins) {
-	if !plg.NoTrust && plg.TargetPort != "445" {
-		return
-	}
-	crack("smb", plg, smbUsername, smbPassword, smbConn)
+func msbCheck(plg *Plugins, f *funcDesc) {
+	crack(f.name, plg, f.user, f.pass, smbConn)
 }
 
 func smbConn(plg *Plugins, user, pass string) (ok int) {
@@ -66,10 +50,9 @@ func smbConn(plg *Plugins, user, pass string) (ok int) {
 		return
 	}
 	ok = OKDone
-	ck := Account{}
-	ck.Shares = names
-	plg.Lock()
-	plg.Cracked = append(plg.Cracked, ck)
-	plg.Unlock()
+	for _, v := range names {
+		plg.NetBios.Shares += "," + v
+	}
+	strings.TrimPrefix(",", plg.NetBios.Shares)
 	return
 }

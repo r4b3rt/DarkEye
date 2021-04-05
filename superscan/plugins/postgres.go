@@ -3,30 +3,14 @@ package plugins
 import (
 	"database/sql"
 	"fmt"
-	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
 )
 
-var (
-	postgresUsername = make([]string, 0)
-	postgresPassword = make([]string, 0)
-)
-
-func init() {
-	checkFuncs[PostgresSrv] = postgresCheck
-	postgresUsername = dic.DIC_USERNAME_POSTGRESQL
-	postgresPassword = dic.DIC_PASSWORD_POSTGRESQL
-	supportPlugin["postgres"] = "postgres"
-}
-
-func postgresCheck(plg *Plugins) {
-	if !plg.NoTrust && plg.TargetPort != "5432" {
-		return
-	}
-	crack("postgres", plg, postgresUsername, postgresPassword, postgresConn)
+func postgresCheck(plg *Plugins, f *funcDesc) {
+	crack(f.name, plg, f.user, f.pass, postgresConn)
 }
 
 func postgresConn(plg *Plugins, user, pass string) (ok int) {

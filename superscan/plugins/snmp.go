@@ -4,15 +4,10 @@ import (
 	"github.com/alouca/gosnmp"
 )
 
-func init() {
-	preCheckFuncs[SnmpPre] = snmpCheck
-	supportPlugin["snmp"] = "snmp"
-}
-
-func snmpCheck(plg *Plugins) {
+func snmpCheck(plg *Plugins, f *funcDesc) {
 	plg.TargetPort = "161"
 	if snmpConn(plg) == OKDone {
-		plg.TargetProtocol = "snmp"
+		plg.TargetProtocol = f.name
 		plg.PortOpened = true
 		plg.highLight = true
 	}
@@ -34,7 +29,7 @@ func snmpConn(plg *Plugins) (ok int) {
 			ck := Account{
 				Username: "public",
 			}
-			ck.Desc = v.Value.(string)
+			plg.NetBios.Os = v.Value.(string)
 			plg.Lock()
 			plg.Cracked = append(plg.Cracked, ck)
 			plg.Unlock()

@@ -8,11 +8,7 @@ import (
 	"time"
 )
 
-func init() {
-	supportPlugin["webLogic"] = "webLogic"
-}
-
-func checkWebLogic(plg *Plugins) {
+func checkWebLogic(plg *Plugins, f *funcDesc) {
 	response, _ := webLogicTest(plg, "test", "test")
 	if response == nil {
 		return
@@ -34,7 +30,7 @@ func checkWebLogic(plg *Plugins) {
 		return
 	}
 
-	crack("webLogic", plg, dic.DIC_USERNAME_WEBLOGIC, dic.DIC_PASSWORD_WEBLOGIC, webLogicConn)
+	crack("weblogic", plg, dic.DIC_USERNAME_WEBLOGIC, dic.DIC_PASSWORD_WEBLOGIC, webLogicConn)
 }
 
 func webLogicConn(plg *Plugins, user string, pass string) (ok int) {

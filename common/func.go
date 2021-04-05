@@ -132,3 +132,11 @@ func IsAlive(ip, port string, millTimeOut int) int {
 	_ = c.Close()
 	return Alive
 }
+
+//ArrayToString add comment
+func ArrayToString(a []string) (ret string){
+	for _, v := range a {
+		ret += v + ","
+	}
+	return strings.TrimSuffix(ret, ",")
+}

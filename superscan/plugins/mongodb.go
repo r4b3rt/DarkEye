@@ -1,36 +1,21 @@
 package plugins
 
 import (
-	"github.com/zsdevX/DarkEye/superscan/dic"
 	"gopkg.in/mgo.v2"
 	"strings"
 	"time"
 )
 
-var (
-	mongoUsername = make([]string, 0)
-	mongoPassword = make([]string, 0)
-)
+func mongoCheck(plg *Plugins, f *funcDesc) {
 
-func init() {
-	checkFuncs[MongoSrv] = mongoCheck
-	mongoUsername = dic.DIC_USERNAME_MONGODB
-	mongoPassword = dic.DIC_PASSWORD_MONGODB
-	supportPlugin["mongodb"] = "mongodb"
-}
-
-func mongoCheck(plg *Plugins) {
-	if !plg.NoTrust && plg.TargetPort != "27017" {
-		return
-	}
 	if mongoUnAuth(plg) {
 		plg.Cracked = append(plg.Cracked, Account{Username: "空", Password: "空"})
 		plg.PortOpened = true
 		plg.highLight = true
-		plg.TargetProtocol = "mongodb"
+		plg.TargetProtocol = f.name
 		return
 	}
-	crack("mongodb", plg, mongoUsername, mongoPassword, mongodbConn)
+	crack(f.name, plg, f.user, f.pass, mongodbConn)
 }
 
 func mongodbConn(plg *Plugins, user, pass string) (ok int) {

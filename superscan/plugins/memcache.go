@@ -7,20 +7,12 @@ import (
 	"time"
 )
 
-func init() {
-	checkFuncs[MemoryCacheSrv] = memcachedCheck
-	supportPlugin["memcached"] = "memcached"
-}
-
-func memcachedCheck(plg *Plugins) {
-	if !plg.NoTrust && plg.TargetPort != "11211" {
-		return
-	}
+func memcachedCheck(plg *Plugins, f *funcDesc) {
 	if memcachedUnAuth(plg) {
 		plg.Cracked = append(plg.Cracked, Account{Username: "空", Password: "空"})
 		plg.PortOpened = true
 		plg.highLight = true
-		plg.TargetProtocol = "memcached"
+		plg.TargetProtocol = f.name
 		return
 	}
 }

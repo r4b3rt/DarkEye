@@ -16,6 +16,32 @@ type RequestContext struct {
 	Interactive bool
 }
 
+type analysisEntity struct {
+	ID      int64  `json:"id" gorm:"primaryKey"`
+	Task    string `json:"task" gorm:"unique_index:UNIQ_hi;column:task"`
+	Ip      string `json:"ip" gorm:"unique_index:UNIQ_hi;column:ip"`
+	Port    string `json:"port" gorm:"unique_index:UNIQ_hi;column:port"`
+	Service string `json:"service" gorm:"unique_index:UNIQ_hi;column:service"`
+
+	Url             string `json:"url" gorm:"column:url"`
+	Title           string `json:"title" gorm:"column:title"`
+	WebServer       string `json:"web_server" gorm:"column:web_server"`
+	WebResponseCode int32  `json:"http_code" gorm:"column:http_code"`
+
+	Hostname  string
+	Os        string
+	Device    string
+	Banner    string
+	Version   string
+	ExtraInfo string
+	RDns      string
+	Country   string
+
+	NetBios     string `json:"netbios" gorm:"column:netbios"`
+	WeakAccount string `json:"weak_account" gorm:"column:weak_account"`
+	Vulnerable  string `json:"vulnerable" gorm:"column:vulnerable"`
+}
+
 //ModuleFunc add comment
 type ModuleFunc struct {
 	name        string
@@ -53,15 +79,25 @@ func init() {
 		valueCheck:  analysisValueCheck,
 		completer:   mContext.analysisArgumentsCompleter,
 	}
-	//分析模块
+	//资产采集
 	ModuleFuncs[moduleId(zoomEye)] = ModuleFunc{
 		name:        zoomEye,
-		start:       zoomEyeRuntimeRuntimeOptions.start,
-		compileArgs: zoomEyeRuntimeRuntimeOptions.compileArgs,
-		usage:       zoomEyeRuntimeRuntimeOptions.usage,
+		start:       zoomEyeRuntimeOptions.start,
+		compileArgs: zoomEyeRuntimeOptions.compileArgs,
+		usage:       zoomEyeRuntimeOptions.usage,
 		init:        zoomEyeInitRunTime,
 		valueCheck:  zoomEyeValueCheck,
 		completer:   mContext.zoomEyeArgumentsCompleter,
+	}
+	//脆弱性检查
+	ModuleFuncs[moduleId(zoomEye)] = ModuleFunc{
+		name:        xRayProgram,
+		start:       xRayRuntimeOptions.start,
+		compileArgs: xRayRuntimeOptions.compileArgs,
+		usage:       xRayRuntimeOptions.usage,
+		init:        xRayInitRunTime,
+		valueCheck:  xRayValueCheck,
+		completer:   mContext.xRayArgumentsCompleter,
 	}
 }
 

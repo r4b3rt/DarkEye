@@ -39,7 +39,7 @@ type superScanRuntime struct {
 
 var (
 	superScanRuntimeOptions = &superScanRuntime{
-		flagSet: flag.NewFlagSet("superScan", flag.ExitOnError),
+		flagSet: flag.NewFlagSet(superScan, flag.ExitOnError),
 	}
 	mScans = make([]*superscan.Scan, 0)
 )

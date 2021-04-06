@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"github.com/fatih/color"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -91,12 +93,7 @@ func (ctx *RequestContext) runCmd(args []string) {
 	}
 }
 
-func (ctx *RequestContext) exec() {
-	/*
-	cmd := exec.Command(name, args...)
-	closed := make(chan struct{})
-	defer close(closed)
-
+func runShell(cmd *exec.Cmd) error {
 	stdoutPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		panic(err)
@@ -106,21 +103,14 @@ func (ctx *RequestContext) exec() {
 	go func() {
 		scanner := bufio.NewScanner(stdoutPipe)
 		for scanner.Scan() { // 命令在执行的过程中, 实时地获取其输出
-			data, err := simplifiedchinese.GB18030.NewDecoder().Bytes(scanner.Bytes()) // 防止乱码
-			if err != nil {
-				fmt.Println("transfer error with bytes:", scanner.Bytes())
-				continue
-			}
-
-			fmt.Printf("%s\n", string(data))
+			fmt.Println(scanner.Bytes())
 		}
 	}()
 
 	if err := cmd.Run(); err != nil {
-		panic(err)
+		return err
 	}
-	return closed
-	*/
+	return nil
 }
 
 func splitCmd(cmd []string) []string {

@@ -19,17 +19,17 @@ type zoomEyeRuntime struct {
 }
 
 var (
-	zoomEyeRuntimeRuntimeOptions = &zoomEyeRuntime{
-		flagSet: flag.NewFlagSet("zoomEye", flag.ExitOnError),
+	zoomEyeRuntimeOptions = &zoomEyeRuntime{
+		flagSet: flag.NewFlagSet(zoomEye, flag.ExitOnError),
 	}
 )
 
 func zoomEyeInitRunTime() {
-	zoomEyeRuntimeRuntimeOptions.flagSet.StringVar(&zoomEyeRuntimeRuntimeOptions.api,
+	zoomEyeRuntimeOptions.flagSet.StringVar(&zoomEyeRuntimeOptions.api,
 		"api", "you-key", "API-KEY")
-	zoomEyeRuntimeRuntimeOptions.flagSet.StringVar(&zoomEyeRuntimeRuntimeOptions.search,
+	zoomEyeRuntimeOptions.flagSet.StringVar(&zoomEyeRuntimeOptions.search,
 		"search", "ip:8.8.8.8", "https://www.zoomeye.org/")
-	zoomEyeRuntimeRuntimeOptions.flagSet.StringVar(&zoomEyeRuntimeRuntimeOptions.page,
+	zoomEyeRuntimeOptions.flagSet.StringVar(&zoomEyeRuntimeOptions.page,
 		"page", "5", "返回查询页面数量")
 }
 

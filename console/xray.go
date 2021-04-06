@@ -77,10 +77,14 @@ func (x *xRayRuntime) start(ctx context.Context) {
 	go func() {
 		defer wg.Done()
 		if runtime.GOOS == "windows" {
-			cmd := exec.CommandContext(ctx, "CMD", "/C", xRayProgram, "webscan", "--listen", "127.0.0.1:"+x.proxyPort, "--json-output", "vulnerability.json")
+			cmd := exec.CommandContext(ctx, "CMD", "/C", xRayProgram,
+				"webscan", "--listen", "127.0.0.1:"+x.proxyPort,
+				"--json-output", "vulnerability.json")
 			_ = runShell(cmd)
 		} else {
-			cmd := exec.CommandContext(ctx, xRayProgram, "webscan", "--listen", "127.0.0.1:"+x.proxyPort, "--json-output", "vulnerability.json")
+			cmd := exec.CommandContext(ctx, xRayProgram,
+				"webscan", "--listen", "127.0.0.1:"+x.proxyPort,
+				"--json-output", "vulnerability.json")
 			_ = runShell(cmd)
 		}
 	}()
@@ -108,11 +112,15 @@ func (x *xRayRuntime) start(ctx context.Context) {
 		for _, vulnerable := range urls {
 			if runtime.GOOS == "windows" {
 				cmd := exec.CommandContext(ctx, "CMD", "/C",
-					crawlerGo["name"], "-t", "10", "-c", x.chrome, "--request-proxy", "http://127.0.0.1:"+x.proxyPort, vulnerable)
+					crawlerGo["name"],
+					"-t", "10", "-c", x.chrome,
+					"--request-proxy", "http://127.0.0.1:"+x.proxyPort, vulnerable)
 				_ = runShell(cmd)
 			} else {
 				cmd := exec.CommandContext(ctx,
-					crawlerGo["name"], "-t", "10", "-c", x.chrome, "--request-proxy", "http://127.0.0.1:"+x.proxyPort, vulnerable)
+					crawlerGo["name"],
+					"-t", "10", "-c", x.chrome,
+					"--request-proxy", "http://127.0.0.1:"+x.proxyPort, vulnerable)
 				_ = runShell(cmd)
 			}
 		}
@@ -145,6 +153,7 @@ func (x *xRayRuntime) prepare(ctx context.Context) error {
 	}
 	if _, e := os.Stat(bin); e == nil {
 		fmt.Println(bin, "[OK]")
+		return nil
 	}
 	crawler := crawlerGo[runtime.GOOS]
 	fmt.Println("Download binary from", crawler)
@@ -173,7 +182,7 @@ func (x *xRayRuntime) prepare(ctx context.Context) error {
 	if _, e := os.Stat(bin); e != nil {
 		return fmt.Errorf(fmt.Sprintf("Err: %s", e.Error()))
 	}
-
+	fmt.Println(bin, "[OK]")
 	return nil
 }
 

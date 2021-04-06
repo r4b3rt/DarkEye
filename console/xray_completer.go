@@ -8,7 +8,7 @@ var (
 	xRayProgram     = "xRay"
 	xRaySuggestions = []prompt.Suggest{
 		// Command
-		{"-download", "https://binary_url"},
+		{"-download", "binary_url"},
 		{"-url", "url or url-file-list"},
 		{"-proxy-port", "被动监听端口"},
 		{"-chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"},
@@ -29,7 +29,7 @@ func init() {
 
 func (ctx *RequestContext) xRayArgumentsCompleter(args []string) []prompt.Suggest {
 	if len(args) <= 1 {
-		return filterSuggestions(runCompleteCheck(analysisSuggestions, ctx.CmdArgs,
+		return filterSuggestions(runCompleteCheck(xRaySuggestions, ctx.CmdArgs,
 			[]string{
 				"-url",
 			}), ctx.CmdArgs)

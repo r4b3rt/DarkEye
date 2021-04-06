@@ -90,7 +90,7 @@ func init() {
 		completer:   mContext.zoomEyeArgumentsCompleter,
 	}
 	//脆弱性检查
-	ModuleFuncs[moduleId(zoomEye)] = ModuleFunc{
+	ModuleFuncs[moduleId(xRayProgram)] = ModuleFunc{
 		name:        xRayProgram,
 		start:       xRayRuntimeOptions.start,
 		compileArgs: xRayRuntimeOptions.compileArgs,

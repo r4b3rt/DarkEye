@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -70,6 +71,7 @@ func (x *xRayRuntime) usage() {
 func (x *xRayRuntime) start(ctx context.Context) {
 	if err := x.prepare(ctx); err != nil {
 		fmt.Println(err)
+		return
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(2)
@@ -140,7 +142,9 @@ func (x *xRayRuntime) prepare(ctx context.Context) error {
 	}
 	if _, e := os.Stat(bin); e != nil {
 		fmt.Println("Download binary from", x.download)
-		x.down(x.download, bin, ctx)
+		if e = x.down(x.download, bin, ctx); e != nil {
+			return e
+		}
 		if _, e := os.Stat(bin); e != nil {
 			return fmt.Errorf(fmt.Sprintf("Err: %s", e.Error()))
 		}
@@ -155,30 +159,30 @@ func (x *xRayRuntime) prepare(ctx context.Context) error {
 		fmt.Println(bin, "[OK]")
 		return nil
 	}
+	//未发现则下载
 	crawler := crawlerGo[runtime.GOOS]
-	fmt.Println("Download binary from", crawler)
-	x.down(x.download, bin, ctx)
-	if _, e := os.Stat(bin); e != nil {
-		return fmt.Errorf(fmt.Sprintf("Err: %s", e.Error()))
-	}
-
 	s := strings.Split(crawler, "/")
 	zipFile := s[len(s)-1]
+	fmt.Println("Download binary from", crawler)
+	if e := x.down(crawler, zipFile, ctx); e != nil {
+		return e
+	}
 	if _, e := os.Stat(zipFile); e != nil {
 		return fmt.Errorf(fmt.Sprintf("Err: %s", e.Error()))
 	}
 	uz := unzip.New()
-	files, e := uz.Extract(zipFile, "./")
+	destDir := strings.TrimSuffix(zipFile, ".zip")
+	files, e := uz.Extract(zipFile, destDir)
 	if e != nil {
 		return fmt.Errorf(fmt.Sprintf("Err: %s", e.Error()))
 	}
-	fmt.Printf("Extracted files count: %d", len(files))
-	fmt.Printf("Files list: %v", files)
-	zipFile = strings.TrimSuffix(zipFile, ".zip")
+	fmt.Println(fmt.Sprintf("Extracted files count: %d", len(files)))
+	fmt.Println(fmt.Sprintf("Files list: %v", files))
+	targetFile := "crawlergo"
 	if runtime.GOOS == "windows" {
-		zipFile += ".exe"
+		targetFile += ".exe"
 	}
-	_ = os.Rename(zipFile, bin)
+	_ = os.Rename(filepath.Join(destDir, targetFile), bin)
 	if _, e := os.Stat(bin); e != nil {
 		return fmt.Errorf(fmt.Sprintf("Err: %s", e.Error()))
 	}
@@ -186,17 +190,46 @@ func (x *xRayRuntime) prepare(ctx context.Context) error {
 	return nil
 }
 
-func (x *xRayRuntime) down(url, save string, ctx context.Context) {
-	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
-	resp, _ := http.DefaultClient.Do(req)
+func (x *xRayRuntime) down(url, save string, ctx context.Context) error {
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
 	defer resp.Body.Close()
 
-	f, _ := os.OpenFile(save, os.O_CREATE|os.O_WRONLY, 0700)
+	f, err := os.OpenFile(save, os.O_CREATE|os.O_WRONLY, 0700)
+	if err != nil {
+		return err
+	}
 	defer f.Close()
 
-	bar := progressbar.DefaultBytes(
+	bar := progressbar.NewOptions64(
 		resp.ContentLength,
-		"downloading",
+		progressbar.OptionSetDescription("Downloading"),
+		progressbar.OptionSetWriter(os.Stderr),
+		progressbar.OptionShowBytes(true),
+		progressbar.OptionSetWidth(10),
+		progressbar.OptionThrottle(65*time.Millisecond),
+		progressbar.OptionShowCount(),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Fprint(os.Stderr, "\n")
+		}),
+		progressbar.OptionSpinnerType(14),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "=",
+			SaucerHead:    ">",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}),
+		progressbar.OptionFullWidth(),
 	)
-	io.Copy(io.MultiWriter(f, bar), resp.Body)
+	_ = bar.RenderBlank()
+
+	_, _ = io.Copy(io.MultiWriter(f, bar), resp.Body)
+	return nil
 }

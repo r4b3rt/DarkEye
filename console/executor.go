@@ -96,7 +96,7 @@ func (ctx *RequestContext) runCmd(args []string) {
 func runShell(cmd *exec.Cmd) error {
 	stdoutPipe, err := cmd.StdoutPipe()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer stdoutPipe.Close()
 

@@ -78,16 +78,18 @@ func (x *xRayRuntime) start(ctx context.Context) {
 	//启动代理
 	go func() {
 		defer wg.Done()
+		var cmd *exec.Cmd
 		if runtime.GOOS == "windows" {
-			cmd := exec.CommandContext(ctx, "CMD", "/C", xRayProgram,
+			cmd = exec.CommandContext(ctx, "CMD", "/C", xRayProgram,
 				"webscan", "--listen", "127.0.0.1:"+x.proxyPort,
 				"--json-output", "vulnerability.json")
-			_ = runShell(cmd)
 		} else {
-			cmd := exec.CommandContext(ctx, xRayProgram,
+			cmd = exec.CommandContext(ctx, xRayProgram,
 				"webscan", "--listen", "127.0.0.1:"+x.proxyPort,
 				"--json-output", "vulnerability.json")
-			_ = runShell(cmd)
+		}
+		if err := runShell(cmd); err != nil {
+			fmt.Println("Err:", err.Error())
 		}
 	}()
 
@@ -106,24 +108,27 @@ func (x *xRayRuntime) start(ctx context.Context) {
 			default:
 			}
 			if common.IsAlive("127.0.0.1", x.proxyPort, 1000) == common.Alive {
+				fmt.Println("Warn", "未检测到代理等待3秒重试")
 				time.Sleep(time.Second * 3)
 				break
 			}
 			time.Sleep(time.Second * 1)
 		}
 		for _, vulnerable := range urls {
+			var cmd *exec.Cmd
 			if runtime.GOOS == "windows" {
-				cmd := exec.CommandContext(ctx, "CMD", "/C",
+				cmd = exec.CommandContext(ctx, "CMD", "/C",
 					crawlerGo["name"],
 					"-t", "10", "-c", x.chrome,
 					"--request-proxy", "http://127.0.0.1:"+x.proxyPort, vulnerable)
-				_ = runShell(cmd)
 			} else {
-				cmd := exec.CommandContext(ctx,
+				cmd = exec.CommandContext(ctx,
 					crawlerGo["name"],
 					"-t", "10", "-c", x.chrome,
 					"--request-proxy", "http://127.0.0.1:"+x.proxyPort, vulnerable)
-				_ = runShell(cmd)
+			}
+			if err := runShell(cmd); err != nil {
+				fmt.Println("Err:", err.Error())
 			}
 		}
 	}()

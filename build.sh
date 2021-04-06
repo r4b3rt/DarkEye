@@ -2,12 +2,15 @@
 go env -w GOPROXY=https://goproxy.cn,direct
 export GO111MODULE=off
 
+#Using go-sqlite3
+export CGO_ENABLED=1
+
 ldflag="-s -w"
 
 build_win() {
     cd console
-    GOOS=windows GOARCH=386 go build -ldflags="${ldflag}" -o ../dist/df_windows_386.exe
-    GOOS=windows GOARCH=amd64 go build -ldflags="${ldflag}" -o ../dist/df_windows_amd64.exe
+    GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc" go build -ldflags="${ldflag}" -o ../dist/df_windows_386.exe
+    GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -ldflags="${ldflag}" -o ../dist/df_windows_amd64.exe
     cd -
 }
 
@@ -33,8 +36,8 @@ build_all() {
     GOOS=linux GOARCH=amd64 go build  -ldflags "${ldflag}" -o ../dist/df_linux_amd64
     GOOS=linux GOARCH=arm go build -ldflags "${ldflag}" -o ../dist/df_linux_arm
     GOOS=linux GOARCH=arm64 go build  -ldflags "${ldflag}" -o ../dist/df_linux_arm64
-    GOOS=windows GOARCH=386 go build  -ldflags "${ldflag}" -o ../dist/df_windows_386.exe
-    GOOS=windows GOARCH=amd64 go build -ldflags "${ldflag}" -o ../dist/df_windows_amd64.exe
+    GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc"  go build  -ldflags "${ldflag}" -o ../dist/df_windows_386.exe
+    GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -ldflags "${ldflag}" -o ../dist/df_windows_amd64.exe
     GOOS=linux GOARCH=mips64 go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips64
     GOOS=linux GOARCH=mips64le go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips64le
     GOOS=linux GOARCH=mips GOMIPS=softfloat go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips
@@ -66,7 +69,7 @@ compress() {
     cd  dist
     upx -9 df_windows_*
     upx -9 df_linux_*
-    upx -9 df_darwin_*
+   # upx -9 df_darwin_*
     cd -
 }
 

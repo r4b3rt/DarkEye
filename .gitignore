@@ -7,3 +7,5 @@ deploy
 .idea
 *.qrc
 http.pb.go
+dic_password_*
+dic_username_*

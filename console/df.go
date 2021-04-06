@@ -77,6 +77,6 @@ func usageForAll() {
 
 	for n := range ModuleFuncs {
 		fmt.Println(fmt.Sprintf("	%s", n))
-		fmt.Println(fmt.Sprintf("		only %s", n))
+		fmt.Println(fmt.Sprintf("		See 'df %s -h' for help", n))
 	}
 }

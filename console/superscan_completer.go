@@ -5,7 +5,6 @@ import (
 )
 
 var (
-	superScan            = "superScan"
 	superScanSuggestions = []prompt.Suggest{
 		// Command
 		{"-ip", "Scan ip target"},
@@ -41,7 +40,7 @@ func init() {
 	}...)
 }
 
-func (ctx *RequestContext) superScanArgumentsCompleter(args []string) []prompt.Suggest {
+func (ctx *RequestContext) Completer(args []string) []prompt.Suggest {
 	if len(args) <= 1 {
 		return filterSuggestions(runCompleteCheck(superScanSuggestions, ctx.CmdArgs,
 			[]string{

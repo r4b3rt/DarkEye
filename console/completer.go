@@ -19,8 +19,9 @@ func (ctx *RequestContext) completer(d prompt.Document) []prompt.Suggest {
 	if len(ctx.CmdArgs) > 0 {
 		//子命令
 		return filterHasPrefix(
-			ModuleFuncs[moduleId(ctx.CmdArgs[0])].completer(args), d.GetWordBeforeCursor(),
-			moduleId(ctx.CmdArgs[0]))
+			M[ID(ctx.CmdArgs[0])].Completer(args),
+			d.GetWordBeforeCursor(),
+			ID(ctx.CmdArgs[0]))
 	}
 	return filterHasPrefix(
 		mSuggestions, d.GetWordBeforeCursor(), "")

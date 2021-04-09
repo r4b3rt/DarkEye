@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/c-bata/go-prompt"
 	"github.com/elastic/beats/libbeat/common/atomic"
-	"strings"
 )
 
 //RequestContext add comment
@@ -42,65 +40,6 @@ type analysisEntity struct {
 	Vulnerable  string `json:"vulnerable" gorm:"column:vulnerable"`
 }
 
-//ModuleFunc add comment
-type ModuleFunc struct {
-	name        string
-	start       func(ctx context.Context)
-	init        func()
-	valueCheck  map[string]bool
-	completer   func(args []string) []prompt.Suggest
-	compileArgs func(args []string) error
-	usage       func()
-}
-
-var (
-	//ModuleFuncs add comment
-	ModuleFuncs = make(map[string]ModuleFunc, 0)
-)
-
-func init() {
-	//端口、弱口令扫描模块
-	ModuleFuncs[moduleId(superScan)] = ModuleFunc{
-		name:        superScan,
-		start:       superScanRuntimeOptions.start,
-		init:        superScanInitRunTime,
-		compileArgs: superScanRuntimeOptions.compileArgs,
-		usage:       superScanRuntimeOptions.usage,
-		valueCheck:  superScanValueCheck,
-		completer:   mContext.superScanArgumentsCompleter,
-	}
-	//分析模块
-	ModuleFuncs[moduleId(analysisProgram)] = ModuleFunc{
-		name:        analysisProgram,
-		start:       analysisRuntimeOptions.start,
-		init:        analysisInitRunTime,
-		compileArgs: analysisRuntimeOptions.compileArgs,
-		usage:       analysisRuntimeOptions.usage,
-		valueCheck:  analysisValueCheck,
-		completer:   mContext.analysisArgumentsCompleter,
-	}
-	//资产采集
-	ModuleFuncs[moduleId(zoomEye)] = ModuleFunc{
-		name:        zoomEye,
-		start:       zoomEyeRuntimeOptions.start,
-		compileArgs: zoomEyeRuntimeOptions.compileArgs,
-		usage:       zoomEyeRuntimeOptions.usage,
-		init:        zoomEyeInitRunTime,
-		valueCheck:  zoomEyeValueCheck,
-		completer:   mContext.zoomEyeArgumentsCompleter,
-	}
-	//脆弱性检查
-	ModuleFuncs[moduleId(xRayProgram)] = ModuleFunc{
-		name:        xRayProgram,
-		start:       xRayRuntimeOptions.start,
-		compileArgs: xRayRuntimeOptions.compileArgs,
-		usage:       xRayRuntimeOptions.usage,
-		init:        xRayInitRunTime,
-		valueCheck:  xRayValueCheck,
-		completer:   mContext.xRayArgumentsCompleter,
-	}
-}
-
-func moduleId(m string) string {
-	return strings.ToLower(m)
+func (analysisEntity) TableName() string {
+	return "ent"
 }

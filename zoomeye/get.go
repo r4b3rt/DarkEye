@@ -1,6 +1,7 @@
 package zoomeye
 
 import (
+	"context"
 	"fmt"
 	"github.com/tidwall/gjson"
 	"github.com/zsdevX/DarkEye/common"
@@ -8,12 +9,13 @@ import (
 	"time"
 )
 
-func (z *ZoomEye) run(page int) *gjson.Result {
+func (z *ZoomEye) run(ctx context.Context, page int) *gjson.Result {
 	url := fmt.Sprintf("https://api.zoomeye.org/host/search?query=%s&page=%d", url2.QueryEscape(z.Query), page)
 	req := common.HttpRequest{
 		Url:     url,
 		TimeOut: time.Duration(10),
 		Method:  "GET",
+		Ctx:     ctx,
 		Headers: map[string]string{
 			"User-Agent": common.UserAgents[1],
 			"API-KEY":    z.ApiKey,
@@ -21,20 +23,20 @@ func (z *ZoomEye) run(page int) *gjson.Result {
 	}
 	response, err := req.Go()
 	if err != nil && response == nil {
-		z.ErrChannel <- common.LogBuild("zoomEye",
-			fmt.Sprintf("获取信息失败%s:%s", z.Query, err.Error()), common.FAULT)
+		z.ErrChannel <-
+			fmt.Sprintf("获取信息失败%s:%s", z.Query, err.Error())
 		return nil
 	}
 	switch response.Status {
 	case 201:
-		z.ErrChannel <- common.LogBuild("zoomEye", "不支持相关展示", common.FAULT)
+		z.ErrChannel <- "不支持相关展示"
 	case 200:
 		ret := gjson.GetBytes(response.Body, "matches")
 		return &ret
 	default:
 		//4xx错误
-		z.ErrChannel <- common.LogBuild("zoomEye",
-			fmt.Sprintf("获取信息失败%s:%s", z.Query, string(response.Body)), common.FAULT)
+		z.ErrChannel <-
+			fmt.Sprintf("获取信息失败%s:%s", z.Query, string(response.Body))
 	}
 	return nil
 }

@@ -7,7 +7,6 @@ type ZoomEye struct {
 	Pages  int    `json:"-"`
 
 	ErrChannel chan string `json:"-"`
-	Stop       int32       `json:"-"`
 }
 
 type Match struct {

@@ -7,7 +7,7 @@ import (
 )
 
 func Test_analysis(t *testing.T) {
-	analysisInitRunTime()
+	analysisRuntimeOptions.Init()
 	defer os.Remove(analysisDb)
 	e1 := analysisEntity{
 		Task:    "2",

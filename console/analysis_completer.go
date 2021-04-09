@@ -5,7 +5,6 @@ import (
 )
 
 var (
-	analysisProgram     = "analysis"
 	analysisSuggestions = []prompt.Suggest{
 		// Command
 		{"-sql", "select * from ent limit 1"},
@@ -21,12 +20,12 @@ func init() {
 	}...)
 }
 
-func (ctx *RequestContext) analysisArgumentsCompleter(args []string) []prompt.Suggest {
+func (a *analysisRuntime) Completer(args []string) []prompt.Suggest {
 	if len(args) <= 1 {
-		return filterSuggestions(runCompleteCheck(analysisSuggestions, ctx.CmdArgs,
+		return filterSuggestions(runCompleteCheck(analysisSuggestions, a.parent.CmdArgs,
 			[]string{
 				"-sql",
-			}), ctx.CmdArgs)
+			}), a.parent.CmdArgs)
 	}
 	switch args[0] {
 	case "-sql":

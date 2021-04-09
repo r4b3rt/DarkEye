@@ -4,23 +4,26 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/fatih/color"
+	"github.com/zsdevX/DarkEye/common"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
+)
+
+var (
+	runShellOutput = "shell.out"
 )
 
 func (ctx *RequestContext) executor(in string) {
 	in = strings.TrimPrefix(strings.TrimSpace(in), "?")
 	blocks := strings.Split(in, " ")
 	switch strings.ToLower(blocks[0]) {
-	case "":
-		break
 	case "stop":
 		ctx.stop()
 	case "exit":
 		ctx.stop()
-		fmt.Println("Bye Bye!")
+		common.Log("executor", "Bye Bye!", common.INFO)
 		os.Exit(0)
 	case "cd":
 		if ctx.checkRun() {
@@ -38,9 +41,11 @@ func (ctx *RequestContext) executor(in string) {
 		if cmdValid(blocks[1]) {
 			ctx.CmdArgs = append(ctx.CmdArgs, blocks[1])
 		} else {
-			fmt.Println(fmt.Sprintf("'%s' Not support Command", blocks[1]))
+			common.Log("executor", fmt.Sprintf("'%s' Not support Command", blocks[1]), common.FAULT)
 		}
 		return
+	case "":
+		break
 	default:
 		if ctx.checkRun() {
 			return
@@ -55,32 +60,32 @@ func (ctx *RequestContext) executor(in string) {
 			ctx.runCmd(blocks)
 			return
 		}
-		fmt.Println(fmt.Sprintf("You Should try input: 'cd %s'", blocks[0]))
+		common.Log("executor", fmt.Sprintf("You Should try input: 'cd %s'", blocks[0]), common.ALERT)
 	}
 }
 
 func (ctx *RequestContext) runCmd(args []string) {
 	switch strings.ToLower(args[0]) {
 	case "exploit":
-		if err := ModuleFuncs[moduleId(ctx.CmdArgs[0])].compileArgs(ctx.CmdArgs[1:]); err != nil {
-			fmt.Println("Err:", err.Error())
+		if err := M[ID(ctx.CmdArgs[0])].CompileArgs(ctx.CmdArgs[1:]); err != nil {
+			common.Log("executor.exploit", err.Error(), common.FAULT)
 			return
 		}
 		ctx.running.Store(true)
 		go func() {
-			color.Green("%s %s", ctx.CmdArgs[0], "Running!")
-			ModuleFuncs[moduleId(ctx.CmdArgs[0])].start(mContext.ctx)
+			common.Log(ctx.CmdArgs[0], "Running!", common.INFO)
+			M[ID(ctx.CmdArgs[0])].Start(mContext.ctx)
 			ctx.running.Store(false)
-			color.Green("%s %s", ctx.CmdArgs[0], "Done!")
+			common.Log(ctx.CmdArgs[0], "Done!", common.INFO)
 		}()
 	default:
 		if len(args) == 1 { //此时检查是否需要参数
-			if noVar, ok := ModuleFuncs[moduleId(ctx.CmdArgs[0])].valueCheck[args[0]]; !ok {
-				fmt.Println("Err: not support", "'"+args[0]+"'")
+			if noVar, err := M[ID(ctx.CmdArgs[0])].ValueCheck(args[0]); err != nil {
+				common.Log("executor.runCmd", "'"+args[0]+"' "+err.Error(), common.FAULT)
 				return
 			} else {
 				if !noVar {
-					fmt.Println("Err:", "'"+args[0]+"'", "need value")
+					common.Log("executor.runCmd", "Err:"+"'"+args[0]+"'"+" need value", common.FAULT)
 					return
 				}
 			}
@@ -93,24 +98,45 @@ func (ctx *RequestContext) runCmd(args []string) {
 	}
 }
 
-func runShell(cmd *exec.Cmd) error {
+func runShell(name string, cmd *exec.Cmd, saveOutput bool) error {
+	stderrPipe, err := cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
 	stdoutPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
 	}
-	defer stdoutPipe.Close()
-
-	go func() {
-		scanner := bufio.NewScanner(stdoutPipe)
-		for scanner.Scan() { // 命令在执行的过程中, 实时地获取其输出
-			fmt.Println(scanner.Bytes())
-		}
+	defer func() {
+		_ = stdoutPipe.Close()
+		_ = stderrPipe.Close()
 	}()
-
-	if err := cmd.Run(); err != nil {
+	common.Log("runShell."+name, "start", common.INFO)
+	if err := cmd.Start(); err != nil {
 		return err
 	}
-	return nil
+	if saveOutput {
+		f, err := os.OpenFile(runShellOutput, os.O_RDWR|os.O_CREATE, 0644)
+		if err != nil {
+			return err
+		}
+		go func() {
+			_, _ = io.Copy(f, stdoutPipe)
+			_ = f.Close()
+		}()
+	} else {
+		go func() {
+			scanner := bufio.NewScanner(stdoutPipe)
+			for scanner.Scan() { // 命令在执行的过程中, 实时地获取其输出
+				fmt.Println(scanner.Text())
+			}
+		}()
+	}
+	scanner := bufio.NewScanner(stderrPipe)
+	for scanner.Scan() { // 命令在执行的过程中, 实时地获取其输出
+		fmt.Println(scanner.Text())
+	}
+	return cmd.Wait()
 }
 
 func splitCmd(cmd []string) []string {
@@ -129,17 +155,17 @@ func (ctx *RequestContext) returnCmd() {
 
 func (ctx *RequestContext) stop() {
 	if !ctx.running.Load() {
-		fmt.Println("Stopped")
+		common.Log("executor.runCmd", "Stopped", common.INFO)
 		return
 	}
 	ctx.cancel()
 	ctx.ctx, ctx.cancel = context.WithCancel(context.Background())
-	fmt.Println("Waiting to stop")
+	common.Log("executor.runCmd", "Waiting to stop", common.INFO)
 }
 
 func (ctx *RequestContext) checkRun() bool {
 	if ctx.running.Load() {
-		fmt.Println(ctx.CmdArgs[0], "is running")
+		common.Log("executor.checkRun", ctx.CmdArgs[0]+" is running", common.INFO)
 		return true
 	}
 	return false

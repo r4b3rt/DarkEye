@@ -1,16 +1,16 @@
 package zoomeye
 
 import (
+	"context"
 	"fmt"
 	"github.com/tidwall/gjson"
-	"github.com/zsdevX/DarkEye/common"
 	"strconv"
 	"strings"
 	"time"
 )
 
 //Run add comment
-func (z *ZoomEye) Run() []Match {
+func (z *ZoomEye) Run(ctx context.Context) []Match {
 	ret := make([]Match, 0)
 	i := 1
 	defer func() {
@@ -18,16 +18,13 @@ func (z *ZoomEye) Run() []Match {
 	}()
 	for i <= z.Pages {
 		i++
-		if common.ShouldStop(&z.Stop) {
-			return ret
-		}
-		matches := z.run(i)
+		matches := z.run(ctx, i)
 		if matches == nil {
 			return ret
 		}
 		ret = getData(ret, matches)
-		z.ErrChannel <- common.LogBuild("zoomEye",
-			fmt.Sprintf("%s:获取第%d页信息", z.Query, i), common.INFO)
+		z.ErrChannel <-
+			fmt.Sprintf("%s:获取第%d页信息", z.Query, i)
 		time.Sleep(time.Second * 3)
 	}
 	return ret

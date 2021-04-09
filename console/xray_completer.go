@@ -5,7 +5,6 @@ import (
 )
 
 var (
-	xRayProgram     = "xRay"
 	xRaySuggestions = []prompt.Suggest{
 		// Command
 		{"-download", "binary_url"},
@@ -27,12 +26,12 @@ func init() {
 	}...)
 }
 
-func (ctx *RequestContext) xRayArgumentsCompleter(args []string) []prompt.Suggest {
+func (x *xRayRuntime) Completer(args []string) []prompt.Suggest {
 	if len(args) <= 1 {
-		return filterSuggestions(runCompleteCheck(xRaySuggestions, ctx.CmdArgs,
+		return filterSuggestions(runCompleteCheck(xRaySuggestions, x.parent.CmdArgs,
 			[]string{
 				"-url",
-			}), ctx.CmdArgs)
+			}), x.parent.CmdArgs)
 	}
 	switch args[0] {
 	case "-url":

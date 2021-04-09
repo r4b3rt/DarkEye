@@ -1,24 +1,29 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/artdarek/go-unzip/pkg/unzip"
 	"github.com/schollz/progressbar"
 	"github.com/zsdevX/DarkEye/common"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 	"time"
 )
 
 type xRayRuntime struct {
+	Module
+	parent *RequestContext
+
 	download  string
 	url       string
 	proxyPort string
@@ -26,7 +31,18 @@ type xRayRuntime struct {
 	flagSet   *flag.FlagSet
 }
 
+type xRayTarget struct {
+	Url    string `json:"url"`
+	Method string `json:"method"`
+	Data   string `json:"data"`
+}
+
+type xRayReq struct {
+	Req []xRayTarget `json:"req_list"`
+}
+
 var (
+	xRayProgram        = "xRay"
 	xRayRuntimeOptions = &xRayRuntime{
 		flagSet: flag.NewFlagSet(xRayProgram, flag.ExitOnError),
 	}
@@ -38,19 +54,60 @@ var (
 	}
 )
 
-func xRayInitRunTime() {
+func (x *xRayRuntime) Start(ctx context.Context) {
+	//准备工具
+	preCtx, _ := context.WithCancel(ctx)
+	if err := x.prepare(preCtx); err != nil {
+		common.Log("xRayRuntime.prepare", err.Error(), common.INFO)
+	}
+	//爬取数据
+	cCtx, _ := context.WithCancel(ctx)
+	if err := x.crawler(cCtx); err != nil {
+		common.Log("xRayRuntime.crawler", err.Error(), common.INFO)
+		return
+	}
+	//模拟请求
+	go func() {
+		loop := 0
+		for loop < 10 {
+			if common.IsAlive("127.0.0.1", x.proxyPort, 1000) == common.Alive {
+				time.Sleep(time.Second * 5)
+				break
+			}
+			common.Log("xRayRuntime.proxyServer.checkProxy", "等待proxy, 1秒后尝试", common.INFO)
+			time.Sleep(time.Second * 1)
+			loop ++
+		}
+		sCtx, _ := context.WithCancel(ctx)
+		if err := x.simulate(sCtx); err != nil {
+			common.Log("xRayRuntime.simulate", err.Error(), common.INFO)
+		}
+	}()
+	//开始访问
+	pCtx, _ := context.WithCancel(ctx)
+	x.proxyServer(pCtx)
+}
+
+func (x *xRayRuntime) Init(requestContext *RequestContext) {
+	xRayRuntimeOptions.parent = requestContext
 	xRayRuntimeOptions.flagSet.StringVar(&xRayRuntimeOptions.download,
 		"download", "https://ghproxy.com/https://github.com/zsdevX/helper/releases/download/1/xray_darwin_amd64", "xRay binary file")
 	xRayRuntimeOptions.flagSet.StringVar(&xRayRuntimeOptions.url,
 		"url", "http://vuln.com.cn", "vulnerable website or file list")
 	xRayRuntimeOptions.flagSet.StringVar(&xRayRuntimeOptions.proxyPort,
 		"proxy-port", "7777", "被动扫描代理端口")
-	xRayRuntimeOptions.flagSet.StringVar(&xRayRuntimeOptions.proxyPort,
+	xRayRuntimeOptions.flagSet.StringVar(&xRayRuntimeOptions.chrome,
 		"chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "Chrome path")
-
 }
 
-func (x *xRayRuntime) compileArgs(cmd []string) error {
+func (x *xRayRuntime) ValueCheck(value string) (bool, error) {
+	if v, ok := xRayValueCheck[value]; ok {
+		return v, nil
+	}
+	return false, fmt.Errorf("无此参数")
+}
+
+func (x *xRayRuntime) CompileArgs(cmd []string) error {
 	if err := x.flagSet.Parse(splitCmd(cmd)); err != nil {
 		return err
 	}
@@ -58,7 +115,7 @@ func (x *xRayRuntime) compileArgs(cmd []string) error {
 	return nil
 }
 
-func (x *xRayRuntime) usage() {
+func (x *xRayRuntime) Usage() {
 	fmt.Println(fmt.Sprintf("Usage of %s:", xRayProgram))
 	fmt.Println("Options:")
 	x.flagSet.VisitAll(func(f *flag.Flag) {
@@ -68,77 +125,97 @@ func (x *xRayRuntime) usage() {
 	})
 }
 
-func (x *xRayRuntime) start(ctx context.Context) {
-	if err := x.prepare(ctx); err != nil {
-		fmt.Println(err)
-		return
+func (x *xRayRuntime) proxyServer(ctx context.Context) {
+	defer func() {
+		common.Log("xRayRuntime.proxyServer", "结束", common.ALERT)
+	}()
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.CommandContext(ctx, "CMD", "/C", xRayProgram,
+			"webscan", "--listen", "127.0.0.1:"+x.proxyPort,
+			"--json-output", "vulnerability.json")
+	} else {
+		cmd = exec.CommandContext(ctx, "./"+xRayProgram,
+			"webscan", "--listen", "127.0.0.1:"+x.proxyPort,
+			"--json-output", "vulnerability.json")
 	}
-	wg := sync.WaitGroup{}
-	wg.Add(2)
-	//启动代理
-	go func() {
-		defer wg.Done()
+	if err := runShell(xRayProgram, cmd, false); err != nil {
+		common.Log("xRayRuntime.proxyServer", err.Error(), common.FAULT)
+	}
+}
+
+func (x *xRayRuntime) simulate(ctx context.Context) error {
+	//Do request
+	out, err := ioutil.ReadFile(runShellOutput)
+	if err != nil {
+		return err
+	}
+	tmpJson := bytes.Split(out, []byte("--[Mission Complete]--"))
+	if len(tmpJson) != 2 {
+		return fmt.Errorf("无 crawler result")
+	}
+	urlJson := tmpJson[1]
+	targets := xRayReq{}
+	if err = json.Unmarshal(urlJson, &targets); err != nil {
+		return err
+	}
+	for _, t := range targets.Req {
+		proxy := "http://127.0.0.1:" + x.proxyPort
+		if strings.HasPrefix(t.Url, "https://") {
+			proxy = "https://127.0.0.1:" + x.proxyPort
+		}
+		req := common.HttpRequest{
+			Method: t.Method,
+			Url:    t.Url,
+			Body:   []byte(t.Data),
+			Proxy:  proxy,
+			Headers: map[string]string{
+				"User-Agent": common.UserAgents[0],
+			},
+		}
+		if _, e := req.Go(); e != nil {
+			common.Log("xRayRuntime.proxyServer", e.Error(), common.ALERT)
+		}
+
+	}
+	return nil
+}
+
+func (x *xRayRuntime) crawler(ctx context.Context) error {
+	defer func() {
+		common.Log("xRayRuntime.crawler", "结束", common.ALERT)
+	}()
+	var urls []string
+	if _, e := os.Stat(x.url); e != nil {
+		urls = append(urls, x.url)
+	} else {
+		urls = common.GenDicFromFile(x.url)
+	}
+	for _, vulnerable := range urls {
+		_ = os.Remove(runShellOutput)
 		var cmd *exec.Cmd
 		if runtime.GOOS == "windows" {
-			cmd = exec.CommandContext(ctx, "CMD", "/C", xRayProgram,
-				"webscan", "--listen", "127.0.0.1:"+x.proxyPort,
-				"--json-output", "vulnerability.json")
+			cmd = exec.CommandContext(ctx, "CMD", "/C",
+				crawlerGo["name"],
+				"-t", "10", "-f", "smart", "--fuzz-path", "-c", x.chrome,
+				"--output-mode", "json", "--wait-dom-content-loaded-timeout", "10s", vulnerable)
 		} else {
-			cmd = exec.CommandContext(ctx, xRayProgram,
-				"webscan", "--listen", "127.0.0.1:"+x.proxyPort,
-				"--json-output", "vulnerability.json")
+			cmd = exec.CommandContext(ctx,
+				"./"+crawlerGo["name"],
+				"-t", "10", "-f", "smart", "--fuzz-path", "-c", x.chrome,
+				"--output-mode", "json", "--wait-dom-content-loaded-timeout", "10s", vulnerable)
 		}
-		if err := runShell(cmd); err != nil {
-			fmt.Println("Err:", err.Error())
+		if err := runShell(crawlerGo["name"], cmd, true); err != nil {
+			return err
 		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		urls := make([]string, 0)
-		if _, e := os.Stat(x.url); e != nil {
-			urls = common.GenDicFromFile(x.url)
-		} else {
-			urls = append(urls, x.url)
-		}
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
-			if common.IsAlive("127.0.0.1", x.proxyPort, 1000) == common.Alive {
-				fmt.Println("Warn", "未检测到代理等待3秒重试")
-				time.Sleep(time.Second * 3)
-				break
-			}
-			time.Sleep(time.Second * 1)
-		}
-		for _, vulnerable := range urls {
-			var cmd *exec.Cmd
-			if runtime.GOOS == "windows" {
-				cmd = exec.CommandContext(ctx, "CMD", "/C",
-					crawlerGo["name"],
-					"-t", "10", "-c", x.chrome,
-					"--request-proxy", "http://127.0.0.1:"+x.proxyPort, vulnerable)
-			} else {
-				cmd = exec.CommandContext(ctx,
-					crawlerGo["name"],
-					"-t", "10", "-c", x.chrome,
-					"--request-proxy", "http://127.0.0.1:"+x.proxyPort, vulnerable)
-			}
-			if err := runShell(cmd); err != nil {
-				fmt.Println("Err:", err.Error())
-			}
-		}
-	}()
-	wg.Wait()
+	}
+	return nil
 }
 
 func (x *xRayRuntime) prepare(ctx context.Context) error {
 	//检查授权文件是否存在（狗头）
 	if _, e := os.Stat("xray-license.lic"); e != nil {
-		return fmt.Errorf(fmt.Sprintf("Err: %s", e.Error()))
+		return fmt.Errorf("将xray的license文件(xray-license.lic)放到这里")
 	}
 	//检查xRay是否存在
 	bin := xRayProgram
@@ -146,7 +223,7 @@ func (x *xRayRuntime) prepare(ctx context.Context) error {
 		bin += ".exe"
 	}
 	if _, e := os.Stat(bin); e != nil {
-		fmt.Println("Download binary from", x.download)
+		common.Log("xRayRuntime.prepare", "Download binary from "+x.download, common.INFO)
 		if e = x.down(x.download, bin, ctx); e != nil {
 			return e
 		}
@@ -154,44 +231,42 @@ func (x *xRayRuntime) prepare(ctx context.Context) error {
 			return fmt.Errorf(fmt.Sprintf("Err: %s", e.Error()))
 		}
 	}
-	fmt.Println(bin, "[OK]")
+	common.Log("xRayRuntime.prepare."+bin, "ok", common.INFO)
 	//下载爬虫
 	bin = crawlerGo["name"]
 	if runtime.GOOS == "windows" {
 		bin += ".exe"
 	}
 	if _, e := os.Stat(bin); e == nil {
-		fmt.Println(bin, "[OK]")
+		common.Log("xRayRuntime.prepare."+bin, "ok", common.INFO)
 		return nil
 	}
 	//未发现则下载
 	crawler := crawlerGo[runtime.GOOS]
 	s := strings.Split(crawler, "/")
 	zipFile := s[len(s)-1]
-	fmt.Println("Download binary from", crawler)
+	common.Log("xRayRuntime.prepare", "Download binary from "+crawler, common.INFO)
 	if e := x.down(crawler, zipFile, ctx); e != nil {
 		return e
 	}
 	if _, e := os.Stat(zipFile); e != nil {
-		return fmt.Errorf(fmt.Sprintf("Err: %s", e.Error()))
+		return e
 	}
 	uz := unzip.New()
 	destDir := strings.TrimSuffix(zipFile, ".zip")
-	files, e := uz.Extract(zipFile, destDir)
+	_, e := uz.Extract(zipFile, destDir)
 	if e != nil {
-		return fmt.Errorf(fmt.Sprintf("Err: %s", e.Error()))
+		return e
 	}
-	fmt.Println(fmt.Sprintf("Extracted files count: %d", len(files)))
-	fmt.Println(fmt.Sprintf("Files list: %v", files))
 	targetFile := "crawlergo"
 	if runtime.GOOS == "windows" {
 		targetFile += ".exe"
 	}
 	_ = os.Rename(filepath.Join(destDir, targetFile), bin)
 	if _, e := os.Stat(bin); e != nil {
-		return fmt.Errorf(fmt.Sprintf("Err: %s", e.Error()))
+		return e
 	}
-	fmt.Println(bin, "[OK]")
+	common.Log("xRayRuntime.prepare."+bin, "OK", common.INFO)
 	return nil
 }
 

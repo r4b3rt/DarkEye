@@ -25,13 +25,13 @@ func main() {
 			usageForAll()
 			return
 		}
-		if m, ok := ModuleFuncs[moduleId(os.Args[1])]; ok {
+		if m, ok := M[ID(os.Args[1])]; ok {
 			if len(os.Args) == 2 {
-				m.usage()
+				m.Usage()
 				return
 			}
-			_ = m.compileArgs(os.Args[2:])
-			m.start(mContext.ctx)
+			_ = m.CompileArgs(os.Args[2:])
+			m.Start(mContext.ctx)
 		} else {
 			usageForAll()
 		}
@@ -52,8 +52,8 @@ func interactive() {
 
 func initializer() {
 	flag.BoolVar(&mContext.Interactive, "i", false, "Launch the interactive darkEye framework")
-	for _, m := range ModuleFuncs {
-		m.init()
+	for _, m := range M {
+		m.Init(mContext)
 	}
 	flag.Usage = usageForAll
 	flag.Parse()
@@ -75,7 +75,7 @@ func usageForAll() {
 	fmt.Println("	-i", "bool")
 	fmt.Println("		Launch the darkEye framework", "(default: false)")
 
-	for n := range ModuleFuncs {
+	for n := range Names() {
 		fmt.Println(fmt.Sprintf("	%s", n))
 		fmt.Println(fmt.Sprintf("		See 'df %s -h' for help", n))
 	}

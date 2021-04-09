@@ -44,7 +44,6 @@ var (
 
 func init() {
 	BaseDir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
-	logFile = filepath.Join(BaseDir, logFile)
 }
 
 //GenHumanSecond add comment

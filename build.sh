@@ -47,8 +47,6 @@ build_all() {
 }
 
 prepare() {
-    clean
-
     cd superscan/utils
 
     go run dic.go
@@ -85,6 +83,7 @@ case "$1" in
         build_win
         ;;
      "all")
+        clean
         build_all
         compress
         ;;

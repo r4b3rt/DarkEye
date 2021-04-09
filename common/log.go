@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 )
 
 const (
@@ -13,22 +14,20 @@ const (
 	ALERT = 3
 )
 
-var (
-	//Console unused
-	Console = false
-	logDesc = []string{
-		0:     "None",
-		INFO:  `[!]`,
-		FAULT: `[x]`,
-		ALERT: `[√]`,
-	}
-	logFile = "dark_eye.log"
-)
-
 //LogBuild add comment
-func LogBuild(module string, logCt string, level int) string {
-	return fmt.Sprintf("%s /%s/ %s",
-		logDesc[level],
-		module,
-		logCt)
+func Log(module, logCt string, level int) {
+	switch level {
+	case INFO:
+		color.Green(fmt.Sprintf("[√] %s %s",
+			module,
+			logCt))
+	case ALERT:
+		color.Yellow(fmt.Sprintf("[!] %s %s",
+			module,
+			logCt))
+	case FAULT:
+		color.Yellow(fmt.Sprintf("[x] %s %s",
+			module,
+			logCt))
+	}
 }

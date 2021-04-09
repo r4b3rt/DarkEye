@@ -5,7 +5,6 @@ import (
 )
 
 var (
-	zoomEye            = "zoomEye"
 	zoomEyeSuggestions = []prompt.Suggest{
 		// Command
 		{"-api", "API-KEY"},
@@ -30,9 +29,9 @@ var (
 		{"subdivisions:", `搜索相关指定行政区的资产,中国省会支持拼音及汉字书写如subdivisions:"北京"subdivisions:"beijing"`},
 		{"country:", `搜索国家地区资产,可以使用国家缩写，也可以使用中/英文全称如country:"中国"country:"china"`},
 	}
-	zoomEyeValueCheck = map[string]bool{
+	zoomEyeValue = map[string]bool{
 		"-api":          false,
-		"-page":          false,
+		"-page":         false,
 		"+":             true,
 		"-":             true,
 		"ip:":           false,
@@ -61,12 +60,12 @@ func init() {
 	}...)
 }
 
-func (ctx *RequestContext) zoomEyeArgumentsCompleter(args []string) []prompt.Suggest {
+func (z *zoomEyeRuntime) Completer(args []string) []prompt.Suggest {
 	if len(args) <= 1 {
-		return filterSuggestions(runCompleteCheck(zoomEyeSuggestions, ctx.CmdArgs,
+		return filterSuggestions(runCompleteCheck(zoomEyeSuggestions, z.parent.CmdArgs,
 			[]string{
 				"-api",
-			}), ctx.CmdArgs)
+			}), z.parent.CmdArgs)
 	}
 	switch args[0] {
 	case "-api":

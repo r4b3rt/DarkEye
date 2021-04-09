@@ -21,7 +21,7 @@ type FromTo struct {
 
 //GetIPRange add comment
 func GetIPRange(ip string) (base string, start int, end string, err error) {
-	err = fmt.Errorf(LogBuild("common.func", "IP格式错误(eg. 1.1.1.1-1.1.1.255)", FAULT))
+	err = fmt.Errorf("IP格式错误(eg. 1.1.1.1-1.1.1.255)")
 	re := regexp.MustCompile(`\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}-\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}|\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`)
 	//检查格式
 	x := re.FindAllString(ip, -1)
@@ -134,7 +134,7 @@ func IsAlive(ip, port string, millTimeOut int) int {
 }
 
 //ArrayToString add comment
-func ArrayToString(a []string) (ret string){
+func ArrayToString(a []string) (ret string) {
 	for _, v := range a {
 		ret += v + ","
 	}

@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/cookiejar"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -32,6 +34,8 @@ type HttpRequest struct {
 	Url     string
 	Body    []byte
 	Headers map[string]string
+	Proxy   string
+	Ctx     context.Context
 
 	NoFollowRedirect bool
 	TimeOut          time.Duration //秒
@@ -47,7 +51,14 @@ type HttpResponse struct {
 
 //Go add comment
 func (m *HttpRequest) Go() (*HttpResponse, error) {
+	var proxy func(r *http.Request) (i *url.URL, e error)
+	if m.Proxy != "" {
+		proxy = func(request *http.Request) (i *url.URL, e error) {
+			return url.Parse(m.Proxy)
+		}
+	}
 	tr := &http.Transport{
+		Proxy:           proxy,
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		DialContext: (&net.Dialer{
 			Timeout:   m.TimeOut * time.Second,
@@ -66,7 +77,7 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 	if m.NoFollowRedirect {
 		cli.CheckRedirect = noCheckRedirect
 	}
-	req, err := http.NewRequest(m.Method, m.Url, bytes.NewReader(m.Body))
+	req, err := http.NewRequestWithContext(m.Ctx, m.Method, m.Url, bytes.NewReader(m.Body))
 	if err != nil {
 		return nil, err
 	}

@@ -20,6 +20,7 @@ var (
 		ID(zoomEye):         zoomEyeRuntimeOptions,
 		ID(xRayProgram):     xRayRuntimeOptions,
 		ID(analysisProgram): analysisRuntimeOptions,
+		ID(superScan):       superScanRuntimeOptions,
 	}
 )
 

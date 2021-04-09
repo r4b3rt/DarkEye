@@ -109,7 +109,8 @@ func (s *superScanRuntime) Start(ctx context.Context) {
 	wg.Wait()
 }
 
-func (s *superScanRuntime) Init() {
+func (s *superScanRuntime) Init(requestContext *RequestContext) {
+	superScanRuntimeOptions.parent = requestContext
 	superScanRuntimeOptions.flagSet.StringVar(&superScanRuntimeOptions.IpList, "ip", "127.0.0.1", "a.b.c.1-a.b.c.255")
 	superScanRuntimeOptions.flagSet.StringVar(&superScanRuntimeOptions.PortList, "port-list", common.PortList, "端口范围,默认1000+常用端口")
 	superScanRuntimeOptions.flagSet.IntVar(&superScanRuntimeOptions.TimeOut, "timeout", 3000, "网络超时请求(单位ms)")

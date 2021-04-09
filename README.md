@@ -15,7 +15,7 @@
 df -i
 ```
 
-<img src="screenshot/dfi.png" style="zoom:50%;" />
+<img src="screenshot/dfi.gif" style="zoom:50%;" />
 
 
 

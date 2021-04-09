@@ -40,12 +40,12 @@ func init() {
 	}...)
 }
 
-func (ctx *RequestContext) Completer(args []string) []prompt.Suggest {
+func (s *superScanRuntime) Completer(args []string) []prompt.Suggest {
 	if len(args) <= 1 {
-		return filterSuggestions(runCompleteCheck(superScanSuggestions, ctx.CmdArgs,
+		return filterSuggestions(runCompleteCheck(superScanSuggestions, s.parent.CmdArgs,
 			[]string{
 				"-ip",
-			}), ctx.CmdArgs)
+			}), s.parent.CmdArgs)
 	}
 	switch args[0] {
 	case "-ip":

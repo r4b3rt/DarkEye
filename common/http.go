@@ -77,6 +77,9 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 	if m.NoFollowRedirect {
 		cli.CheckRedirect = noCheckRedirect
 	}
+	if m.Ctx == nil {
+		m.Ctx = context.Background()
+	}
 	req, err := http.NewRequestWithContext(m.Ctx, m.Method, m.Url, bytes.NewReader(m.Body))
 	if err != nil {
 		return nil, err

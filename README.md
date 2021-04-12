@@ -48,7 +48,7 @@ df [moduleId]
 ```bash
 ./df supercan
 ```
-2. 口令爆破+脆弱性检查
+2. 口令爆破+资产识别
 ```bash
 ./df supercan -ip 192.168.1.1-192.168.255.255
 ```

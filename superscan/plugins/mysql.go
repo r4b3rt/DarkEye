@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -9,14 +10,14 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func mysqlCheck(plg *Plugins, f *funcDesc) {
-	crack(f.name, plg, f.user, f.pass, mysqlConn)
+func mysqlCheck(s *Service) {
+	s.crack()
 }
 
-func mysqlConn(plg *Plugins, user string, pass string) (ok int) {
+func mysqlConn(_ context.Context, s *Service, user, pass string)  (ok int) {
 	ok = OKNext
 	source := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?timeout=%dms&readTimeout=%dms",
-		user, pass, plg.TargetIp, plg.TargetPort, "mysql", plg.TimeOut, plg.TimeOut)
+		user, pass, s.parent.TargetIp, s.parent.TargetPort, "mysql", Config.TimeOut, Config.TimeOut)
 	db, err := sql.Open("mysql", source)
 	if err != nil {
 		if strings.Contains(err.Error(), "password") {
@@ -41,7 +42,7 @@ func mysqlConn(plg *Plugins, user string, pass string) (ok int) {
 		return
 	}
 	defer db.Close()
-	db.SetConnMaxLifetime(time.Duration(plg.TimeOut) * time.Millisecond)
+	db.SetConnMaxLifetime(time.Duration(Config.TimeOut) * time.Millisecond)
 	err = db.Ping()
 	if err == nil {
 		ok = OKDone

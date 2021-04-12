@@ -12,7 +12,6 @@ var (
 		{"-port-list", "Port list(80-88,8080"},
 		{"-timeout", "网络超时(单位ms)"},
 		{"-thread", "每个IP爆破端口的线程数量"},
-		{"-plugin-thread", "每个协议爆破弱口令的线程数量"},
 		{"-plugin", "指定协议插件爆破"},
 		{"-user-list", "字符串(u1,u2,u3)或文件(一个账号一行)"},
 		{"-pass-list", "字符串(p1,p2,p3)或文件（一个密码一行"},
@@ -25,7 +24,6 @@ var (
 		"-port-list":          false,
 		"-timeout":            false,
 		"-thread":             false,
-		"-plugin-thread":      false,
 		"-plugin":             false,
 		"-user-list":          false,
 		"-pass-list":          false,
@@ -47,10 +45,16 @@ func (s *superScanRuntime) Completer(args []string) []prompt.Suggest {
 				"-ip",
 			}), s.parent.CmdArgs)
 	}
+	//过滤重复的命令
+	if len(filterSuggestions([]prompt.Suggest{
+		{args[0], "any"},
+	}, s.parent.CmdArgs)) == 0 {
+		return []prompt.Suggest{}
+	}
 	switch args[0] {
 	case "-ip":
 		if len(args) == 2 {
-			return []prompt.Suggest{{"127.0.0.1-127.0.0.255", "Scan ip target"},}
+			return []prompt.Suggest{{"192.168.1.1-192.168.1.255", "Scan ip target"},}
 		}
 	case "-pps":
 		if len(args) == 2 {
@@ -67,10 +71,6 @@ func (s *superScanRuntime) Completer(args []string) []prompt.Suggest {
 	case "-thread":
 		if len(args) == 2 {
 			return []prompt.Suggest{{"128", "default 128"},}
-		}
-	case "-plugin-thread":
-		if len(args) == 2 {
-			return []prompt.Suggest{{"2", "default 2"},}
 		}
 	case "-plugin":
 		if len(args) == 2 {
@@ -93,6 +93,5 @@ func (s *superScanRuntime) Completer(args []string) []prompt.Suggest {
 			return []prompt.Suggest{{"", "Bool"},}
 		}
 	}
-
 	return []prompt.Suggest{}
 }

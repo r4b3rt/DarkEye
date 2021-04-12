@@ -116,7 +116,7 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 }
 
 //GetHttpTitle add comment
-func GetHttpTitle(proto, domain string, timeOutSec int) (server, title string, code int32) {
+func GetHttpTitle(ctx context.Context, proto, domain string, timeOutSec int) (server, title string, code int32) {
 	url := fmt.Sprintf(proto+"://%s", domain)
 	userAgent := UserAgents[0]
 	req := HttpRequest{
@@ -126,6 +126,7 @@ func GetHttpTitle(proto, domain string, timeOutSec int) (server, title string, c
 		Headers: map[string]string{
 			"User-Agent": userAgent,
 		},
+		Ctx: ctx,
 	}
 	response, err := req.Go()
 	if err != nil {

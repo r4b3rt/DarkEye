@@ -4,18 +4,17 @@ import (
 	"github.com/alouca/gosnmp"
 )
 
-func snmpCheck(plg *Plugins, f *funcDesc) {
-	plg.TargetPort = "161"
-	if snmpConn(plg) == OKDone {
-		plg.TargetProtocol = f.name
-		plg.PortOpened = true
-		plg.highLight = true
+func snmpCheck(s *Service) {
+	s.parent.TargetPort = "161"
+	if snmpConn(s) == OKDone {
+		s.parent.Result.ServiceName = s.name
+		s.parent.Result.PortOpened = true
 	}
 }
 
-func snmpConn(plg *Plugins) (ok int) {
-	s, err := gosnmp.NewGoSNMP(plg.TargetIp+":"+plg.TargetPort,
-		"public", gosnmp.Version2c, 1+int64(plg.TimeOut/1000))
+func snmpConn(srv *Service) (ok int) {
+	s, err := gosnmp.NewGoSNMP(srv.parent.TargetIp+":"+srv.parent.TargetPort,
+		"public", gosnmp.Version2c, 1+int64(Config.TimeOut/1000))
 	if err != nil {
 		return OKStop
 	}
@@ -29,10 +28,8 @@ func snmpConn(plg *Plugins) (ok int) {
 			ck := Account{
 				Username: "public",
 			}
-			plg.NetBios.Os = v.Value.(string)
-			plg.Lock()
-			plg.Cracked = append(plg.Cracked, ck)
-			plg.Unlock()
+			srv.parent.Result.NetBios.Os = v.Value.(string)
+			srv.parent.Result.Cracked = ck
 			return OKDone
 		}
 	}

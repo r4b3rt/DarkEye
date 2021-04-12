@@ -1,22 +1,27 @@
 package plugins
 
 import (
+	"context"
 	"github.com/go-redis/redis"
 	"strings"
 	"time"
 )
 
-func redisCheck(plg *Plugins, f *funcDesc) {
-	crack(f.name, plg, f.user, f.pass, redisConn)
+func redisCheck(s *Service) {
+	s.crack()
 }
 
-func redisConn(plg *Plugins, _ string, pass string) (ok int) {
+func redisConn(parent context.Context, s *Service, _, pass string) (ok int) {
 	ok = OKNext
 	client := redis.NewClient(&redis.Options{
-		Addr:     plg.TargetIp + ":" + plg.TargetPort,
-		Password: pass, DB: 0, DialTimeout: time.Millisecond * time.Duration(plg.TimeOut)})
+		Addr:        s.parent.TargetIp + ":" + s.parent.TargetPort,
+		Password:    pass,
+		DB:          0,
+		DialTimeout: time.Millisecond * time.Duration(Config.TimeOut),
+	})
 	defer client.Close()
-	pong, err := client.Ping(client.Context()).Result()
+	ctx, _ := context.WithCancel(parent)
+	pong, err := client.Ping(ctx).Result()
 	if err == nil {
 		if strings.Contains(pong, "PONG") {
 			ok = OKDone

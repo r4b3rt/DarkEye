@@ -1,74 +1,75 @@
 package plugins
 
+import "C"
 import (
+	"context"
 	"fmt"
+	"github.com/melbahja/goph"
+	"github.com/zsdevX/DarkEye/common"
 	"golang.org/x/crypto/ssh"
 	"net"
+	"strconv"
 	"strings"
 	"time"
 )
 
-func sshCheck(plg *Plugins, f *funcDesc) {
-	crack(f.name, plg, f.user, f.pass, sshConn)
+func sshCheck(s *Service) {
+	s.crack()
 }
 
-func sshConn(plg *Plugins, user string, pass string) (ok int) {
+func sshConn(parent context.Context, s *Service, user, pass string) (ok int) {
 	ok = OKNext
-	config := &ssh.ClientConfig{
-		User: user,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(pass),
+	port, _ := strconv.Atoi(s.parent.TargetPort)
+	//初始化变量
+	client := &goph.Client{
+		Config: &goph.Config{
+			User:     user,
+			Addr:     s.parent.TargetIp,
+			Port:     uint(port),
+			Auth:     goph.Password(pass),
+			Timeout:  time.Duration(Config.TimeOut) * time.Millisecond,
+			Callback: ssh.InsecureIgnoreHostKey(),
 		},
-		Timeout:         time.Duration(plg.TimeOut) * time.Millisecond,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
-	conn, err := net.DialTimeout("tcp4",
-		fmt.Sprintf("%v:%v", plg.TargetIp, plg.TargetPort), time.Duration(plg.TimeOut)*time.Millisecond)
+	//初始化连接
+	conn, err := common.DialCtx(parent, "tcp",
+		net.JoinHostPort(client.Config.Addr, fmt.Sprint(client.Config.Port)),
+		client.Config.Timeout)
 	if err != nil {
+		//网络不通或墙了
+		ok = OKTerm
 		return
 	}
-	defer conn.Close()
-
-	err = conn.SetReadDeadline(time.Now().Add(time.Duration(plg.TimeOut) * time.Millisecond))
-	if err != nil {
-		return
+	config := &ssh.ClientConfig{
+		User:            client.Config.User,
+		Auth:            client.Config.Auth,
+		Timeout:         client.Config.Timeout,
+		HostKeyCallback: client.Config.Callback,
 	}
-	clientConn, channelCh, reqCh, err := ssh.NewClientConn(conn, fmt.Sprintf("%v:%v", plg.TargetIp, plg.TargetPort), config)
+	_ = conn.SetReadDeadline(time.Now().Add(client.Config.Timeout))
+	c, ch, reqs, err := ssh.NewClientConn(conn, net.JoinHostPort(client.Config.Addr, fmt.Sprint(client.Config.Port)), config)
 	if err != nil {
 		if strings.Contains(err.Error(), "password") {
 			//密码错误
 			return
 		}
 		if strings.Contains(err.Error(), "connection reset by peer") {
-			//连接限制
-			ok = OKWait
+			common.Log("crack.ssh", "爆破速度过快或防火墙限制服务器拒绝部分请求", common.ALERT)
 			return
 		}
 		if strings.Contains(err.Error(), "i/o timeout") {
-			ok = OKTimeOut
+			ok = OKTerm
 			return
 		}
-		//color.Red(err.Error() + plg.TargetIp + plg.TargetPort + user + pass)
-		//协议异常
-		ok = OKStop
 		return
 	}
-	defer clientConn.Close()
-	err = conn.SetReadDeadline(time.Now().Add(time.Duration(plg.TimeOut) * time.Millisecond))
-	if err != nil {
-		return
-	}
-	client := ssh.NewClient(clientConn, channelCh, reqCh)
-	err = conn.SetReadDeadline(time.Now().Add(time.Duration(plg.TimeOut) * time.Millisecond))
-	if err != nil {
-		return
-	}
+	_ = conn.SetReadDeadline(time.Now().Add(client.Config.Timeout))
+	client.Client = ssh.NewClient(c, ch, reqs)
 	defer client.Close()
-	session, err := client.NewSession()
+	out, err := client.Run("id")
 	if err == nil {
-		session.Close()
-		ok = OKDone
+		s.parent.Result.ExpHelp = string(out)
 	}
+	ok = OKDone
 	return
-
 }

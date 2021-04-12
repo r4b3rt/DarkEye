@@ -1,27 +1,26 @@
 package plugins
 
 import (
+	"context"
 	"gopkg.in/mgo.v2"
 	"strings"
 	"time"
 )
 
-func mongoCheck(plg *Plugins, f *funcDesc) {
-
-	if mongoUnAuth(plg) {
-		plg.Cracked = append(plg.Cracked, Account{Username: "空", Password: "空"})
-		plg.PortOpened = true
-		plg.highLight = true
-		plg.TargetProtocol = f.name
+func mongoCheck(s *Service) {
+	if mongoUnAuth(s) {
+		s.parent.Result.Cracked = Account{Username: "空", Password: "空"}
+		s.parent.Result.ServiceName = s.name
 		return
 	}
-	crack(f.name, plg, f.user, f.pass, mongodbConn)
+	s.crack()
 }
 
-func mongodbConn(plg *Plugins, user, pass string) (ok int) {
+func mongodbConn(_ context.Context, s *Service, user, pass string) (ok int) {
 	ok = OKNext
-	_, err := mgo.DialWithTimeout("mongodb://"+user+":"+pass+"@"+plg.TargetIp+":"+plg.TargetPort+"/"+"admin",
-		time.Duration(plg.TimeOut)*time.Millisecond)
+	_, err := mgo.DialWithTimeout(
+		"mongodb://"+user+":"+pass+"@"+s.parent.TargetIp+":"+s.parent.TargetPort+"/"+"admin",
+		time.Duration(Config.TimeOut)*time.Millisecond)
 	if err == nil {
 		ok = OKDone
 	} else {
@@ -33,8 +32,10 @@ func mongodbConn(plg *Plugins, user, pass string) (ok int) {
 	return
 }
 
-func mongoUnAuth(plg *Plugins) (ok bool) {
-	session, err := mgo.DialWithTimeout(plg.TargetIp+":"+plg.TargetPort, time.Duration(plg.TimeOut)*time.Millisecond)
+func mongoUnAuth(s *Service) (ok bool) {
+	session, err := mgo.DialWithTimeout(
+		s.parent.TargetIp+":"+s.parent.TargetPort,
+		time.Duration(Config.TimeOut)*time.Millisecond)
 	if err == nil && session.Run("serverStatus", nil) == nil {
 		ok = true
 	}

@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -9,14 +10,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func postgresCheck(plg *Plugins, f *funcDesc) {
-	crack(f.name, plg, f.user, f.pass, postgresConn)
+func postgresCheck(s *Service) {
+	s.crack()
 }
 
-func postgresConn(plg *Plugins, user, pass string) (ok int) {
+func postgresConn(_ context.Context, s *Service, user, pass string) (ok int) {
 	ok = OKNext
 	source := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=postgres sslmode=disable",
-		plg.TargetIp, plg.TargetPort, user, pass)
+		s.parent.TargetIp, s.parent.TargetPort, user, pass)
 	db, err := sql.Open("postgres", source)
 	if err != nil {
 		if strings.Contains(err.Error(), "connection reset by peer") {
@@ -33,7 +34,7 @@ func postgresConn(plg *Plugins, user, pass string) (ok int) {
 		return
 	}
 	defer db.Close()
-	db.SetConnMaxLifetime(time.Duration(plg.TimeOut) * time.Millisecond)
+	db.SetConnMaxLifetime(time.Duration(Config.TimeOut) * time.Millisecond)
 	err = db.Ping()
 	if err == nil {
 		ok = OKDone

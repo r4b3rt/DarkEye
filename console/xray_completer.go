@@ -33,6 +33,12 @@ func (x *xRayRuntime) Completer(args []string) []prompt.Suggest {
 				"-url",
 			}), x.parent.CmdArgs)
 	}
+	//过滤重复的命令
+	if len(filterSuggestions([]prompt.Suggest{
+		{args[0],"any"},
+	}, x.parent.CmdArgs)) == 0 {
+		return []prompt.Suggest{}
+	}
 	switch args[0] {
 	case "-url":
 		if len(args) == 2 {

@@ -67,6 +67,12 @@ func (z *zoomEyeRuntime) Completer(args []string) []prompt.Suggest {
 				"-api",
 			}), z.parent.CmdArgs)
 	}
+	//过滤重复的命令
+	if len(filterSuggestions([]prompt.Suggest{
+		{args[0], "any"},
+	}, z.parent.CmdArgs)) == 0 {
+		return []prompt.Suggest{}
+	}
 	switch args[0] {
 	case "-api":
 		if len(args) == 2 {

@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"fmt"
 	"github.com/hirochachacha/go-smb2"
 	"golang.org/x/net/context"
 	"net"
@@ -8,14 +9,16 @@ import (
 	"time"
 )
 
-func msbCheck(plg *Plugins, f *funcDesc) {
-	crack(f.name, plg, f.user, f.pass, smbConn)
+func smbCheck(s *Service) {
+	s.crack()
 }
 
-func smbConn(plg *Plugins, user, pass string) (ok int) {
+func smbConn(parent context.Context, s *Service, user, pass string) (ok int) {
 	ok = OKNext
-	conn, err := net.DialTimeout("tcp", plg.TargetIp+":"+plg.TargetPort,
-		time.Duration(plg.TimeOut)*time.Millisecond)
+	c := net.Dialer{Timeout: time.Duration(Config.TimeOut) * time.Millisecond}
+	ctx, _ := context.WithCancel(parent)
+	conn, err := c.DialContext(ctx, "tcp",
+		fmt.Sprintf("%s:%s", s.parent.TargetIp, s.parent.TargetPort))
 	if err != nil {
 		if strings.Contains(err.Error(), "connection reset by peer") {
 			//连接限制
@@ -37,22 +40,22 @@ func smbConn(plg *Plugins, user, pass string) (ok int) {
 			Password: pass,
 		},
 	}
-	ctx, _ := context.WithTimeout(context.TODO(), time.Millisecond*time.Duration(plg.TimeOut))
-	s, err := d.DialContext(ctx, conn)
+	ctx, _ = context.WithTimeout(parent, time.Millisecond*time.Duration(Config.TimeOut))
+	sb, err := d.DialContext(ctx, conn)
 	if err != nil {
 		ok = OKStop
 		return
 	}
-	defer s.Logoff()
-	names, err := s.ListSharenames()
+	defer sb.Logoff()
+	names, err := sb.ListSharenames()
 	if err != nil {
 		ok = OKStop
 		return
 	}
 	ok = OKDone
 	for _, v := range names {
-		plg.NetBios.Shares += "," + v
+		s.parent.Result.NetBios.Shares += "," + v
 	}
-	strings.TrimPrefix(",", plg.NetBios.Shares)
+	strings.TrimPrefix(",", s.parent.Result.NetBios.Shares)
 	return
 }

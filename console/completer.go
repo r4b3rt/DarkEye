@@ -68,6 +68,8 @@ func filterSuggestions(suggestions []prompt.Suggest, sub []string) []prompt.Sugg
 	return ret
 }
 
+//
+
 //检查是否可以结束运行
 func runCompleteCheck(suggestions []prompt.Suggest, cmdArgs []string, requirement []string) []prompt.Suggest {
 	ret := make([]prompt.Suggest, 0)

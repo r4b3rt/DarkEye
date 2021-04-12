@@ -1,12 +1,10 @@
 package common
 
 import (
-	"bufio"
 	"context"
 	"encoding/binary"
 	"fmt"
 	"net"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -84,44 +82,10 @@ func GetPortRange(portRange string) ([]FromTo, int) {
 	return res, tot
 }
 
-//ImportFiles add comment
-func ImportFiles(f, cnt string) (string, error) {
-	file, err := os.Open(f)
-	r := ""
-	if err != nil {
-		return r, err
-	}
-	defer file.Close()
-	r = cnt
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		one := scanner.Text()
-		if strings.HasPrefix(one, "#") {
-			continue
-		}
-		one = TrimLRS.ReplaceAllString(one, "")
-		if one == "" {
-			continue
-		}
-		if r == "" {
-			r += one
-		} else {
-			r += "," + one
-		}
-	}
-	return r, nil
-}
-
 //IsAlive add comment
-func IsAlive(ip, port string, millTimeOut int) int {
-	ctx, cancel := context.WithTimeout(context.TODO(), time.Duration(millTimeOut)*time.Millisecond)
-	defer cancel()
-	//start := time.Now()
-	d := &net.Dialer{}
-	c, err := d.DialContext(ctx, "tcp4", ip+":"+port)
-	//duration := time.Now().Sub(start)
+func IsAlive(parent context.Context, ip, port string, millTimeOut int) int {
+	conn, err := DialCtx(parent, "tcp", net.JoinHostPort(ip, port), time.Duration(millTimeOut)*time.Millisecond)
 	if err != nil {
-		//fmt.Println("timeout duration", duration, err.Error(), millTimeOut)
 		if eo, ok := err.(net.Error); ok {
 			if eo.Timeout() {
 				return TimeOut
@@ -129,14 +93,14 @@ func IsAlive(ip, port string, millTimeOut int) int {
 		}
 		return Die
 	}
-	_ = c.Close()
+
+	_ = conn.Close()
 	return Alive
 }
 
-//ArrayToString add comment
-func ArrayToString(a []string) (ret string) {
-	for _, v := range a {
-		ret += v + ","
-	}
-	return strings.TrimSuffix(ret, ",")
+func DialCtx(parent context.Context, protocol, addr string, timeOut time.Duration) (net.Conn, error) {
+	d := net.Dialer{Timeout: timeOut}
+	ctx, _ := context.WithTimeout(parent, timeOut)
+	return d.DialContext(ctx, protocol, addr)
+
 }

@@ -1,35 +1,32 @@
 package plugins
 
 import (
+	"context"
 	"encoding/base64"
-	"fmt"
 	"github.com/zsdevX/DarkEye/common"
 	"net/http"
 	"strings"
 	"time"
 )
 
-func _401AuthCheck(plg *Plugins, user, pass []string) {
-	crack(plg.TargetProtocol, plg, user, pass, _401AuthConn)
+func _401AuthCheck(s *Service) {
+	s.crack()
 }
 
-func _401AuthConn(plg *Plugins, user string, pass string) (ok int) {
+func _401AuthConn(parent context.Context, s *Service, user, pass string) (ok int) {
 	ok = OKNext
-
-	url := fmt.Sprintf("http://%s:%s%s", plg.TargetIp, plg.TargetPort, plg.tmp.urlPath)
-	if plg.tmp.tls {
-		url = fmt.Sprintf("https://%s:%s%s", plg.TargetIp, plg.TargetPort, plg.tmp.urlPath)
-	}
 	authKey := base64.StdEncoding.EncodeToString([]byte(user + ":" + pass))
+	ctx, _ := context.WithCancel(parent)
 	req := common.HttpRequest{
-		Url:              url,
-		TimeOut:          time.Duration(1 + plg.TimeOut/1000),
+		Url:              s.parent.Result.Web.Url,
+		TimeOut:          time.Duration(1 + Config.TimeOut/1000),
 		Method:           "GET",
 		NoFollowRedirect: true,
 		Headers: map[string]string{
 			"Authorization": "Basic " + authKey,
 			"User-Agent":    common.UserAgents[0],
 		},
+		Ctx: ctx,
 	}
 	response, err := req.Go()
 	if err != nil {

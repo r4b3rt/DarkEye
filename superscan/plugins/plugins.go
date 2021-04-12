@@ -2,154 +2,129 @@ package plugins
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/fatih/color"
+	"fmt"
 	"github.com/zsdevX/DarkEye/common"
 	"strings"
-	"sync"
+	"time"
 )
 
 //PreCheck add comment
 func (plg *Plugins) PreCheck() {
-	if ShouldStop() {
-		return
-	}
 	//预处理注意：
 	//1、该链上的处理为固定端口，主要为UDP或特殊协议
 	//2、此处未做发包限制
-	i := 0
-	for _, v := range preCheckFuncs {
-		v.doit(plg, &v)
-		i++
-	}
-	if len(plg.Cracked) != 0 {
-		output(plg)
+	for _, srv := range preServices {
+		s := new(Service)
+		*s = srv
+		s.parent = plg
+		s.check(s)
 	}
 }
 
 //Check add comment
 func (plg *Plugins) Check() {
-	if ShouldStop() {
+	Config.rateLimiter() //活跃端口发包限制
+	if common.IsAlive(Config.ParentCtx, plg.TargetIp, plg.TargetPort, Config.TimeOut) != common.Alive {
 		return
 	}
-	GlobalConfig.RateWait(GlobalConfig.Pps) //活跃端口发包限制
-	if !plg.PortOpened &&
-		common.IsAlive(plg.TargetIp, plg.TargetPort, plg.TimeOut) != common.Alive {
-		return
-	}
-	plg.PortOpened = true
-	plg.Cracked = make([]Account, 0)
-	i := 0
-	//爆破链
-	for _, v := range checkFuncs {
-		if plg.available(v.name, v.port) {
-			v.doit(plg, &v)
-			//未找到密码
-			if plg.TargetProtocol != "" {
-				output(plg)
-				break
-			}
+	plg.Result.PortOpened = true
+	for _, srv := range services {
+		if !plg.available(srv.name, srv.port) {
+			continue
 		}
-		i++
-	}
-	if i >= len(checkFuncs) {
-		color.Yellow("\n%s %s:%s %v\n", "[√]",
-			plg.TargetIp, plg.TargetPort, "Opened")
+		s := new(Service)
+		*s = srv
+		s.parent = plg
+		s.check(s)
+		if s.parent.Hit {
+			break
+		}
 	}
 	return
 }
 
-func crack(pid string, plg *Plugins, dictUser, dictPass []string, callback func(*Plugins, string, string) int) {
+func (s *Service) crack() {
+	dictUser := s.user
+	dictPass := s.pass
 	//如果用户指定字典强制切换
-	if GlobalConfig.UserList != nil {
-		dictUser = GlobalConfig.UserList
+	if Config.UserList != nil {
+		dictUser = Config.UserList
 	}
-	if GlobalConfig.PassList != nil {
-		dictPass = GlobalConfig.PassList
+	if Config.PassList != nil {
+		dictPass = Config.PassList
 	}
-	wg := sync.WaitGroup{}
-	wg.Add(len(dictUser))
-	limiter := make(chan int, GlobalConfig.Thread)
-	ctx, cancel := context.WithCancel(context.TODO())
+	task := common.NewTask(s.thread, Config.ParentCtx)
+	defer task.Wait("crack")
 	for _, user := range dictUser {
-		limiter <- 1
+		if !task.Job() {
+			break
+		}
 		go func(username string) {
-			defer func() {
-				<-limiter
-				wg.Done()
-			}()
-			if ShouldStop() {
+			defer task.UnJob()
+			if stop := s.job(task.Ctx, username, dictPass); stop {
+				task.Die()
 				return
-			}
-			for _, pass := range dictPass {
-				select {
-				case <-ctx.Done():
-					return
-				default:
-				}
-				if pass == "空" {
-					pass = ""
-				}
-				pass = strings.Replace(pass, "%user%", username, -1)
-				//限速
-				GlobalConfig.RateWait(GlobalConfig.Pps)
-				ok := callback(plg, username, pass)
-				switch ok {
-				case OKNoAuth:
-					fallthrough
-				case OKDone:
-					//密码正确一次退出
-					plg.Lock()
-					if pass == "" || ok == OKNoAuth {
-						pass = "空"
-					}
-					plg.Cracked = append(plg.Cracked, Account{Username: username, Password: pass})
-					plg.TargetProtocol = pid
-					plg.highLight = true
-					plg.Unlock()
-
-					cancel()
-					return
-				case OKWait:
-					//太快了服务器限制
-					color.Red("\n%s爆破受限，建议降低参数'plugin-worker'数值.影响主机:%s:%s",
-						pid, plg.TargetIp, plg.TargetPort)
-					cancel()
-					return
-				case OKTimeOut:
-					color.Red("\n%s爆破超时，建议提高参数'timeout'数值.影响主机:%s:%s",
-						pid, plg.TargetIp, plg.TargetPort)
-					cancel()
-					return
-				case OKStop:
-					//非协议退出
-					cancel()
-				case OKForbidden:
-					plg.TargetProtocol = pid
-					color.Red("\n%s服务器配置受限。影响主机:%s:%s",
-						pid, plg.TargetIp, plg.TargetPort)
-					cancel()
-					return
-				default:
-					//密码错误.OKNext
-					plg.TargetProtocol = pid
-				}
 			}
 		}(user)
 	}
-	wg.Wait()
 }
 
-func output(plg *Plugins) {
-	output, _ := json.Marshal(plg.Cracked)
-	//var out bytes.Buffer
-	//_ = json.Indent(&out, output, "", "\t")
-	if plg.highLight {
-		color.Green("\n[√] %s %s:%s %v\n",
-			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, string(output))
-	} else {
-		color.Yellow("\n[√] %s %s:%s %v\n",
-			plg.TargetProtocol, plg.TargetIp, plg.TargetPort, string(output))
+func (s *Service) job(parent context.Context, user string, dictPass []string) (stop bool) {
+	for _, pass := range dictPass {
+		if pass == "空" {
+			pass = ""
+		}
+		pass = strings.Replace(pass, "%user%", user, -1)
+		//限速
+		Config.rateLimiter()
+		ok := s.connect(parent, s, user, pass)
+		if ok == OKStop || ok == OKTerm {
+			//非协议退出
+			return true
+		}
+		s.parent.Hit = true
+		s.parent.Result.ServiceName = s.name
+		switch ok {
+		case OKNoAuth:
+			fallthrough
+		case OKDone:
+			//密码正确一次退出
+			if pass == "" || ok == OKNoAuth {
+				pass = "空"
+			}
+			s.parent.Result.Cracked = Account{Username: user, Password: pass}
+			return true
+		case OKWait:
+			//太快了服务器限制
+			common.Log(s.name, fmt.Sprintf("爆破受限,影响主机:%s:%s",
+				s.parent.TargetIp, s.parent.TargetPort), common.ALERT)
+			return true
+		case OKTimeOut:
+			common.Log(s.name, fmt.Sprintf("爆破超时,影响主机:%s:%s",
+				s.parent.TargetIp, s.parent.TargetPort), common.ALERT)
+			return true
+		case OKForbidden:
+			common.Log(s.name, fmt.Sprintf("服务器配置受限。影响主机:%s:%s",
+				s.parent.TargetIp, s.parent.TargetPort), common.ALERT)
+			return true
+		default:
+			stop = false
+			//密码错误.OKNext
+		}
+	}
+	return false
+}
+
+func (c *config) rateLimiter() {
+	if c.PPS == nil {
+		return
+	}
+	for {
+		if c.PPS.Allow() {
+			break
+		} else {
+			time.Sleep(time.Millisecond * 10)
+		}
 	}
 }
 
@@ -159,7 +134,7 @@ func (plg *Plugins) available(name, port string) bool {
 		return true
 	}
 	if plg.TargetPort != port {
-		if GlobalConfig.UsingPlugin == "" {
+		if Config.SelectPlugin == "" {
 			return false
 		}
 	}
@@ -170,32 +145,17 @@ func (plg *Plugins) available(name, port string) bool {
 func SupportPlugin() {
 	list := ""
 	defer func() {
-		color.Green("%v", list)
+		common.Log("Plugins:", list, common.ALERT)
 	}()
-
-	if GlobalConfig.UsingPlugin != "" {
-		list += GlobalConfig.UsingPlugin
+	if Config.SelectPlugin != "" {
+		list = Config.SelectPlugin
 		return
 	}
-	for k := range checkFuncs {
+	for k := range preServices {
 		list += k + " "
 	}
-
-	for k := range preCheckFuncs {
+	for k := range services {
 		list += k + " "
 	}
 	strings.TrimSpace(list)
-}
-
-func ShouldStop() bool {
-	select {
-	case <-GlobalConfig.Ctx.Done():
-		GlobalConfig.Stop.Store(true)
-		return true
-	default:
-		if GlobalConfig.Stop.Load() {
-			return true
-		}
-	}
-	return false
 }

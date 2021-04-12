@@ -54,14 +54,14 @@ var (
 	}
 )
 
-func (x *xRayRuntime) Start(ctx context.Context) {
+func (x *xRayRuntime) Start(parent context.Context) {
 	//准备工具
-	preCtx, _ := context.WithCancel(ctx)
+	preCtx, _ := context.WithCancel(parent)
 	if err := x.prepare(preCtx); err != nil {
 		common.Log("xRayRuntime.prepare", err.Error(), common.INFO)
 	}
 	//爬取数据
-	cCtx, _ := context.WithCancel(ctx)
+	cCtx, _ := context.WithCancel(parent)
 	if err := x.crawler(cCtx); err != nil {
 		common.Log("xRayRuntime.crawler", err.Error(), common.INFO)
 		return
@@ -70,7 +70,7 @@ func (x *xRayRuntime) Start(ctx context.Context) {
 	go func() {
 		loop := 0
 		for loop < 10 {
-			if common.IsAlive("127.0.0.1", x.proxyPort, 1000) == common.Alive {
+			if common.IsAlive(parent, "127.0.0.1", x.proxyPort, 1000) == common.Alive {
 				time.Sleep(time.Second * 5)
 				break
 			}
@@ -78,13 +78,13 @@ func (x *xRayRuntime) Start(ctx context.Context) {
 			time.Sleep(time.Second * 1)
 			loop ++
 		}
-		sCtx, _ := context.WithCancel(ctx)
+		sCtx, _ := context.WithCancel(parent)
 		if err := x.simulate(sCtx); err != nil {
 			common.Log("xRayRuntime.simulate", err.Error(), common.INFO)
 		}
 	}()
 	//开始访问
-	pCtx, _ := context.WithCancel(ctx)
+	pCtx, _ := context.WithCancel(parent)
 	x.proxyServer(pCtx)
 }
 

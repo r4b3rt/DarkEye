@@ -4,6 +4,7 @@ package plugins
 //检测结果基本不准确 :(
 
 import (
+	"context"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
@@ -20,17 +21,18 @@ var (
 	trans2SessionSetupRequest, _ = hex.DecodeString("0000004eff534d4232000000001807c00000000000000000000000000008fffe000841000f0c0000000100000000000000a6d9a40000000c00420000004e0001000e000d0000000000000000000000000000")
 )
 
-func ms17010Check(plg *Plugins, f *funcDesc) {
-	plg.TargetPort = f.port
-	conn, err := net.DialTimeout("tcp",
-		plg.TargetIp+":"+plg.TargetPort, time.Millisecond*time.Duration(plg.TimeOut))
+func ms17010Check(s *Service) {
+	s.parent.TargetPort = s.port
+	c := net.Dialer{Timeout: time.Duration(Config.TimeOut) * time.Millisecond}
+	ctx, _ := context.WithCancel(Config.ParentCtx)
+	conn, err := c.DialContext(ctx, "tcp",
+		fmt.Sprintf("%s:%s", s.parent.TargetIp, s.parent.TargetPort))
 	if err != nil {
 		return
 	}
 	defer conn.Close()
-
-	conn.SetDeadline(time.Now().Add(2 * time.Millisecond * time.Duration(plg.TimeOut)))
-	conn.Write(negotiateProtocolRequest)
+	_ = conn.SetDeadline(time.Now().Add(2 * time.Millisecond * time.Duration(Config.TimeOut)))
+	_, _ = conn.Write(negotiateProtocolRequest)
 	reply := make([]byte, 1024)
 	if n, err := conn.Read(reply); err != nil || n < 36 {
 		return
@@ -41,7 +43,7 @@ func ms17010Check(plg *Plugins, f *funcDesc) {
 		return
 	}
 
-	conn.Write(sessionSetupRequest)
+	_, _ = conn.Write(sessionSetupRequest)
 
 	n, err := conn.Read(reply)
 	if err != nil || n < 36 {
@@ -96,9 +98,9 @@ func ms17010Check(plg *Plugins, f *funcDesc) {
 	}
 
 	if reply[9] == 0x05 && reply[10] == 0x02 && reply[11] == 0x00 && reply[12] == 0xc0 {
-		plg.highLight = true
-		plg.PortOpened = true
-		plg.NetBios.Os = "MS17-010 " + os
+		s.parent.Result.PortOpened = true
+		s.parent.Hit = true
+		s.parent.Result.NetBios.Os = "MS17-010 " + os
 		// detect present of DOUBLEPULSAR SMB implant
 		trans2SessionSetupRequest[28] = treeID[0]
 		trans2SessionSetupRequest[29] = treeID[1]
@@ -111,7 +113,7 @@ func ms17010Check(plg *Plugins, f *funcDesc) {
 			return
 		}
 		if reply[34] == 0x51 {
-			plg.NetBios.Os = "DoublePulsar SMB IMPLANT " + os
+			s.parent.Result.NetBios.Os = "DoublePulsar SMB IMPLANT " + os
 		}
 	}
 

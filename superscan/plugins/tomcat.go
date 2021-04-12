@@ -2,10 +2,15 @@ package plugins
 
 import "github.com/zsdevX/DarkEye/superscan/dic"
 
-func tomcatCheck(plg *Plugins) {
+func tomcatCheck(s *Service) {
+	s.user = dic.DIC_USERNAME_TOMCAT
+	s.pass = dic.DIC_PASSWORD_TOMCAT
+	s.name = "tomcat"
+	s.parent.Result.ServiceName = s.name
+	url := s.parent.Result.Web.Url
+	s.parent.Result.Web.Url += "/manager/html"
+	s.connect = _401AuthConn
 	//爆破manager
-	plg.tmp.tls = plg.Web.Tls
-	plg.tmp.urlPath = "/manager/html"
-	plg.TargetProtocol = "tomcat"
-	_401AuthCheck(plg, dic.DIC_USERNAME_TOMCAT, dic.DIC_PASSWORD_TOMCAT)
+	_401AuthCheck(s)
+	s.parent.Result.Web.Url = url
 }

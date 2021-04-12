@@ -9,6 +9,7 @@ import (
 	"github.com/zsdevX/DarkEye/superscan"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
 	"golang.org/x/time/rate"
+	"net"
 	"os"
 	"strings"
 	"sync"
@@ -23,7 +24,6 @@ type superScanRuntime struct {
 	PortList              string
 	TimeOut               int
 	Thread                int
-	PluginThread          int
 	Plugin                string
 	PacketPerSecond       int
 	UserList              string
@@ -45,11 +45,10 @@ var (
 	superScanRuntimeOptions = &superScanRuntime{
 		flagSet: flag.NewFlagSet(superScan, flag.ExitOnError),
 	}
-	mScans = make([]*superscan.Scan, 0)
 )
 
-func (s *superScanRuntime) Start(ctx context.Context) {
-	s.initializer(ctx)
+func (s *superScanRuntime) Start(parent context.Context) {
+	s.initializer(parent)
 
 	if s.OnlyCheckAliveNetwork || s.OnlyCheckAliveHost {
 		scan := s.newScan("")
@@ -59,6 +58,7 @@ func (s *superScanRuntime) Start(ctx context.Context) {
 	//初始化scan对象
 	ips := strings.Split(s.IpList, ",")
 	tot := 0
+	scans := make([]*superscan.Scan, 0)
 	for _, ip := range ips {
 		base, start, end, err := common.GetIPRange(ip)
 		if err != nil {
@@ -72,41 +72,36 @@ func (s *superScanRuntime) Start(ctx context.Context) {
 			}
 			s := s.newScan(nip)
 			s.ActivePort = "0"
+			s.Parent = parent
 			_, t := common.GetPortRange(s.PortRange)
 			tot += t
-			mScans = append(mScans, s)
+			scans = append(scans, s)
 			start++
 		}
 	}
 	fmt.Println(fmt.Sprintf(
-		"已加载%d个IP,共计%d个端口,启动每IP扫描端口线程数%d,启动每协议爆破线程数量%d,同时可同时检测IP数量%d",
-		len(mScans), tot, s.Thread, s.PluginThread, s.MaxConcurrencyIp))
-	common.Log(s.parent.CmdArgs[0], "支持的爆破协议:", common.INFO)
+		"已加载%d个IP,共计%d个端口,启动每IP扫描端口线程数%d,同时可同时检测IP数量%d",
+		len(scans), tot, s.Thread, s.MaxConcurrencyIp))
 	plugins.SupportPlugin()
 
 	//建立进度条
 	s.Bar = s.newBar(tot)
-	if len(mScans) == 1 {
+	if len(scans) == 1 {
 		//单IP支持校正
-		mScans[0].ActivePort = s.ActivePort
+		scans[0].ActivePort = s.ActivePort
 	}
-	limiter := make(chan int, s.MaxConcurrencyIp)
-	wg := sync.WaitGroup{}
-	wg.Add(len(mScans))
-	for _, sc := range mScans {
+	task := common.NewTask(s.MaxConcurrencyIp, parent)
+	defer task.Wait("superScan")
+	for _, sc := range scans {
 		//Job
-		go func(s0 *superscan.Scan) {
-			defer wg.Done()
-			//Cancel
-			if plugins.ShouldStop() {
-				return
-			}
-			limiter <- 1
-			s0.Run()
-			<-limiter
+		if !task.Job() {
+			break
+		}
+		go func(sup *superscan.Scan) {
+			defer task.UnJob()
+			sup.Run()
 		}(sc)
 	}
-	wg.Wait()
 }
 
 func (s *superScanRuntime) Init(requestContext *RequestContext) {
@@ -115,7 +110,6 @@ func (s *superScanRuntime) Init(requestContext *RequestContext) {
 	superScanRuntimeOptions.flagSet.StringVar(&superScanRuntimeOptions.PortList, "port-list", common.PortList, "端口范围,默认1000+常用端口")
 	superScanRuntimeOptions.flagSet.IntVar(&superScanRuntimeOptions.TimeOut, "timeout", 3000, "网络超时请求(单位ms)")
 	superScanRuntimeOptions.flagSet.IntVar(&superScanRuntimeOptions.Thread, "thread", 128, "每个IP爆破端口的线程数量")
-	superScanRuntimeOptions.flagSet.IntVar(&superScanRuntimeOptions.PluginThread, "plugin-thread", 2, "每个协议爆破弱口令的线程数量")
 	superScanRuntimeOptions.flagSet.IntVar(&superScanRuntimeOptions.PacketPerSecond, "pps", 0, "扫描工具整体发包频率 packets/秒")
 	superScanRuntimeOptions.flagSet.StringVar(&superScanRuntimeOptions.Plugin, "plugin", "", "指定协议插件爆破")
 	superScanRuntimeOptions.flagSet.StringVar(&superScanRuntimeOptions.UserList, "user-list", "", "字符串(u1,u2,u3)或文件(一个账号一行）")
@@ -134,6 +128,7 @@ func (s *superScanRuntime) ValueCheck(value string) (bool, error) {
 }
 
 func (a *superScanRuntime) CompileArgs(cmd []string) error {
+	fmt.Println(cmd)
 	if err := a.flagSet.Parse(splitCmd(cmd)); err != nil {
 		return err
 	}
@@ -153,30 +148,30 @@ func (a *superScanRuntime) Usage() {
 
 func (s *superScanRuntime) newScan(ip string) *superscan.Scan {
 	return &superscan.Scan{
-		Ip:           ip,
-		TimeOut:      superScanRuntimeOptions.TimeOut,
-		ActivePort:   superScanRuntimeOptions.ActivePort,
-		PortRange:    superScanRuntimeOptions.PortList,
-		ThreadNumber: superScanRuntimeOptions.Thread,
-		Callback:     s.myCallback,
-		BarCallback:  s.myBarCallback,
+		Ip:          ip,
+		TimeOut:     superScanRuntimeOptions.TimeOut,
+		ActivePort:  superScanRuntimeOptions.ActivePort,
+		PortRange:   superScanRuntimeOptions.PortList,
+		Thread:      superScanRuntimeOptions.Thread,
+		Callback:    s.myCallback,
+		BarCallback: s.myBarCallback,
 	}
 }
 
-func (s *superScanRuntime) initializer(ctx context.Context) {
+func (s *superScanRuntime) initializer(parent context.Context) {
 	//设置自定义文件字典替代内置字典
 	if s.UserList != "" {
 		if _, e := os.Stat(s.UserList); e != nil {
-			plugins.GlobalConfig.UserList = common.GenDicFromFile(s.UserList)
+			plugins.Config.UserList = common.GenDicFromFile(s.UserList)
 		} else {
-			plugins.GlobalConfig.UserList = strings.Split(s.UserList, ",")
+			plugins.Config.UserList = strings.Split(s.UserList, ",")
 		}
 	}
 	if s.PassList != "" {
 		if _, e := os.Stat(s.PassList); e != nil {
-			plugins.GlobalConfig.PassList = common.GenDicFromFile(s.PassList)
+			plugins.Config.PassList = common.GenDicFromFile(s.PassList)
 		} else {
-			plugins.GlobalConfig.PassList = strings.Split(s.PassList, ",")
+			plugins.Config.PassList = strings.Split(s.PassList, ",")
 		}
 	}
 	//设置发包频率
@@ -184,10 +179,10 @@ func (s *superScanRuntime) initializer(ctx context.Context) {
 		//每秒发包*mRateLimiter，缓冲10个
 		s.PacketRate = rate.NewLimiter(rate.Every(1000000*time.Microsecond/time.Duration(s.PacketPerSecond)), 10)
 	}
-	plugins.GlobalConfig.Pps = s.PacketRate
-	plugins.GlobalConfig.UsingPlugin = s.Plugin
-	plugins.GlobalConfig.Ctx = ctx
-	plugins.GlobalConfig.Thread = s.PluginThread
+	plugins.Config.PPS = s.PacketRate
+	plugins.Config.SelectPlugin = s.Plugin
+	plugins.Config.ParentCtx = parent
+	plugins.Config.TimeOut = s.TimeOut
 }
 
 func (s *superScanRuntime) newBar(max int) *progressbar.ProgressBar {
@@ -217,18 +212,33 @@ func (s *superScanRuntime) myCallback(a interface{}) {
 	ent := analysisEntity{
 		Ip:      plg.TargetIp,
 		Port:    plg.TargetPort,
-		Service: plg.TargetProtocol,
-		Os:      plg.NetBios.Os,
+		Service: plg.Result.ServiceName,
+		Os:      plg.Result.NetBios.Os,
 		NetBios: fmt.Sprintf(
-			"[Ip:'%s' Shares:'%s']", plg.NetBios.Ip, plg.NetBios.Shares),
-		Url:             plg.Web.Url,
-		Title:           plg.Web.Title,
-		WebServer:       plg.Web.Server,
-		WebResponseCode: plg.Web.Code,
+			"[Ip:'%s' Shares:'%s']", plg.Result.NetBios.Ip, plg.Result.NetBios.Shares),
+		Url:             plg.Result.Web.Url,
+		Title:           plg.Result.Web.Title,
+		WebServer:       plg.Result.Web.Server,
+		WebResponseCode: plg.Result.Web.Code,
+		WeakAccount: fmt.Sprintf(
+			"[%s/%s]", plg.Result.Cracked.Username, plg.Result.Cracked.Password),
 	}
-	for k, v := range plg.Cracked {
-		ent.WeakAccount += fmt.Sprintf("%d:%s/%s.Username;", k, v.Username, v.Password)
+
+	message := ent.Service
+	if ent.Title != "" {
+		message += fmt.Sprintf(" ['%s' '%s' '%d' '%s']", ent.Title, ent.WebServer, ent.WebResponseCode, ent.Url)
 	}
+	if plg.Result.NetBios.Ip != "" ||
+		plg.Result.NetBios.Os != "" ||
+		plg.Result.NetBios.Shares != "" {
+		message += fmt.Sprintf(" ['%s' '%s' '%s']",
+			plg.Result.NetBios.Ip, plg.Result.NetBios.Os, plg.Result.NetBios.Shares)
+	}
+	if plg.Result.Cracked.Username != "" || plg.Result.Cracked.Password != "" {
+		message += fmt.Sprintf(" crack:['%s' '%s']",
+			plg.Result.Cracked.Username, plg.Result.Cracked.Password)
+	}
+	common.Log(net.JoinHostPort(ent.Ip, ent.Port)+"[Opened]", message, common.INFO)
 	analysisRuntimeOptions.createOrUpdate(&ent)
 }
 

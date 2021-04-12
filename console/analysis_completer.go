@@ -27,6 +27,12 @@ func (a *analysisRuntime) Completer(args []string) []prompt.Suggest {
 				"-sql",
 			}), a.parent.CmdArgs)
 	}
+	//过滤重复的命令
+	if len(filterSuggestions([]prompt.Suggest{
+		{args[0],"any"},
+	}, a.parent.CmdArgs)) == 0 {
+		return []prompt.Suggest{}
+	}
 	switch args[0] {
 	case "-sql":
 		if len(args) == 2 {

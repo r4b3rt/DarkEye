@@ -1,59 +1,51 @@
 package superscan
 
 import (
-	"github.com/fatih/color"
+	"fmt"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
 	"strconv"
-	"sync"
 	"time"
 )
 
 //Run add comment
 func (s *Scan) Run() {
-	wg0 := sync.WaitGroup{}
-	wg0.Add(1)
-	go func() {
-		s.preCheck()
-		wg0.Done()
-	}()
-	defer wg0.Wait()
+	task := common.NewTask(s.Thread, s.Parent)
+	defer task.Wait("scan")
 
-	fromTo, tot := common.GetPortRange(s.PortRange)
-	taskAlloc := make(chan int, s.ThreadNumber)
-	wg := sync.WaitGroup{}
-	wg.Add(tot)
+	task.Job()
+	go func() {
+		defer task.UnJob()
+		s.preCheck()
+	}()
+	fromTo, _ := common.GetPortRange(s.PortRange)
 	for _, p := range fromTo {
 		for p.From <= p.To {
-			//Task
-			taskAlloc <- 1
-			s.job(p.From, taskAlloc, &wg)
+			//Task Terminate
+			if !task.Job() {
+				return
+			}
+			go func(port int) {
+				defer task.UnJob()
+				s.job(port)
+			}(p.From)
+
 			p.From++
 		}
 	}
-	wg.Wait()
 }
 
-func (s *Scan) job(port int, taskAlloc chan int, wg *sync.WaitGroup) {
-	go func() {
-		defer func() {
-			<-taskAlloc
-			wg.Done()
-		}()
-		if plugins.ShouldStop() {
-			return
+func (s *Scan) job(port int) {
+	for {
+		s.Check(port)
+		if !s.isFireWallNotForbidden() {
+			//被防火墙策略限制探测，等待恢复期（恢复期比较傻，需要优化）。
+			time.Sleep(time.Second * 10)
+			//恢复后从中断的端口重新检测
+			continue
 		}
-		for {
-			s.Check(port)
-			if !s.isFireWallNotForbidden() {
-				//被防火墙策略限制探测，等待恢复期（恢复期比较傻，需要优化）。
-				time.Sleep(time.Second * 10)
-				//恢复后从中断的端口重新检测
-				continue
-			}
-			break
-		}
-	}()
+		break
+	}
 }
 
 //Check add comment
@@ -61,27 +53,19 @@ func (s *Scan) Check(p int) {
 	defer func() {
 		s.BarCallback(1)
 	}()
-
 	if s.ActivePort != "0" {
-		if common.IsAlive(s.Ip, strconv.Itoa(p), s.TimeOut) == common.Alive {
-			color.Green("\n%s %s:%s %v\n", "[√]",
-				s.Ip, strconv.Itoa(p), "Opened")
+		if common.IsAlive(s.Parent, s.Ip, strconv.Itoa(p), s.TimeOut) == common.Alive {
+			common.Log("with.ActivePort", s.Ip+":"+strconv.Itoa(p), common.INFO)
 		}
 		//开启防火墙检测仅判断端口，不爆破
 		return
 	}
-
 	plg := plugins.Plugins{
 		TargetIp:   s.Ip,
 		TargetPort: strconv.Itoa(p),
-		TimeOut:    s.TimeOut,
-		PortOpened: false,
 	}
 	plg.Check()
-	if !plg.PortOpened {
-		return
-	}
-	s.Callback(&plg)
+	s.report(&plg)
 }
 
 func (s *Scan) preCheck() {
@@ -89,18 +73,18 @@ func (s *Scan) preCheck() {
 		//开启防火墙检测仅判断端口，不探测
 		return
 	}
-
 	plg := plugins.Plugins{
 		TargetIp: s.Ip,
-		TimeOut:  s.TimeOut,
 	}
 	plg.PreCheck()
-	if len(plg.Cracked) == 0 {
+	s.report(&plg)
+}
+
+func (s *Scan) report(plg *plugins.Plugins) {
+	if !plg.Result.PortOpened {
 		return
 	}
-	plg.TargetPort = "-"
-	plg.TargetProtocol = "-"
-	s.Callback(&plg)
+	s.Callback(plg)
 }
 
 func (s *Scan) isFireWallNotForbidden() bool {
@@ -110,7 +94,7 @@ func (s *Scan) isFireWallNotForbidden() bool {
 	}
 	maxRetries := 3
 	for maxRetries > 0 {
-		if common.IsAlive(s.Ip, s.ActivePort, s.TimeOut) == common.Alive {
+		if common.IsAlive(s.Parent, s.Ip, s.ActivePort, s.TimeOut) == common.Alive {
 			return true
 		}
 		maxRetries--
@@ -121,11 +105,11 @@ func (s *Scan) isFireWallNotForbidden() bool {
 //New add comment
 func New(ip string) *Scan {
 	return &Scan{
-		Ip:           ip,
-		ActivePort:   "80",
-		ThreadNumber: 200,
-		PortRange:    common.PortList,
-		Callback:     func(interface{}) {},
-		BarCallback:  func(int) {},
+		Ip:          ip,
+		ActivePort:  "80",
+		Thread:      1,
+		PortRange:   common.PortList,
+		Callback:    func(v interface{}) { fmt.Println(v) },
+		BarCallback: func(int) {},
 	}
 }

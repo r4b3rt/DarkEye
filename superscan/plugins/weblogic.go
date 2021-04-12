@@ -1,15 +1,15 @@
 package plugins
 
 import (
+	"context"
 	"fmt"
 	"github.com/zsdevX/DarkEye/common"
-	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 	"time"
 )
 
-func checkWebLogic(plg *Plugins, f *funcDesc) {
-	response, _ := webLogicTest(plg, "test", "test")
+func checkWebLogic(s *Service) {
+	response, _ := webLogicTest(s, "test", "test")
 	if response == nil {
 		return
 	}
@@ -19,24 +19,25 @@ func checkWebLogic(plg *Plugins, f *funcDesc) {
 			return
 		}
 		//随意填写一个过期cookie
-		plg.tmp.cookie = "ADMINCONSOLESESSION=O9BKOxQLzl7ZoJBlf4IgIicF0g0WGpfNMrUaSWWIA2G5gdlL6yvH!-1249850057"
+		s.vars["cookie"] = "ADMINCONSOLESESSION=O9BKOxQLzl7ZoJBlf4IgIicF0g0WGpfNMrUaSWWIA2G5gdlL6yvH!-1249850057"
 		if ck, ok := response.ResponseHeaders["Set-Cookie"]; ok {
 			cks := strings.Split(ck, ";")
 			if len(cks) >= 1 {
-				plg.tmp.cookie = cks[0]
+				s.vars["cookie"] = cks[0]
 			}
 		}
 	} else {
 		return
 	}
-
-	crack("weblogic", plg, dic.DIC_USERNAME_WEBLOGIC, dic.DIC_PASSWORD_WEBLOGIC, webLogicConn)
+	s.name = "webLogic"
+	s.parent.Result.ServiceName = s.name
+	s.connect = webLogicConn
+	s.crack()
 }
 
-func webLogicConn(plg *Plugins, user string, pass string) (ok int) {
+func webLogicConn(parent context.Context, s *Service, user, pass string) (ok int) {
 	ok = OKNext
-
-	response, err := webLogicTest(plg, user, pass)
+	response, err := webLogicTest(s, user, pass)
 	if err != nil {
 		if strings.Contains(err.Error(), "connection reset by peer") {
 			//连接限制
@@ -65,19 +66,19 @@ func webLogicConn(plg *Plugins, user string, pass string) (ok int) {
 	return ok
 }
 
-func webLogicTest(plg *Plugins, user, pass string) (*common.HttpResponse, error) {
-	url := fmt.Sprintf("http://%s:%s/console/j_security_check", plg.TargetIp, plg.TargetPort)
-	if plg.tmp.tls {
-		url = fmt.Sprintf("https://%s:%s/console/j_security_check", plg.TargetIp, plg.TargetPort)
-	}
+func webLogicTest(s *Service, user, pass string) (*common.HttpResponse, error) {
+	url := fmt.Sprintf("%s/console/j_security_check", s.parent.Result.Web.Url)
+	ctx, _ := context.WithCancel(Config.ParentCtx)
+	cookie, _ := s.vars["cookie"]
 	req := common.HttpRequest{
+		Ctx:     ctx,
 		Url:     url,
-		TimeOut: time.Duration(1 + plg.TimeOut/1000),
+		TimeOut: time.Duration(1 + Config.TimeOut/1000),
 		Method:  "POST",
 		Headers: map[string]string{
 			"Content-Type": "application/x-www-form-urlencoded",
 			"User-Agent":   common.UserAgents[0],
-			"Cookie":       plg.tmp.cookie,
+			"Cookie":       cookie,
 		},
 		NoFollowRedirect: true,
 		Body: []byte(fmt.Sprintf("j_username=%s&j_password=%s&j_character_encoding=UTF-8",

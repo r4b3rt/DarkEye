@@ -1,28 +1,39 @@
 package plugins
 
 import (
+	"context"
 	"fmt"
 	"github.com/jlaffaye/ftp"
+	"github.com/zsdevX/DarkEye/common"
+	"net"
 	"time"
 )
 
-
-func ftpCheck(plg *Plugins, f *funcDesc) {
-	crack(f.name, plg, f.user, f.pass, ftpConn)
+func ftpCheck(s *Service) {
+	s.crack()
 }
 
-func ftpConn(plg *Plugins, user string, pass string) (ok int) {
+func ftpConn(parent context.Context, s *Service, user, pass string) (ok int) {
 	ok = OKNext
-	conn, err := ftp.DialTimeout(fmt.Sprintf("%v:%v", plg.TargetIp, plg.TargetPort),
-		time.Duration(plg.TimeOut)*time.Millisecond)
-	if err == nil {
-		err = conn.Login(user, pass)
-		if err == nil {
-			defer conn.Logout()
-			ok = OKDone
-		}
-	} else {
-		ok = OKStop
+
+	c, err := common.DialCtx(parent, "tcp",
+		net.JoinHostPort(s.parent.TargetIp, s.parent.TargetPort), time.Duration(Config.TimeOut)*time.Millisecond)
+	if err != nil {
+		//网络不通或墙了
+		ok = OKTerm
+		return
 	}
-	return ok
+	_ = c.SetReadDeadline(time.Now().Add(time.Duration(Config.TimeOut)*time.Millisecond))
+	conn, err := ftp.Dial(net.JoinHostPort(s.parent.TargetIp, s.parent.TargetPort), ftp.DialWithNetConn(c))
+	if err != nil {
+		fmt.Println(err.Error())
+		ok = OKStop
+		return
+	}
+	err = conn.Login(user, pass)
+	if err == nil {
+		defer conn.Logout()
+		ok = OKDone
+	}
+	return
 }

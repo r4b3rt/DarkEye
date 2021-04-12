@@ -2,7 +2,9 @@ package plugins
 
 import (
 	"bytes"
+	"context"
 	"encoding/hex"
+	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -15,18 +17,20 @@ var (
 	bufferV3, _ = hex.DecodeString("0900ffff0000")
 )
 
-func nbCheck(plg *Plugins, f *funcDesc) {
-	plg.TargetPort = f.port
-	nbConn(plg, f)
+func nbCheck(s *Service) {
+	s.parent.TargetPort = s.port
+	nbConn(s)
 }
 
-func nbConn(plg *Plugins, f *funcDesc) {
-	conn, err := net.DialTimeout("tcp",
-		plg.TargetIp+":"+plg.TargetPort, time.Duration(plg.TimeOut)*time.Millisecond)
+func nbConn(s *Service) {
+	c := net.Dialer{Timeout: time.Duration(Config.TimeOut) * time.Millisecond}
+	ctx, _ := context.WithCancel(Config.ParentCtx)
+	conn, err := c.DialContext(ctx, "tcp",
+		fmt.Sprintf("%s:%s", s.parent.TargetIp, s.parent.TargetPort))
 	if err != nil {
 		return
 	}
-	_ = conn.SetDeadline(time.Now().Add(time.Duration(plg.TimeOut) * time.Millisecond))
+	_ = conn.SetDeadline(time.Now().Add(time.Duration(Config.TimeOut) * time.Millisecond))
 	defer conn.Close()
 	_, _ = conn.Write(bufferV1)
 	reply := make([]byte, 4096)
@@ -43,9 +47,9 @@ func nbConn(plg *Plugins, f *funcDesc) {
 	for i := 0; i < len(text)-5; i++ {
 		if bytes.Equal(text[i:i+6], bufferV3) {
 			text = text[:i-4]
-			collectNbi(text, &plg.NetBios)
-			plg.TargetProtocol = f.name
-			plg.PortOpened = true
+			collectNbi(text, &s.parent.Result.NetBios)
+			s.parent.Result.ServiceName = s.name
+			s.parent.Result.PortOpened = true
 			return
 		}
 	}

@@ -229,29 +229,32 @@ func (s *superScanRuntime) myCallback(a interface{}) {
 		Port:    plg.TargetPort,
 		Service: plg.Result.ServiceName,
 		Os:      plg.Result.NetBios.Os,
-		NetBios: fmt.Sprintf(
-			"[Ip:'%s' Shares:'%s']", plg.Result.NetBios.Ip, plg.Result.NetBios.Shares),
-		Url:             plg.Result.Web.Url,
-		Title:           plg.Result.Web.Title,
-		WebServer:       plg.Result.Web.Server,
-		WebResponseCode: plg.Result.Web.Code,
-		WeakAccount: fmt.Sprintf(
-			"[%s/%s]", plg.Result.Cracked.Username, plg.Result.Cracked.Password),
 	}
-
 	message := ent.Service
 	if ent.Title != "" {
+		ent.Url = plg.Result.Web.Url
+		ent.Title = plg.Result.Web.Title
+		ent.WebServer = plg.Result.Web.Server
+		ent.WebResponseCode = plg.Result.Web.Code
+
 		message += fmt.Sprintf(" ['%s' '%s' '%d' '%s']", ent.Title, ent.WebServer, ent.WebResponseCode, ent.Url)
+
 	}
 	if plg.Result.NetBios.Ip != "" ||
 		plg.Result.NetBios.Os != "" ||
 		plg.Result.NetBios.Shares != "" {
 		message += fmt.Sprintf(" ['%s' '%s' '%s']",
 			plg.Result.NetBios.Ip, plg.Result.NetBios.Os, plg.Result.NetBios.Shares)
+
+		ent.NetBios = fmt.Sprintf(" ['%s' '%s']",
+			plg.Result.NetBios.Ip, plg.Result.NetBios.Shares)
 	}
 	if plg.Result.Cracked.Username != "" || plg.Result.Cracked.Password != "" {
 		message += fmt.Sprintf(" crack:['%s' '%s']",
 			plg.Result.Cracked.Username, plg.Result.Cracked.Password)
+
+		ent.WeakAccount = fmt.Sprintf(
+			"[%s/%s]", plg.Result.Cracked.Username, plg.Result.Cracked.Password),
 	}
 	common.Log(net.JoinHostPort(ent.Ip, ent.Port)+"[Opened]", message, common.INFO)
 	analysisRuntimeOptions.createOrUpdate(&ent)

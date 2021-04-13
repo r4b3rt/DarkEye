@@ -12,11 +12,11 @@ import (
 //Run add comment
 func (z *ZoomEye) Run(ctx context.Context) []Match {
 	ret := make([]Match, 0)
-	i := 1
+	i := 0
 	defer func() {
 		close(z.ErrChannel)
 	}()
-	for i <= z.Pages {
+	for i < z.Pages {
 		i++
 		matches := z.run(ctx, i)
 		if matches == nil {
@@ -24,7 +24,7 @@ func (z *ZoomEye) Run(ctx context.Context) []Match {
 		}
 		ret = getData(ret, matches)
 		z.ErrChannel <-
-			fmt.Sprintf("%s:获取第%d页信息", z.Query, i)
+			fmt.Sprintf("%s:获取第%d页信息共%d个", z.Query, i, len(ret))
 		time.Sleep(time.Second * 3)
 	}
 	return ret

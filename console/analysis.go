@@ -112,6 +112,7 @@ func (a *analysisRuntime) createOrUpdate(e *analysisEntity) {
 		"task = ? and ip = ? and port = ? and service = ?",
 		e.Task, e.Ip, e.Port, e.Service).First(&n).Error == gorm.ErrRecordNotFound {
 		a.d.Create(e)
+		fmt.Println("create")
 	} else {
 		aJson, _ := json.Marshal(e)
 		var m map[string]interface{}
@@ -135,4 +136,14 @@ func (a *analysisRuntime) createOrUpdate(e *analysisEntity) {
 			e.Task, e.Ip, e.Port, e.Service).Updates(
 			m)
 	}
+}
+
+func (a *analysisRuntime) ipVar(sql string) []string {
+	e := make([]analysisEntity, 0)
+	analysisRuntimeOptions.d.Raw("select ip from ent").Scan(&e)
+	ipList := make([]string, 0)
+	for _, v := range e {
+		ipList = append(ipList, v.Ip)
+	}
+	return ipList
 }

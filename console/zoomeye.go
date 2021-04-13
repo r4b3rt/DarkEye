@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/zoomeye"
 	"strconv"
 	"strings"
@@ -28,9 +29,10 @@ var (
 
 func (zoom *zoomEyeRuntime) Start(ctx context.Context) {
 	z := zoomeye.New()
-	z.Query = zoom.search
+	z.Query = strings.TrimSpace(zoom.search)
 	z.ApiKey = zoom.api
 	z.Pages, _ = strconv.Atoi(zoom.page)
+	common.Log("zoom.start", fmt.Sprintf("获取页数-page=%d", z.Pages), common.INFO)
 	z.ErrChannel = make(chan string, 10)
 	go func() {
 		for {

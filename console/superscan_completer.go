@@ -52,7 +52,10 @@ func (s *superScanRuntime) Completer(args []string) []prompt.Suggest {
 	switch args[0] {
 	case "-ip":
 		if len(args) == 2 {
-			return []prompt.Suggest{{"192.168.1.1-192.168.1.255", "Scan ip target"},}
+			return []prompt.Suggest{
+				{"192.168.1.1-192.168.1.255", "Scan ip target"},
+				{"$IP", "从analysis模块检索目标ip"},
+			}
 		}
 	case "-pps":
 		if len(args) == 2 {

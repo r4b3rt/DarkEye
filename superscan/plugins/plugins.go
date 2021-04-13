@@ -137,8 +137,12 @@ func (plg *Plugins) available(name, port string) bool {
 		if Config.SelectPlugin == "" {
 			return false
 		}
+	} else {
+		if name == Config.SelectPlugin {
+			return true
+		}
 	}
-	return true
+	return false
 }
 
 //SupportPlugin add comment

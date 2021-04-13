@@ -55,6 +55,19 @@ func (s *superScanRuntime) Start(parent context.Context) {
 		scan.PingNet(s.IpList, s.OnlyCheckAliveHost)
 		return
 	}
+	//解析变量
+	if s.IpList == "$IP" {
+		ipList := analysisRuntimeOptions.ipVar("")
+		if len(ipList) == 0 {
+			common.Log("superScan.start", "$IP未检索到目标", common.INFO)
+			return
+		}
+		s.IpList = ""
+		for _, v := range ipList {
+			s.IpList += v + ","
+		}
+		s.IpList = strings.TrimSuffix(s.IpList, ",")
+	}
 	//初始化scan对象
 	ips := strings.Split(s.IpList, ",")
 	tot := 0
@@ -131,7 +144,6 @@ func (s *superScanRuntime) ValueCheck(value string) (bool, error) {
 }
 
 func (a *superScanRuntime) CompileArgs(cmd []string) error {
-	fmt.Println(cmd)
 	if err := a.flagSet.Parse(splitCmd(cmd)); err != nil {
 		return err
 	}
@@ -190,7 +202,7 @@ func (s *superScanRuntime) initializer(parent context.Context) {
 
 func (s *superScanRuntime) newBar(max int) *progressbar.ProgressBar {
 	bar := progressbar.NewOptions(max,
-		progressbar.OptionSetDescription("["+s.IpList+"]"),
+		progressbar.OptionSetDescription("[Cracking ...]"),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowIts(),
 		progressbar.OptionOnCompletion(func() {

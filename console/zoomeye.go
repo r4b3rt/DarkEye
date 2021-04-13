@@ -80,6 +80,9 @@ func (z *zoomEyeRuntime) Init(requestContext *RequestContext) {
 
 func (z *zoomEyeRuntime) ValueCheck(value string) (bool, error) {
 	if v, ok := zoomEyeValue[value]; ok {
+		if isDuplicateArg(value, z.parent.CmdArgs) {
+			return false, fmt.Errorf("参数重复")
+		}
 		return v, nil
 	}
 	return false, fmt.Errorf("无此参数")

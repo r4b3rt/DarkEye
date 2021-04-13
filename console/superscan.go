@@ -122,6 +122,9 @@ func (s *superScanRuntime) Init(requestContext *RequestContext) {
 
 func (s *superScanRuntime) ValueCheck(value string) (bool, error) {
 	if v, ok := superScanValueCheck[value]; ok {
+		if isDuplicateArg(value, s.parent.CmdArgs) {
+			return false, fmt.Errorf("参数重复")
+		}
 		return v, nil
 	}
 	return false, fmt.Errorf("无此参数")

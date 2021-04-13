@@ -46,9 +46,7 @@ func (s *superScanRuntime) Completer(args []string) []prompt.Suggest {
 			}), s.parent.CmdArgs)
 	}
 	//过滤重复的命令
-	if len(filterSuggestions([]prompt.Suggest{
-		{args[0], "any"},
-	}, s.parent.CmdArgs)) == 0 {
+	if isDuplicateArg(args[0], s.parent.CmdArgs) {
 		return []prompt.Suggest{}
 	}
 	switch args[0] {

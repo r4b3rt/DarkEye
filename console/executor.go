@@ -79,15 +79,14 @@ func (ctx *RequestContext) runCmd(args []string) {
 			common.Log(ctx.CmdArgs[0], "Done!", common.INFO)
 		}()
 	default:
-		if len(args) == 1 { //此时检查是否需要参数
-			if noVar, err := M[ID(ctx.CmdArgs[0])].ValueCheck(args[0]); err != nil {
-				common.Log("executor.runCmd", "'"+args[0]+"' "+err.Error(), common.FAULT)
+		//此时检查参数
+		if noVar, err := M[ID(ctx.CmdArgs[0])].ValueCheck(args[0]); err != nil {
+			common.Log("executor.runCmd", "'"+args[0]+"' "+err.Error(), common.FAULT)
+			return
+		} else {
+			if !noVar && len(args) == 1{
+				common.Log("executor.runCmd", "Err:"+"'"+args[0]+"'"+" need value", common.FAULT)
 				return
-			} else {
-				if !noVar {
-					common.Log("executor.runCmd", "Err:"+"'"+args[0]+"'"+" need value", common.FAULT)
-					return
-				}
 			}
 		}
 		cmd := ""

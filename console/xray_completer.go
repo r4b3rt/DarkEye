@@ -34,9 +34,8 @@ func (x *xRayRuntime) Completer(args []string) []prompt.Suggest {
 			}), x.parent.CmdArgs)
 	}
 	//过滤重复的命令
-	if len(filterSuggestions([]prompt.Suggest{
-		{args[0],"any"},
-	}, x.parent.CmdArgs)) == 0 {
+	//过滤重复的命令
+	if isDuplicateArg(args[0], x.parent.CmdArgs) {
 		return []prompt.Suggest{}
 	}
 	switch args[0] {

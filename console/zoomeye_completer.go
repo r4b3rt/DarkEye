@@ -68,9 +68,8 @@ func (z *zoomEyeRuntime) Completer(args []string) []prompt.Suggest {
 			}), z.parent.CmdArgs)
 	}
 	//过滤重复的命令
-	if len(filterSuggestions([]prompt.Suggest{
-		{args[0], "any"},
-	}, z.parent.CmdArgs)) == 0 {
+	//过滤重复的命令
+	if isDuplicateArg(args[0], z.parent.CmdArgs) {
 		return []prompt.Suggest{}
 	}
 	switch args[0] {

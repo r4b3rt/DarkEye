@@ -23,6 +23,9 @@ func (ctx *RequestContext) completer(d prompt.Document) []prompt.Suggest {
 			d.GetWordBeforeCursor(),
 			ID(ctx.CmdArgs[0]))
 	}
+	if len(args) > 1 {
+		return []prompt.Suggest{}
+	}
 	return filterHasPrefix(
 		mSuggestions, d.GetWordBeforeCursor(), "")
 }
@@ -69,6 +72,12 @@ func filterSuggestions(suggestions []prompt.Suggest, sub []string) []prompt.Sugg
 }
 
 //
+func isDuplicateArg(arg string, sub []string) bool {
+	if len(filterSuggestions([]prompt.Suggest{{arg,""}}, sub)) == 0 {
+		return true
+	}
+	return false
+}
 
 //检查是否可以结束运行
 func runCompleteCheck(suggestions []prompt.Suggest, cmdArgs []string, requirement []string) []prompt.Suggest {

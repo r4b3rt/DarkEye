@@ -28,15 +28,14 @@ func (a *analysisRuntime) Completer(args []string) []prompt.Suggest {
 			}), a.parent.CmdArgs)
 	}
 	//过滤重复的命令
-	if len(filterSuggestions([]prompt.Suggest{
-		{args[0],"any"},
-	}, a.parent.CmdArgs)) == 0 {
+	if isDuplicateArg(args[0], a.parent.CmdArgs) {
 		return []prompt.Suggest{}
 	}
 	switch args[0] {
 	case "-sql":
 		if len(args) == 2 {
-			return []prompt.Suggest{{"select * from ent limit 1", "Analysis the result of intelligence collection"},}
+			return []prompt.Suggest{
+				{"select * from ent limit 1", "Analysis the result of intelligence collection"},}
 		}
 	}
 	return []prompt.Suggest{}

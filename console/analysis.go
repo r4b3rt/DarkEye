@@ -77,8 +77,12 @@ func (a *analysisRuntime) Init(requestContext *RequestContext) {
 	}
 }
 
-func (x *analysisRuntime) ValueCheck(value string) (bool, error) {
+func (a *analysisRuntime) ValueCheck(value string) (bool, error) {
 	if v, ok := analysisValueCheck[value]; ok {
+		//过滤重复的命令
+		if isDuplicateArg(value, a.parent.CmdArgs) {
+			return false, fmt.Errorf("参数重复")
+		}
 		return v, nil
 	}
 	return false, fmt.Errorf("无此参数")

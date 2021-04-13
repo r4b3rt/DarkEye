@@ -102,6 +102,9 @@ func (x *xRayRuntime) Init(requestContext *RequestContext) {
 
 func (x *xRayRuntime) ValueCheck(value string) (bool, error) {
 	if v, ok := xRayValueCheck[value]; ok {
+		if isDuplicateArg(value, x.parent.CmdArgs) {
+			return false, fmt.Errorf("参数重复")
+		}
 		return v, nil
 	}
 	return false, fmt.Errorf("无此参数")

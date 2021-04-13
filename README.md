@@ -7,7 +7,7 @@
 
 > <u>**特色：DF平台通过分析引擎（Analysis）将各个孤立的工具关联起来，以实现数据互通、自动化的渗透测试。**</u> 
 
-<img src="screenshot/overview.svg" style="zoom:auto;" align=center />
+<img src="screenshot/overview.png" style="zoom:auto;" align=center />
 
 ## 工作模式
 
@@ -45,7 +45,7 @@ df [moduleId] -h
 
 - 支持绕过防火墙频率限制扫描（仅单个IP有效）
 
-  <img src="screenshot/superscan.png" style="zoom:auto;" align=center" />
+  <img src="screenshot/superscan.png" style="zoom:auto;" align=center />
 
 🚀快速使用 
 
@@ -74,14 +74,14 @@ df [moduleId] -h
 
 #### 🚀快速使用
 
-<img src="screenshot/zoomeye.png" style="zoom:auto;" align=center" />
+<img src="screenshot/zoomeye.png" style="zoom:auto;" align=center />
 
 ### Analysis
 
 * 数据统一存储`analysis.s3db`
 * ***SQL查询语法***
 #### 🚀快速使用  
- <img src="screenshot/analysis.png" style="zoom:50%;" align=center" />
+<img src="screenshot/analysis.png" style="zoom:auto;" align=center />
 
 ## 支持平台
 

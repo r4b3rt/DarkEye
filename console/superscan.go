@@ -254,7 +254,7 @@ func (s *superScanRuntime) myCallback(a interface{}) {
 			plg.Result.Cracked.Username, plg.Result.Cracked.Password)
 
 		ent.WeakAccount = fmt.Sprintf(
-			"[%s/%s]", plg.Result.Cracked.Username, plg.Result.Cracked.Password),
+			"[%s/%s]", plg.Result.Cracked.Username, plg.Result.Cracked.Password)
 	}
 	common.Log(net.JoinHostPort(ent.Ip, ent.Port)+"[Opened]", message, common.INFO)
 	analysisRuntimeOptions.createOrUpdate(&ent)

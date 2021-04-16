@@ -54,7 +54,7 @@ func (s *superScanRuntime) Completer(args []string) []prompt.Suggest {
 		if len(args) == 2 {
 			return []prompt.Suggest{
 				{"192.168.1.1-192.168.1.255", "Scan ip target"},
-				{"$IP", "从analysis模块检索目标ip"},
+				{"$IP", "从analysis模块读取ip字段"},
 			}
 		}
 	case "-pps":
@@ -63,7 +63,9 @@ func (s *superScanRuntime) Completer(args []string) []prompt.Suggest {
 		}
 	case "-port-list":
 		if len(args) == 2 {
-			return []prompt.Suggest{{"80,80-88", "Default 1000+ port"},}
+			return []prompt.Suggest{
+				{"80,80-88", "Default 1000+ port"},
+			}
 		}
 	case "-timeout":
 		if len(args) == 2 {

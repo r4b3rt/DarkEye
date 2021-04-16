@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"sort"
+	"strings"
 )
 
 type analysisRuntime struct {
@@ -111,8 +112,10 @@ func (a *analysisRuntime) createOrUpdate(e *analysisEntity) {
 	if a.d.Table("ent").Where(
 		"task = ? and ip = ? and port = ? and service = ?",
 		e.Task, e.Ip, e.Port, e.Service).First(&n).Error == gorm.ErrRecordNotFound {
-		a.d.Create(e)
-		fmt.Println("create")
+		ret := a.d.Create(e)
+		if ret.Error != nil {
+			common.Log("analysis.create", ret.Error.Error(), common.ALERT)
+		}
 	} else {
 		aJson, _ := json.Marshal(e)
 		var m map[string]interface{}
@@ -138,12 +141,22 @@ func (a *analysisRuntime) createOrUpdate(e *analysisEntity) {
 	}
 }
 
-func (a *analysisRuntime) ipVar(sql string) []string {
-	e := make([]analysisEntity, 0)
-	analysisRuntimeOptions.d.Raw("select ip from ent").Scan(&e)
-	ipList := make([]string, 0)
-	for _, v := range e {
-		ipList = append(ipList, v.Ip)
+func (a *analysisRuntime) Var(condition string, field string) ([]string, error) {
+	if !strings.HasPrefix(field, "$") {
+		return nil, fmt.Errorf(field, "非变量")
 	}
-	return ipList
+	field = strings.ToLower(strings.TrimPrefix(field, "$"))
+	e := make([]analysisEntity, 0)
+	sql := fmt.Sprintf("select %s from ent", field)
+	analysisRuntimeOptions.d.Raw(sql).Scan(&e)
+	ret := make([]string, 0)
+	for _, v := range e {
+		switch field {
+		case "ip":
+			ret = append(ret, v.Ip)
+		case "url":
+			ret = append(ret, v.Url)
+		}
+	}
+	return ret, nil
 }

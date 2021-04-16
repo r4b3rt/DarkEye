@@ -13,6 +13,7 @@ import (
 
 var (
 	runShellOutput = "shell.out"
+	crawlerRecords = "crawler.urls"
 )
 
 func (ctx *RequestContext) executor(in string) {
@@ -84,7 +85,7 @@ func (ctx *RequestContext) runCmd(args []string) {
 			common.Log("executor.runCmd", "'"+args[0]+"' "+err.Error(), common.FAULT)
 			return
 		} else {
-			if !noVar && len(args) == 1{
+			if !noVar && len(args) == 1 {
 				common.Log("executor.runCmd", "Err:"+"'"+args[0]+"'"+" need value", common.FAULT)
 				return
 			}

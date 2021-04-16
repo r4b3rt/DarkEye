@@ -56,12 +56,9 @@ func (s *superScanRuntime) Start(parent context.Context) {
 		return
 	}
 	//解析变量
-	if s.IpList == "$IP" {
-		ipList := analysisRuntimeOptions.ipVar("")
-		if len(ipList) == 0 {
-			common.Log("superScan.start", "$IP未检索到目标", common.INFO)
-			return
-		}
+	ipList, err := analysisRuntimeOptions.Var("", s.IpList)
+	if err != nil {
+	} else {
 		s.IpList = ""
 		for _, v := range ipList {
 			s.IpList += v + ","
@@ -70,6 +67,10 @@ func (s *superScanRuntime) Start(parent context.Context) {
 	}
 	//初始化scan对象
 	ips := strings.Split(s.IpList, ",")
+	if len(ips) == 0 {
+		common.Log("superScan.start", "目标空", common.ALERT)
+		return
+	}
 	tot := 0
 	scans := make([]*superscan.Scan, 0)
 	for _, ip := range ips {

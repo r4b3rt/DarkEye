@@ -10,13 +10,15 @@ var (
 		{"-download", "binary_url"},
 		{"-url", "url or url-file-list"},
 		{"-proxy-port", "被动监听端口"},
+		{"-save-crawler-url", "保存爬虫记录"},
 		{"-chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"},
 	}
 	xRayValueCheck = map[string]bool{
-		"-download":   false,
-		"-url":        false,
-		"-proxy-port": false,
-		"-chrome":     false,
+		"-download":         false,
+		"-url":              false,
+		"-proxy-port":       false,
+		"-chrome":           false,
+		"-save-crawler-url": true,
 	}
 )
 
@@ -34,17 +36,18 @@ func (x *xRayRuntime) Completer(args []string) []prompt.Suggest {
 			}), x.parent.CmdArgs)
 	}
 	//过滤重复的命令
-	//过滤重复的命令
 	if isDuplicateArg(args[0], x.parent.CmdArgs) {
 		return []prompt.Suggest{}
 	}
 	switch args[0] {
 	case "-url":
 		if len(args) == 2 {
-			return []prompt.Suggest{{"https://vuln.com.cn", "vulnerable url"},
-				{"url-file-list", "url.txt"},}
+			return []prompt.Suggest{
+				{"https://vuln.com.cn", "vulnerable url"},
+				{"url-file-list", "url.txt"},
+				{"$URL", "analysis模块读取url字段"},
+			}
 		}
-
 	case "-proxy-port":
 		if len(args) == 2 {
 			return []prompt.Suggest{{"7777", "被动监听端口"},}
@@ -66,6 +69,10 @@ func (x *xRayRuntime) Completer(args []string) []prompt.Suggest {
 					"https://ghproxy.com/https://github.com/zsdevX/helper/releases/download/1/xray_windows_386",
 					"xRay binary address"},
 			}
+		}
+	case "-save-crawler-url":
+		if len(args) == 2 {
+			return []prompt.Suggest{{"", "保存爬虫URL记录crawler.urls"},}
 		}
 	}
 	return []prompt.Suggest{}

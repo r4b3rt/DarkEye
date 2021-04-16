@@ -24,11 +24,12 @@ type xRayRuntime struct {
 	Module
 	parent *RequestContext
 
-	download  string
-	url       string
-	proxyPort string
-	chrome    string
-	flagSet   *flag.FlagSet
+	download       string
+	url            string
+	proxyPort      string
+	chrome         string
+	saveCrawlerUrl bool
+	flagSet        *flag.FlagSet
 }
 
 type xRayTarget struct {
@@ -98,6 +99,8 @@ func (x *xRayRuntime) Init(requestContext *RequestContext) {
 		"proxy-port", "7777", "被动扫描代理端口")
 	xRayRuntimeOptions.flagSet.StringVar(&xRayRuntimeOptions.chrome,
 		"chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "Chrome path")
+	xRayRuntimeOptions.flagSet.BoolVar(&xRayRuntimeOptions.saveCrawlerUrl,
+		"save-crawler-url", false, "保存爬虫的爬的网址")
 }
 
 func (x *xRayRuntime) ValueCheck(value string) (bool, error) {
@@ -153,6 +156,11 @@ func (x *xRayRuntime) simulate(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	in, err := os.OpenFile(crawlerRecords, os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
 	tmpJson := bytes.Split(out, []byte("--[Mission Complete]--"))
 	if len(tmpJson) != 2 {
 		return fmt.Errorf("无 crawler result")
@@ -163,6 +171,9 @@ func (x *xRayRuntime) simulate(ctx context.Context) error {
 		return err
 	}
 	for _, t := range targets.Req {
+		if x.saveCrawlerUrl {
+			_, _ = in.WriteString(t.Url)
+		}
 		proxy := "http://127.0.0.1:" + x.proxyPort
 		if strings.HasPrefix(t.Url, "https://") {
 			proxy = "https://127.0.0.1:" + x.proxyPort
@@ -189,10 +200,17 @@ func (x *xRayRuntime) crawler(ctx context.Context) error {
 		common.Log("xRayRuntime.crawler", "结束", common.ALERT)
 	}()
 	var urls []string
-	if _, e := os.Stat(x.url); e != nil {
-		urls = append(urls, x.url)
-	} else {
-		urls = common.GenDicFromFile(x.url)
+	var err error
+	urls, err = analysisRuntimeOptions.Var("", "$URL")
+	if err != nil {
+		if _, e := os.Stat(x.url); e != nil {
+			urls = append(urls, x.url)
+		} else {
+			urls = common.GenDicFromFile(x.url)
+		}
+	}
+	if len(urls) == 0 {
+		return fmt.Errorf("目标空")
 	}
 	for _, vulnerable := range urls {
 		_ = os.Remove(runShellOutput)

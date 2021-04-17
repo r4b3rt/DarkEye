@@ -35,8 +35,10 @@ func (a *analysisRuntime) Completer(args []string) []prompt.Suggest {
 	case "-sql":
 		if len(args) == 2 {
 			return []prompt.Suggest{
-				{"select * from ent limit 1", "Analysis the result of intelligence collection"},}
+				{"select * from ent limit 1", "SQL语句查询并输出结果"},
+				{"delete from ent", "删掉所有数据"},}
 		}
+
 	}
 	return []prompt.Suggest{}
 }

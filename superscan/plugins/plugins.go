@@ -14,6 +14,9 @@ func (plg *Plugins) PreCheck() {
 	//1、该链上的处理为固定端口，主要为UDP或特殊协议
 	//2、此处未做发包限制
 	for _, srv := range preServices {
+		if !plg.available(srv.name, srv.port, true) {
+			continue
+		}
 		s := new(Service)
 		*s = srv
 		s.parent = plg
@@ -29,7 +32,7 @@ func (plg *Plugins) Check() {
 	}
 	plg.Result.PortOpened = true
 	for _, srv := range services {
-		if !plg.available(srv.name, srv.port) {
+		if !plg.available(srv.name, srv.port, false) {
 			continue
 		}
 		s := new(Service)
@@ -128,17 +131,26 @@ func (c *config) rateLimiter() {
 	}
 }
 
-func (plg *Plugins) available(name, port string) bool {
-	//强制指纹识别的协议
-	if port == "" {
-		return true
-	}
-	if plg.TargetPort != port {
-		if Config.SelectPlugin == "" {
-			return false
+func (plg *Plugins) available(srvName, srvPort string, preCheck bool) bool {
+	if Config.SelectPlugin == "" {
+		//未指定时，采用程序内置逻辑判断
+		//1. 插件未指定端口强制扫描
+		if srvPort == "" {
+			return true
 		}
-	} else {
-		if name == Config.SelectPlugin {
+		if preCheck {
+			return true
+		}
+		//2. 插件指定端口扫描
+		if plg.TargetPort == srvPort {
+			return true
+		}
+		return false
+	}
+	//指定插件时, 按照用户意图爆破所有端口
+	services := strings.Split(Config.SelectPlugin, ",")
+	for _, s := range services {
+		if srvName == s {
 			return true
 		}
 	}

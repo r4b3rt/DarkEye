@@ -187,7 +187,7 @@ func init() {
 		pass:    dic.DIC_PASSWORD_SSH,
 		check:   sshCheck,
 		connect: sshConn,
-		thread:  5,
+		thread:  1,
 	}
 	services["web"] = Service{
 		name:  "web",

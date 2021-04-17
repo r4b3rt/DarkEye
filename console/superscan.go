@@ -257,7 +257,7 @@ func (s *superScanRuntime) myCallback(a interface{}) {
 		ent.WeakAccount = fmt.Sprintf(
 			"[%s/%s]", plg.Result.Cracked.Username, plg.Result.Cracked.Password)
 	}
-	if message != "" {
+	if message != ent.Service {
 		//过滤下，只输出有指纹或被crack的资产
 		common.Log(net.JoinHostPort(ent.Ip, ent.Port)+"[Opened]", message, common.INFO)
 	}

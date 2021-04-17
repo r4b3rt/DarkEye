@@ -34,6 +34,17 @@ var (
 
 func (a *analysisRuntime) Start(ctx context.Context) {
 	d := make([]analysisEntity, 0)
+	fmt.Println("")
+	//非查询语句
+	if !strings.HasPrefix(strings.ToLower(analysisRuntimeOptions.q), "select") {
+		if err := a.d.Exec(analysisRuntimeOptions.q).Error; err != nil {
+			common.Log("analysis.start", err.Error(), common.ALERT)
+		} else {
+			common.Log("analysis.start", "已经更新", common.INFO)
+		}
+		return
+	}
+	//查询语句
 	ret := a.d.Raw(analysisRuntimeOptions.q).Scan(&d)
 	if ret.Error != nil {
 		return
@@ -43,7 +54,6 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 		return d[j].Ip > d[i].Ip
 	})
 
-	fmt.Println("")
 	jsonString, _ := json.Marshal(d)
 	r := bytes.NewBuffer(jsonString)
 	importer, err := trdsql.NewBufferImporter("ent", r, trdsql.InFormat(trdsql.JSON))

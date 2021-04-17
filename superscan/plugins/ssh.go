@@ -54,7 +54,6 @@ func sshConn(parent context.Context, s *Service, user, pass string) (ok int) {
 			return
 		}
 		if strings.Contains(err.Error(), "connection reset by peer") {
-			common.Log("crack.ssh", "爆破速度过快或防火墙限制服务器拒绝部分请求", common.ALERT)
 			return
 		}
 		if strings.Contains(err.Error(), "i/o timeout") {

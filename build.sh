@@ -1,4 +1,8 @@
 #base
+
+#brew reinstall FiloSottile/musl-cross/musl-cross --with-x86_64  --with-mips --with-i486 --with-aarch64  --with-arm-hf  --with-mipsel --with-mips64 --with-mips64el
+#brew install mingw-w64
+
 go env -w GOPROXY=https://goproxy.cn,direct
 export GO111MODULE=off
 
@@ -9,8 +13,7 @@ ldflag="-s -w"
 
 build_win() {
     cd console
-    GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc" go build -ldflags="${ldflag}" -o ../dist/df_windows_386.exe
-    GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -ldflags="${ldflag}" -o ../dist/df_windows_amd64.exe
+    GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -a -ldflags "${ldflag}" -o ../dist/df_windows_amd64.exe
     cd -
 }
 
@@ -22,27 +25,29 @@ build_mac() {
 
 build_linux() {
     cd console
-    GOOS=linux GOARCH=amd64 go build  -ldflags "${ldflag}" -o ../dist/superscan_linux_amd64
+    GOOS=linux GOARCH=amd64 CC=x86_64-linux-musl-gcc CGO_LDFLAGS="-static"  go build -a  -ldflags "${ldflag}" -o ../dist/df_linux_amd64
     cd -
 }
 
 build_all() {
     cd console
-
+#darwin
     GOOS=darwin GOARCH=amd64 go build -ldflags "${ldflag}" -o ../dist/df_darwin_amd64
-    GOOS=freebsd GOARCH=386 go build  -ldflags "${ldflag}" -o ../dist/df_freebsd_386
-    GOOS=freebsd GOARCH=amd64 go build -ldflags "${ldflag}" -o ../dist/df_freebsd_amd64
-    GOOS=linux GOARCH=386 go build -ldflags "${ldflag}" -o ../dist/df_linux_386
-    GOOS=linux GOARCH=amd64 go build  -ldflags "${ldflag}" -o ../dist/df_linux_amd64
-    GOOS=linux GOARCH=arm go build -ldflags "${ldflag}" -o ../dist/df_linux_arm
-    GOOS=linux GOARCH=arm64 go build  -ldflags "${ldflag}" -o ../dist/df_linux_arm64
-    GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc"  go build  -ldflags "${ldflag}" -o ../dist/df_windows_386.exe
-    GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -ldflags "${ldflag}" -o ../dist/df_windows_amd64.exe
-    GOOS=linux GOARCH=mips64 go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips64
-    GOOS=linux GOARCH=mips64le go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips64le
-    GOOS=linux GOARCH=mips GOMIPS=softfloat go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips
-    GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "${ldflag}" -o ../dist/df_linux_mipsle
+#windows
+    GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc"  go build -a  -ldflags "${ldflag}" -o ../dist/df_windows_386.exe
+    GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -a -ldflags "${ldflag}" -o ../dist/df_windows_amd64.exe
+#linux
+    GOOS=linux GOARCH=386  CC=i486-linux-musl-gcc CGO_LDFLAGS="-static"  go build -a -ldflags "${ldflag}" -o ../dist/df_linux_386
+    GOOS=linux GOARCH=amd64 CC=x86_64-linux-musl-gcc CGO_LDFLAGS="-static"  go build -a  -ldflags "${ldflag}" -o ../dist/df_linux_amd64
+#arm
+    GOOS=linux GOARCH=arm  CC=arm-linux-musleabihf-gcc CGO_LDFLAGS="-static" go build -a -ldflags "${ldflag}" -o ../dist/df_linux_arm
+    GOOS=linux GOARCH=arm64 CC=aarch64-linux-musl-gcc CGO_LDFLAGS="-static" go build -a  -ldflags "${ldflag}" -o ../dist/df_linux_arm64
+#mip[sel][64]
+    GOOS=linux GOARCH=mips CC=mips-linux-musl-cc CGO_LDFLAGS="-static" GOMIPS=softfloat go build -a -ldflags "${ldflag}" -o ../dist/df_linux_mips
+    GOOS=linux GOARCH=mipsel  CC=mipsel-linux-musl-cc CGO_LDFLAGS="-static" GOMIPS=softfloat go build -a -ldflags "${ldflag}" -o ../dist/df_linux_mipsel
 
+    GOOS=linux GOARCH=mips64 CC=mips64-linux-musl-cc CGO_LDFLAGS="-static" go build -a  -ldflags "${ldflag}" -o ../dist/df_linux_mips64
+    GOOS=linux GOARCH=mips64el CC=mips64el-linux-musl-cc CGO_LDFLAGS="-static" go build -a  -ldflags "${ldflag}" -o ../dist/df_linux_mips64el
     cd -
 }
 
@@ -84,6 +89,7 @@ case "$1" in
         ;;
      "all")
         clean
+        prepare
         build_all
         compress
         ;;

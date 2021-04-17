@@ -15,6 +15,9 @@
 
 ```bash
 df -i
+
+?或空格 - 查询命令
+[tab] - 选择命令
 ```
 
 <img src="screenshot/dfi.gif" style="zoom:auto;" align=center />
@@ -100,7 +103,17 @@ cd DarkEye
 Tips:编译好后文件都自动发布到dist目录下
 ```
 
+## 问题汇总
+* zoomEye、xRay这些工具需要自己下载吗？
+
+  > 不需要，`df`会自动从默认地址下载。 
+
+* 使用xRay提示license错误
+
+  > 需要大佬自己搞到[旺柴]
+
 # 404StarLink 2.0 - Galaxy
+
 ![](https://github.com/knownsec/404StarLink-Project/raw/master/logo.png)
 
 DarkEye 是 404Team [星链计划2.0](https://github.com/knownsec/404StarLink2.0-Galaxy)中的一环，如果对DarkEye 有任何疑问又或是想要找小伙伴交流，可以参考星链计划的加群方式。

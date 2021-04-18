@@ -12,11 +12,18 @@ import (
 //Run add comment
 func (z *ZoomEye) Run(ctx context.Context) []Match {
 	ret := make([]Match, 0)
-	i := 0
+	pages := strings.Split(z.Pages, "-")
+	if len(pages) != 2 {
+		z.ErrChannel <-
+			fmt.Sprintf("%s:%s页面范围格式错误", z.Query, z.Pages)
+		return nil
+	}
+	i, _ := strconv.Atoi(pages[0])
+	j, _ := strconv.Atoi(pages[1])
 	defer func() {
 		close(z.ErrChannel)
 	}()
-	for i < z.Pages {
+	for i <= j {
 		i++
 		matches := z.run(ctx, i)
 		if matches == nil {

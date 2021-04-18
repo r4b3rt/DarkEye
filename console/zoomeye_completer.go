@@ -8,7 +8,7 @@ var (
 	zoomEyeSuggestions = []prompt.Suggest{
 		// Command
 		{"-api", "API-KEY"},
-		{"-page", "查询返回的页面数量"},
+		{"-page", "返回查询页面范围(每页20条):开始页-结束页"},
 		{"+", "AND运算"},
 		{"-", "排除运算"},
 		{"ip:", "搜索指定IPv4地址相关资产"},
@@ -79,7 +79,7 @@ func (z *zoomEyeRuntime) Completer(args []string) []prompt.Suggest {
 		}
 	case "-page":
 		if len(args) == 2 {
-			return []prompt.Suggest{{"5", "返回查询结果页数（每页20个）"},}
+			return []prompt.Suggest{{"1-5", "返回查询页面范围(每页20条):开始页-结束页"},}
 		}
 	case "+":
 		if len(args) == 2 {

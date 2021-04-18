@@ -31,8 +31,8 @@ func (zoom *zoomEyeRuntime) Start(ctx context.Context) {
 	z := zoomeye.New()
 	z.Query = strings.TrimSpace(zoom.search)
 	z.ApiKey = zoom.api
-	z.Pages, _ = strconv.Atoi(zoom.page)
-	common.Log("zoom.start", fmt.Sprintf("获取页数-page=%d", z.Pages), common.INFO)
+	z.Pages = zoom.page
+	common.Log("zoom.start", fmt.Sprintf("获取页面范围%s", z.Pages), common.INFO)
 	z.ErrChannel = make(chan string, 10)
 	go func() {
 		for {
@@ -77,7 +77,7 @@ func (z *zoomEyeRuntime) Init(requestContext *RequestContext) {
 	zoomEyeRuntimeOptions.flagSet.StringVar(&zoomEyeRuntimeOptions.search,
 		"search", "ip:8.8.8.8", "https://www.zoomeye.org/")
 	zoomEyeRuntimeOptions.flagSet.StringVar(&zoomEyeRuntimeOptions.page,
-		"page", "5", "返回查询页面数量")
+		"page", "1-5", "返回查询页面范围(每页20条):开始页-结束页")
 }
 
 func (z *zoomEyeRuntime) ValueCheck(value string) (bool, error) {

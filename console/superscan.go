@@ -119,19 +119,19 @@ func (s *superScanRuntime) Start(parent context.Context) {
 }
 
 func (s *superScanRuntime) Init(requestContext *RequestContext) {
-	superScanRuntimeOptions.parent = requestContext
-	superScanRuntimeOptions.flagSet.StringVar(&superScanRuntimeOptions.IpList, "ip", "127.0.0.1", "a.b.c.1-a.b.c.255")
-	superScanRuntimeOptions.flagSet.StringVar(&superScanRuntimeOptions.PortList, "port-list", common.PortList, "端口范围,默认1000+常用端口")
-	superScanRuntimeOptions.flagSet.IntVar(&superScanRuntimeOptions.TimeOut, "timeout", 3000, "网络超时请求(单位ms)")
-	superScanRuntimeOptions.flagSet.IntVar(&superScanRuntimeOptions.Thread, "thread", 128, "每个IP爆破端口的线程数量")
-	superScanRuntimeOptions.flagSet.IntVar(&superScanRuntimeOptions.PacketPerSecond, "pps", 0, "扫描工具整体发包频率 packets/秒")
-	superScanRuntimeOptions.flagSet.StringVar(&superScanRuntimeOptions.Plugin, "plugin", "", "指定协议插件爆破")
-	superScanRuntimeOptions.flagSet.StringVar(&superScanRuntimeOptions.UserList, "user-list", "", "字符串(u1,u2,u3)或文件(一个账号一行）")
-	superScanRuntimeOptions.flagSet.StringVar(&superScanRuntimeOptions.PassList, "pass-list", "", "字符串(p1,p2,p3)或文件（一个密码一行")
-	superScanRuntimeOptions.flagSet.StringVar(&superScanRuntimeOptions.ActivePort, "alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
-	superScanRuntimeOptions.flagSet.BoolVar(&superScanRuntimeOptions.OnlyCheckAliveNetwork, "only-alive-network", false, "只检查活跃主机的网段(ping)")
-	superScanRuntimeOptions.flagSet.BoolVar(&superScanRuntimeOptions.OnlyCheckAliveHost, "alive-host-check", false, "检查所有活跃主机(ping)")
-	superScanRuntimeOptions.MaxConcurrencyIp = 32
+	s.parent = requestContext
+	s.flagSet.StringVar(&s.IpList, "ip", "127.0.0.1", "a.b.c.1-a.b.c.255")
+	s.flagSet.StringVar(&s.PortList, "port-list", common.PortList, "端口范围,默认1000+常用端口")
+	s.flagSet.IntVar(&s.TimeOut, "timeout", 3000, "网络超时请求(单位ms)")
+	s.flagSet.IntVar(&s.Thread, "thread", 128, "每个IP爆破端口的线程数量")
+	s.flagSet.IntVar(&s.PacketPerSecond, "pps", 0, "扫描工具整体发包频率 packets/秒")
+	s.flagSet.StringVar(&s.Plugin, "plugin", "", "指定协议插件爆破")
+	s.flagSet.StringVar(&s.UserList, "user-list", "", "字符串(u1,u2,u3)或文件(一个账号一行）")
+	s.flagSet.StringVar(&s.PassList, "pass-list", "", "字符串(p1,p2,p3)或文件（一个密码一行")
+	s.flagSet.StringVar(&s.ActivePort, "alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
+	s.flagSet.BoolVar(&s.OnlyCheckAliveNetwork, "only-alive-network", false, "只检查活跃主机的网段(ping)")
+	s.flagSet.BoolVar(&s.OnlyCheckAliveHost, "alive-host-check", false, "检查所有活跃主机(ping)")
+	s.MaxConcurrencyIp = 32
 }
 
 func (s *superScanRuntime) ValueCheck(value string) (bool, error) {
@@ -165,10 +165,10 @@ func (a *superScanRuntime) Usage() {
 func (s *superScanRuntime) newScan(ip string) *superscan.Scan {
 	return &superscan.Scan{
 		Ip:          ip,
-		TimeOut:     superScanRuntimeOptions.TimeOut,
-		ActivePort:  superScanRuntimeOptions.ActivePort,
-		PortRange:   superScanRuntimeOptions.PortList,
-		Thread:      superScanRuntimeOptions.Thread,
+		TimeOut:     s.TimeOut,
+		ActivePort:  s.ActivePort,
+		PortRange:   s.PortList,
+		Thread:      s.Thread,
 		Callback:    s.myCallback,
 		BarCallback: s.myBarCallback,
 	}

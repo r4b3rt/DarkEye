@@ -72,11 +72,11 @@ func (zoom *zoomEyeRuntime) Start(ctx context.Context) {
 
 func (z *zoomEyeRuntime) Init(requestContext *RequestContext) {
 	z.parent = requestContext
-	zoomEyeRuntimeOptions.flagSet.StringVar(&zoomEyeRuntimeOptions.api,
+	z.flagSet.StringVar(&z.api,
 		"api", "you-key", "API-KEY")
-	zoomEyeRuntimeOptions.flagSet.StringVar(&zoomEyeRuntimeOptions.search,
+	z.flagSet.StringVar(&z.search,
 		"search", "ip:8.8.8.8", "https://www.zoomeye.org/")
-	zoomEyeRuntimeOptions.flagSet.StringVar(&zoomEyeRuntimeOptions.page,
+	z.flagSet.StringVar(&z.page,
 		"page", "1-5", "返回查询页面范围(每页20条):开始页-结束页")
 }
 

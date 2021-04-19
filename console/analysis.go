@@ -35,8 +35,8 @@ var (
 func (a *analysisRuntime) Start(ctx context.Context) {
 	d := make([]analysisEntity, 0)
 	//非查询语句
-	if !strings.HasPrefix(strings.ToLower(analysisRuntimeOptions.q), "select") {
-		if err := a.d.Exec(analysisRuntimeOptions.q).Error; err != nil {
+	if !strings.HasPrefix(strings.ToLower(a.q), "select") {
+		if err := a.d.Exec(a.q).Error; err != nil {
 			common.Log("analysis.update", err.Error(), common.ALERT)
 		} else {
 			common.Log("analysis.update", "已经更新", common.INFO)
@@ -44,7 +44,8 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 		return
 	}
 	//查询语句
-	ret := a.d.Raw(analysisRuntimeOptions.q).Scan(&d)
+
+	ret := a.d.Raw(a.q).Scan(&d)
 	if ret.Error != nil {
 		return
 	}
@@ -58,7 +59,7 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 
 	jsonString, _ := json.Marshal(d)
 	r := bytes.NewBuffer(jsonString)
-	importer, err := trdsql.NewBufferImporter("ent", r, trdsql.InFormat(trdsql.JSON))
+	importer, err := trdsql.NewBufferImporter("any", r, trdsql.InFormat(trdsql.JSON))
 	if err != nil {
 		common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
 		return
@@ -66,7 +67,7 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 	writer := trdsql.NewWriter(trdsql.OutFormat(trdsql.AT))
 	trd := trdsql.NewTRDSQL(importer, trdsql.NewExporter(writer))
 	trd.Driver = "sqlite3"
-	err = trd.Exec(a.q)
+	err = trd.Exec("select * from any")
 	if err != nil {
 		common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
 		return
@@ -74,8 +75,8 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 }
 
 func (a *analysisRuntime) Init(requestContext *RequestContext) {
-	analysisRuntimeOptions.parent = requestContext
-	analysisRuntimeOptions.flagSet.StringVar(&analysisRuntimeOptions.q, "sql", "select * from ent limit 1", "Sqlite3 Grammar")
+	a.parent = requestContext
+	a.flagSet.StringVar(&a.q, "sql", "select * from ent limit 1", "Sqlite3 Grammar")
 
 	db, err := gorm.Open(sqlite.Open(analysisDb), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
@@ -83,7 +84,7 @@ func (a *analysisRuntime) Init(requestContext *RequestContext) {
 	if err != nil {
 		panic(err.Error())
 	}
-	analysisRuntimeOptions.d = db
+	a.d = db
 	err = db.AutoMigrate(&analysisEntity{})
 	if err != nil {
 		panic(err.Error())
@@ -160,7 +161,7 @@ func (a *analysisRuntime) Var(condition string, field string) ([]string, error) 
 	field = strings.ToLower(strings.TrimPrefix(field, "$"))
 	e := make([]analysisEntity, 0)
 	sql := fmt.Sprintf("select %s from ent", field)
-	analysisRuntimeOptions.d.Raw(sql).Scan(&e)
+	a.d.Raw(sql).Scan(&e)
 	ret := make([]string, 0)
 	for _, v := range e {
 		switch field {

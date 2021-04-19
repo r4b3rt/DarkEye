@@ -17,9 +17,9 @@ type RequestContext struct {
 type analysisEntity struct {
 	ID      int64  `json:"id,omitempty" gorm:"primaryKey"`
 	Task    string `json:"task,omitempty" gorm:"unique_index:UNIQ_hi;column:task"`
-	Ip      string `json:"ip" gorm:"unique_index:UNIQ_hi;column:ip"`
-	Port    string `json:"port" gorm:"unique_index:UNIQ_hi;column:port"`
-	Service string `json:"service" gorm:"unique_index:UNIQ_hi;column:service"`
+	Ip      string `json:"ip,omitempty" gorm:"unique_index:UNIQ_hi;column:ip"`
+	Port    string `json:"port,omitempty" gorm:"unique_index:UNIQ_hi;column:port"`
+	Service string `json:"service,omitempty" gorm:"unique_index:UNIQ_hi;column:service"`
 
 	Url             string `json:"url,omitempty" gorm:"column:url"`
 	Title           string `json:"title,omitempty" gorm:"column:title"`
@@ -35,9 +35,9 @@ type analysisEntity struct {
 	RDns      string `json:"r_dns,omitempty" gorm:"column:r_dns"`
 	Country   string `json:"country,omitempty"`
 
-	NetBios     string `json:"netbios" gorm:"column:netbios"`
-	WeakAccount string `json:"weak_account" gorm:"column:weak_account"`
-	Vulnerable  string `json:"vulnerable" gorm:"column:vulnerable"`
+	NetBios     string `json:"netbios,omitempty" gorm:"column:netbios"`
+	WeakAccount string `json:"weak_account,omitempty" gorm:"column:weak_account"`
+	Vulnerable  string `json:"vulnerable,omitempty" gorm:"column:vulnerable"`
 }
 
 func (analysisEntity) TableName() string {

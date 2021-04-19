@@ -90,16 +90,16 @@ func (x *xRayRuntime) Start(parent context.Context) {
 }
 
 func (x *xRayRuntime) Init(requestContext *RequestContext) {
-	xRayRuntimeOptions.parent = requestContext
-	xRayRuntimeOptions.flagSet.StringVar(&xRayRuntimeOptions.download,
+	x.parent = requestContext
+	x.flagSet.StringVar(&x.download,
 		"download", "https://ghproxy.com/https://github.com/zsdevX/helper/releases/download/1/xray_darwin_amd64", "xRay binary file")
-	xRayRuntimeOptions.flagSet.StringVar(&xRayRuntimeOptions.url,
+	x.flagSet.StringVar(&x.url,
 		"url", "http://vuln.com.cn", "vulnerable website or file list")
-	xRayRuntimeOptions.flagSet.StringVar(&xRayRuntimeOptions.proxyPort,
+	x.flagSet.StringVar(&x.proxyPort,
 		"proxy-port", "7777", "被动扫描代理端口")
-	xRayRuntimeOptions.flagSet.StringVar(&xRayRuntimeOptions.chrome,
+	x.flagSet.StringVar(&x.chrome,
 		"chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "Chrome path")
-	xRayRuntimeOptions.flagSet.BoolVar(&xRayRuntimeOptions.saveCrawlerUrl,
+	x.flagSet.BoolVar(&x.saveCrawlerUrl,
 		"save-crawler-url", false, "保存爬虫的爬的网址")
 }
 

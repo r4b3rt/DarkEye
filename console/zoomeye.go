@@ -83,7 +83,9 @@ func (z *zoomEyeRuntime) Init(requestContext *RequestContext) {
 func (z *zoomEyeRuntime) ValueCheck(value string) (bool, error) {
 	if v, ok := zoomEyeValue[value]; ok {
 		if isDuplicateArg(value, z.parent.CmdArgs) {
-			return false, fmt.Errorf("参数重复")
+			if value == "-api" || value == "-page" {
+				return false, fmt.Errorf("参数重复")
+			}
 		}
 		return v, nil
 	}
@@ -91,16 +93,8 @@ func (z *zoomEyeRuntime) ValueCheck(value string) (bool, error) {
 }
 
 func (z *zoomEyeRuntime) CompileArgs(cmd []string) error {
-	ret := make([]string, 0)
 	search := []string{"-search"}
-	s := ""
-	for _, c := range cmd {
-		if strings.HasPrefix(c, "-api") || strings.HasPrefix(c, "-page") {
-			ret = append(ret, strings.SplitN(c, " ", 2)...)
-		} else {
-			s += strings.ReplaceAll(c, " ", "") + " "
-		}
-	}
+	ret, s := z.buildQuery(cmd)
 	if s == "" {
 		return fmt.Errorf("搜索参数为空")
 	}
@@ -111,6 +105,29 @@ func (z *zoomEyeRuntime) CompileArgs(cmd []string) error {
 	}
 	z.flagSet.Parsed()
 	return nil
+}
+
+func (z *zoomEyeRuntime) buildQuery(cmd []string) ([]string, string) {
+	ret := make([]string, 0)
+	s := ""
+	for _, c := range cmd {
+		if strings.HasPrefix(c, "-api") || strings.HasPrefix(c, "-page") {
+			ret = append(ret, strings.SplitN(c, " ", 2)...)
+		} else {
+			blocks := strings.Split(c, ":")
+			rule := strings.TrimSpace(blocks[0])
+			if len(blocks) == 2 {
+				rule += ":" + strings.TrimSpace(blocks[1])
+			}
+			if strings.HasSuffix(s, "+") || strings.HasSuffix(s, "-") {
+				s += rule
+			} else {
+				s += " " + rule
+			}
+		}
+	}
+	s = strings.TrimSpace(s)
+	return ret, s
 }
 
 func (z *zoomEyeRuntime) Usage() {

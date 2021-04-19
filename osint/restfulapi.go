@@ -40,22 +40,34 @@ func (ctrl *MainController) Search() {
 		ctrl.http200(-1, err.Error())
 		return
 	}
-	if err = so.Profile(req); err != nil {
+	//更新Profile
+	if _, err = so.Profile(req); err != nil {
 		ctrl.http200(-1, err.Error())
 		return
 	}
-	if err = so.Follow(req); err != nil {
+	if err = osIntRuntimeOptions.updateProfile(so); err != nil {
 		ctrl.http200(-1, err.Error())
 		return
 	}
-	if err = so.Follower(req); err != nil {
+	//更新关注
+	if _, err = so.Follow(req); err != nil {
 		ctrl.http200(-1, err.Error())
 		return
 	}
-	if err = osIntRuntimeOptions.updateGraph(so); err != nil {
+	if err = osIntRuntimeOptions.updateFollow(so); err != nil {
 		ctrl.http200(-1, err.Error())
 		return
 	}
+	//更新粉丝
+	if _, err = so.Follower(req); err != nil {
+		ctrl.http200(-1, err.Error())
+		return
+	}
+	if err = osIntRuntimeOptions.updateFollower(so); err != nil {
+		ctrl.http200(-1, err.Error())
+		return
+	}
+
 	ctrl.http200(0, "查询成功")
 }
 
@@ -69,6 +81,6 @@ func (ctrl *MainController) parseReqOK() (*social.Request, bool) {
 }
 
 func (ctrl *MainController) http200(code int, message string) () {
-	ctrl.Data["json"] =  fmt.Sprintf(`{"success":%d,"message":"%s"}`, code, message)
+	ctrl.Data["json"] = fmt.Sprintf(`{"success":%d,"message":"%s"}`, code, message)
 	ctrl.ServeJSON()
 }

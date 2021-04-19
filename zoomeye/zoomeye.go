@@ -24,7 +24,6 @@ func (z *ZoomEye) Run(ctx context.Context) []Match {
 		close(z.ErrChannel)
 	}()
 	for i <= j {
-		i++
 		matches := z.run(ctx, i)
 		if matches == nil {
 			return ret
@@ -33,6 +32,7 @@ func (z *ZoomEye) Run(ctx context.Context) []Match {
 		z.ErrChannel <-
 			fmt.Sprintf("%s:获取第%d页信息共%d个", z.Query, i, len(ret))
 		time.Sleep(time.Second * 3)
+		i++
 	}
 	return ret
 }

@@ -34,13 +34,12 @@ var (
 
 func (a *analysisRuntime) Start(ctx context.Context) {
 	d := make([]analysisEntity, 0)
-	fmt.Println("")
 	//非查询语句
 	if !strings.HasPrefix(strings.ToLower(analysisRuntimeOptions.q), "select") {
 		if err := a.d.Exec(analysisRuntimeOptions.q).Error; err != nil {
-			common.Log("analysis.start", err.Error(), common.ALERT)
+			common.Log("analysis.update", err.Error(), common.ALERT)
 		} else {
-			common.Log("analysis.start", "已经更新", common.INFO)
+			common.Log("analysis.update", "已经更新", common.INFO)
 		}
 		return
 	}
@@ -49,7 +48,10 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 	if ret.Error != nil {
 		return
 	}
-
+	if len(d) == 0 {
+		common.Log("analysis.query", "查询无数据", common.INFO)
+		return
+	}
 	sort.Slice(d, func(i, j int) bool {
 		return d[j].Ip > d[i].Ip
 	})

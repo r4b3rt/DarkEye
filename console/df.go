@@ -75,8 +75,8 @@ func usageForAll() {
 	fmt.Println("	-i", "bool")
 	fmt.Println("		Launch the darkEye framework", "(default: false)")
 
-	for n := range Names() {
-		fmt.Println(fmt.Sprintf("	%s", n))
-		fmt.Println(fmt.Sprintf("		See 'df %s -h' for help", n))
+	for _,v := range Names() {
+		fmt.Println(fmt.Sprintf("	%s", v))
+		fmt.Println(fmt.Sprintf("		See 'df %s -h' for help", v))
 	}
 }

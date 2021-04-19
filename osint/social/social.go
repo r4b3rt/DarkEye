@@ -58,7 +58,8 @@ func New(ctx context.Context, request *Request) (Social, error) {
 	}
 	switch request.SocialName {
 	case "twitter":
-		return Social(Twitter{}.New(ctx)), nil
+		tw := Twitter{}
+		return Social(tw.New(ctx)), nil
 	}
 	return nil, fmt.Errorf("不支持的社交类型:" + request.SocialName)
 }

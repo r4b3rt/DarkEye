@@ -48,8 +48,7 @@ func init() {
 
 func (t *Twitter) New(ctx context.Context) *Twitter {
 	return &Twitter{
-		Prof: &Profile{},
-		ctx:  ctx,
+		ctx: ctx,
 	}
 }
 
@@ -69,6 +68,7 @@ func (t *Twitter) Profile(req *Request) (*Profile, error) {
 	if err != nil {
 		return nil, err
 	}
+	t.Prof = &Profile{}
 	t.copy(t.Prof, user)
 	return t.Prof, nil
 
@@ -98,9 +98,13 @@ func (t *Twitter) Follow(req *Request) (*Follow, error) {
 		f = append(f, p)
 	}
 	b, err := json.Marshal(&f)
-	t.Follows.Social = twitterConfig.Name
-	t.Follows.IDStr = req.IdStr
-	t.Follows.Profiles = string(b)
+	t.Follows = &Follow{
+		List{
+			Social:   twitterConfig.Name,
+			IDStr:    req.IdStr,
+			Profiles: string(b),
+		},
+	}
 	return t.Follows, nil
 }
 
@@ -128,9 +132,13 @@ func (t *Twitter) Follower(req *Request) (*Follower, error) {
 		f = append(f, p)
 	}
 	b, err := json.Marshal(&f)
-	t.Followers.Social = twitterConfig.Name
-	t.Followers.IDStr = req.IdStr
-	t.Followers.Profiles = string(b)
+	t.Followers = &Follower{
+		List{
+			Social:   twitterConfig.Name,
+			IDStr:    req.IdStr,
+			Profiles: string(b),
+		},
+	}
 	return t.Followers, nil
 }
 

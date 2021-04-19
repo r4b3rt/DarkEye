@@ -9,3 +9,4 @@ deploy
 http.pb.go
 dic_password_*
 dic_username_*
+*.cnf

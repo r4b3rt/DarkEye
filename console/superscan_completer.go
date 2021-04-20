@@ -7,6 +7,7 @@ import (
 var (
 	superScanSuggestions = []prompt.Suggest{
 		// Command
+		{"-attack", "发现漏洞即刻攻击"},
 		{"-ip", "Scan ip target"},
 		{"-pps", "Crack rate(packet/second)"},
 		{"-port-list", "Port list(80-88,8080"},
@@ -29,6 +30,7 @@ var (
 		"-pass-list":          false,
 		"-alive-host-check":   true,
 		"-only-alive-network": true,
+		"-attack":             true,
 	}
 )
 
@@ -50,6 +52,12 @@ func (s *superScanRuntime) Completer(args []string) []prompt.Suggest {
 		return []prompt.Suggest{}
 	}
 	switch args[0] {
+	case "-attack":
+		if len(args) == 2 {
+			return []prompt.Suggest{
+				{"", "发现问题即刻攻击"},
+			}
+		}
 	case "-ip":
 		if len(args) == 2 {
 			return []prompt.Suggest{

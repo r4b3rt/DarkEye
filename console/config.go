@@ -37,7 +37,7 @@ type analysisEntity struct {
 
 	NetBios     string `json:"netbios,omitempty" gorm:"column:netbios"`
 	WeakAccount string `json:"weak_account,omitempty" gorm:"column:weak_account"`
-	Vulnerable  string `json:"vulnerable,omitempty" gorm:"column:vulnerable"`
+	ExpHelper   string `json:"exp_helper,omitempty" gorm:"column:exp_helper"`
 }
 
 func (analysisEntity) TableName() string {

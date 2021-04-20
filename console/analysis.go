@@ -164,11 +164,11 @@ func (a *analysisRuntime) Var(condition string, field string) ([]string, error) 
 	a.d.Raw(sql).Scan(&e)
 	ret := make([]string, 0)
 	for _, v := range e {
-		switch field {
-		case "ip":
-			ret = append(ret, v.Ip)
-		case "url":
-			ret = append(ret, v.Url)
+		aJson, _ := json.Marshal(v)
+		var m map[string]interface{}
+		_ = json.Unmarshal(aJson, &m)
+		if value, ok := m[field]; ok {
+			ret = append(ret, fmt.Sprint(value))
 		}
 	}
 	return ret, nil

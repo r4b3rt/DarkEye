@@ -20,6 +20,7 @@ type superScanRuntime struct {
 	Module
 	parent *RequestContext
 
+	Attack                bool
 	IpList                string
 	PortList              string
 	TimeOut               int
@@ -120,6 +121,7 @@ func (s *superScanRuntime) Start(parent context.Context) {
 
 func (s *superScanRuntime) Init(requestContext *RequestContext) {
 	s.parent = requestContext
+	s.flagSet.BoolVar(&s.Attack, "attack", false, "发现漏洞即刻攻击")
 	s.flagSet.StringVar(&s.IpList, "ip", "127.0.0.1", "a.b.c.1-a.b.c.255")
 	s.flagSet.StringVar(&s.PortList, "port-list", common.PortList, "端口范围,默认1000+常用端口")
 	s.flagSet.IntVar(&s.TimeOut, "timeout", 3000, "网络超时请求(单位ms)")
@@ -199,6 +201,7 @@ func (s *superScanRuntime) initializer(parent context.Context) {
 	plugins.Config.SelectPlugin = s.Plugin
 	plugins.Config.ParentCtx = parent
 	plugins.Config.TimeOut = s.TimeOut
+	plugins.Config.Attack = s.Attack
 }
 
 func (s *superScanRuntime) newBar(max int) *progressbar.ProgressBar {
@@ -226,10 +229,11 @@ func (s *superScanRuntime) newBar(max int) *progressbar.ProgressBar {
 func (s *superScanRuntime) myCallback(a interface{}) {
 	plg := a.(*plugins.Plugins)
 	ent := analysisEntity{
-		Ip:      plg.TargetIp,
-		Port:    plg.TargetPort,
-		Service: plg.Result.ServiceName,
-		Os:      plg.Result.NetBios.Os,
+		Ip:        plg.TargetIp,
+		Port:      plg.TargetPort,
+		Service:   plg.Result.ServiceName,
+		Os:        plg.Result.NetBios.Os,
+		ExpHelper: plg.Result.ExpHelp,
 	}
 	message := ent.Service
 	if ent.Title != "" {
@@ -258,6 +262,9 @@ func (s *superScanRuntime) myCallback(a interface{}) {
 			"[%s/%s]", plg.Result.Cracked.Username, plg.Result.Cracked.Password)
 	}
 	if message != ent.Service {
+		if ent.ExpHelper != "" {
+			message += fmt.Sprintf(" [%s]", ent.ExpHelper)
+		}
 		//过滤下，只输出有指纹或被crack的资产
 		common.Log(net.JoinHostPort(ent.Ip, ent.Port)+"[Opened]", message, common.INFO)
 	}

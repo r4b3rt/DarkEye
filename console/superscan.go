@@ -268,7 +268,7 @@ func (s *superScanRuntime) myCallback(a interface{}) {
 		//过滤下，只输出有指纹或被crack的资产
 		common.Log(net.JoinHostPort(ent.Ip, ent.Port)+"[Opened]", message, common.INFO)
 	}
-	analysisRuntimeOptions.createOrUpdate(&ent)
+	analysisRuntimeOptions.upInsertEnt(&ent)
 }
 
 func (s *superScanRuntime) myBarCallback(i int) {

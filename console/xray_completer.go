@@ -10,7 +10,6 @@ var (
 		{"-download", "binary_url"},
 		{"-url", "url or url-file-list"},
 		{"-proxy-port", "被动监听端口"},
-		{"-save-crawler-url", "保存爬虫记录"},
 		{"-chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"},
 	}
 	xRayValueCheck = map[string]bool{
@@ -18,7 +17,6 @@ var (
 		"-url":              false,
 		"-proxy-port":       false,
 		"-chrome":           false,
-		"-save-crawler-url": true,
 	}
 )
 
@@ -69,10 +67,6 @@ func (x *xRayRuntime) Completer(args []string) []prompt.Suggest {
 					"https://ghproxy.com/https://github.com/zsdevX/helper/releases/download/1/xray_windows_386",
 					"xRay binary address"},
 			}
-		}
-	case "-save-crawler-url":
-		if len(args) == 2 {
-			return []prompt.Suggest{{"", "保存爬虫URL记录crawler.urls"},}
 		}
 	}
 	return []prompt.Suggest{}

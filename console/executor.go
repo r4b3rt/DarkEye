@@ -13,7 +13,6 @@ import (
 
 var (
 	runShellOutput = "shell.out"
-	crawlerRecords = "crawler.urls"
 )
 
 func (ctx *RequestContext) executor(in string) {

@@ -47,7 +47,6 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 		return
 	}
 	//查询语句
-
 	ret := a.d.Raw(a.q).Scan(&d)
 	if ret.Error != nil {
 		return
@@ -60,6 +59,7 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 		return d[j].Ip > d[i].Ip
 	})
 
+	//查询结果写入内存
 	jsonString, _ := json.Marshal(d)
 	r := bytes.NewBuffer(jsonString)
 	importer, err := trdsql.NewBufferImporter("any", r, trdsql.InFormat(trdsql.JSON))
@@ -67,7 +67,7 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 		common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
 		return
 	}
-
+	//查询输出table格式
 	writer := trdsql.NewWriter(trdsql.OutFormat(trdsql.AT))
 	trd := trdsql.NewTRDSQL(importer, trdsql.NewExporter(writer))
 	trd.Driver = "sqlite3"
@@ -76,7 +76,7 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 		common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
 		return
 	}
-
+	//查询导出文件
 	if a.output != "" {
 		fp, err := os.Create(a.output)
 		if err != nil {
@@ -93,7 +93,6 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 			return
 		}
 	}
-
 }
 
 func (a *analysisRuntime) Init(requestContext *RequestContext) {
@@ -109,6 +108,10 @@ func (a *analysisRuntime) Init(requestContext *RequestContext) {
 	}
 	a.d = db
 	err = db.AutoMigrate(&analysisEntity{})
+	if err != nil {
+		panic(err.Error())
+	}
+	err = db.AutoMigrate(&crawler{})
 	if err != nil {
 		panic(err.Error())
 	}
@@ -143,7 +146,24 @@ func (a *analysisRuntime) Usage() {
 	})
 }
 
-func (a *analysisRuntime) createOrUpdate(e *analysisEntity) {
+func (a *analysisRuntime) getCrawler() ([]crawler, error) {
+	c := make([]crawler, 0)
+	ret := a.d.Raw(a.q).Scan(&c)
+	if ret.Error != nil {
+		return nil, ret.Error
+	}
+	return c, nil
+}
+
+func (a *analysisRuntime) cleanCrawler() {
+	if err := a.d.Exec("delete from crawler").Error; err != nil {
+		common.Log("analysis.crawler.clean", err.Error(), common.ALERT)
+	} else {
+		common.Log("analysis.crawler.clean", "Cleaned", common.INFO)
+	}
+}
+
+func (a *analysisRuntime) upInsertEnt(e *analysisEntity) {
 	var n analysisEntity
 	if a.d.Table("ent").Where(
 		"task = ? and ip = ? and port = ? and service = ?",
@@ -174,6 +194,25 @@ func (a *analysisRuntime) createOrUpdate(e *analysisEntity) {
 			"task = ? and ip = ? and port = ? and service = ?",
 			e.Task, e.Ip, e.Port, e.Service).Updates(
 			m)
+	}
+}
+
+func (a *analysisRuntime) upInsertCrawler(c *crawler) {
+	var n analysisEntity
+	if a.d.Table("crawler").Where(
+		"target = ? and url = ? and method = ?",
+		c.Target, c.Url, c.Method).First(&n).Error == gorm.ErrRecordNotFound {
+		ret := a.d.Create(c)
+		if ret.Error != nil {
+			common.Log("analysis.create", ret.Error.Error(), common.ALERT)
+		}
+	} else {
+		if c.Data != "" {
+			a.d.Model(c).Where(
+				"target = ? and url = ? and method = ?",
+				c.Target, c.Url, c.Method).Updates(
+				c)
+		}
 	}
 }
 

@@ -24,12 +24,11 @@ type xRayRuntime struct {
 	Module
 	parent *RequestContext
 
-	download       string
-	url            string
-	proxyPort      string
-	chrome         string
-	saveCrawlerUrl bool
-	flagSet        *flag.FlagSet
+	download  string
+	url       string
+	proxyPort string
+	chrome    string
+	flagSet   *flag.FlagSet
 }
 
 type xRayTarget struct {
@@ -99,8 +98,6 @@ func (x *xRayRuntime) Init(requestContext *RequestContext) {
 		"proxy-port", "7777", "被动扫描代理端口")
 	x.flagSet.StringVar(&x.chrome,
 		"chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "Chrome path")
-	x.flagSet.BoolVar(&x.saveCrawlerUrl,
-		"save-crawler-url", false, "保存爬虫的爬的网址")
 }
 
 func (x *xRayRuntime) ValueCheck(value string) (bool, error) {
@@ -151,29 +148,11 @@ func (x *xRayRuntime) proxyServer(ctx context.Context) {
 }
 
 func (x *xRayRuntime) simulate(ctx context.Context) error {
-	//Do request
-	out, err := ioutil.ReadFile(runShellOutput)
+	cr, err := analysisRuntimeOptions.getCrawler()
 	if err != nil {
 		return err
 	}
-	in, err := os.OpenFile(crawlerRecords, os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-	defer in.Close()
-	tmpJson := bytes.Split(out, []byte("--[Mission Complete]--"))
-	if len(tmpJson) != 2 {
-		return fmt.Errorf("无 crawler result")
-	}
-	urlJson := tmpJson[1]
-	targets := xRayReq{}
-	if err = json.Unmarshal(urlJson, &targets); err != nil {
-		return err
-	}
-	for _, t := range targets.Req {
-		if x.saveCrawlerUrl {
-			_, _ = in.WriteString(t.Url)
-		}
+	for _, t := range cr {
 		proxy := "http://127.0.0.1:" + x.proxyPort
 		if strings.HasPrefix(t.Url, "https://") {
 			proxy = "https://127.0.0.1:" + x.proxyPort
@@ -212,6 +191,8 @@ func (x *xRayRuntime) crawler(ctx context.Context) error {
 	if len(urls) == 0 {
 		return fmt.Errorf("目标空")
 	}
+	//先清空上一次结果
+	analysisRuntimeOptions.cleanCrawler()
 	for _, vulnerable := range urls {
 		_ = os.Remove(runShellOutput)
 		var cmd *exec.Cmd
@@ -229,6 +210,34 @@ func (x *xRayRuntime) crawler(ctx context.Context) error {
 		if err := runShell(crawlerGo["name"], cmd, true); err != nil {
 			return err
 		}
+		if err := x.saveCrawler(vulnerable); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (x *xRayRuntime) saveCrawler(target string) error {
+	out, err := ioutil.ReadFile(runShellOutput)
+	if err != nil {
+		return err
+	}
+	tmpJson := bytes.Split(out, []byte("--[Mission Complete]--"))
+	if len(tmpJson) != 2 {
+		return fmt.Errorf("无 crawler result")
+	}
+	urlJson := tmpJson[1]
+	targets := xRayReq{}
+	if err = json.Unmarshal(urlJson, &targets); err != nil {
+		return err
+	}
+	for _, t := range targets.Req {
+		analysisRuntimeOptions.upInsertCrawler(&crawler{
+			Target: target,
+			Url:    t.Url,
+			Method: t.Method,
+			Data:   t.Data,
+		})
 	}
 	return nil
 }

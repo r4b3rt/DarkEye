@@ -41,6 +41,18 @@ type analysisEntity struct {
 	ExpHelper   string `json:"exp_helper,omitempty" gorm:"column:exp_helper"`
 }
 
+type crawler struct {
+	ID     int64  `json:"id,omitempty" gorm:"primaryKey"`
+	Target string `json:"target,omitempty"`
+	Url    string `json:"url,omitempty"`
+	Method string `json:"method,omitempty"`
+	Data   string `json:"data,omitempty"`
+}
+
 func (analysisEntity) TableName() string {
 	return "ent"
+}
+
+func (crawler) TableName() string {
+	return "crawler"
 }

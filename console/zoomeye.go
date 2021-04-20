@@ -65,7 +65,7 @@ func (zoom *zoomEyeRuntime) Start(ctx context.Context) {
 				ExtraInfo:       m.ExtraInfo,
 				RDns:            m.RDns,
 			}
-			analysisRuntimeOptions.createOrUpdate(e)
+			analysisRuntimeOptions.upInsertEnt(e)
 		}
 	}
 }

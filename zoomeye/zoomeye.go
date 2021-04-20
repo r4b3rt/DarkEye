@@ -42,7 +42,7 @@ func getData(ret []Match, matches *gjson.Result) []Match {
 		m := Match{}
 		m.Ip = match.Get("ip").String()
 		m.Country = match.Get("geoinfo.country.names.en").String()
-
+		m.Isp = match.Get("geoinfo.isp").String()
 		m.Port = int(match.Get("portinfo.port").Int())
 		m.Os = match.Get("portinfo.os").String()
 		m.Hostname = match.Get("portinfo.hostname").String()

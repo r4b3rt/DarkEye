@@ -11,6 +11,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"os"
 	"sort"
 	"strings"
 )
@@ -19,8 +20,10 @@ type analysisRuntime struct {
 	Module
 	parent *RequestContext
 
-	d       *gorm.DB
+	d *gorm.DB
+
 	q       string
+	output  string
 	flagSet *flag.FlagSet
 }
 
@@ -64,6 +67,7 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 		common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
 		return
 	}
+
 	writer := trdsql.NewWriter(trdsql.OutFormat(trdsql.AT))
 	trd := trdsql.NewTRDSQL(importer, trdsql.NewExporter(writer))
 	trd.Driver = "sqlite3"
@@ -72,11 +76,30 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 		common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
 		return
 	}
+
+	if a.output != "" {
+		fp, err := os.Create(a.output)
+		if err != nil {
+			common.Log(a.parent.CmdArgs[0]+".output", err.Error(), common.FAULT)
+		}
+		defer fp.Close()
+		writer := trdsql.NewWriter(trdsql.OutFormat(trdsql.CSV),
+			trdsql.OutHeader(true),
+			trdsql.OutStream(fp))
+		trd := trdsql.NewTRDSQL(importer, trdsql.NewExporter(writer))
+		err = trd.Exec("select * from any")
+		if err != nil {
+			common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
+			return
+		}
+	}
+
 }
 
 func (a *analysisRuntime) Init(requestContext *RequestContext) {
 	a.parent = requestContext
 	a.flagSet.StringVar(&a.q, "sql", "select * from ent limit 1", "Sqlite3 Grammar")
+	a.flagSet.StringVar(&a.output, "output-csv", "", "输出查询到文件")
 
 	db, err := gorm.Open(sqlite.Open(analysisDb), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),

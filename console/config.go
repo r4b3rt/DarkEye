@@ -34,6 +34,7 @@ type analysisEntity struct {
 	ExtraInfo string `json:"extra_info,omitempty" gorm:"column:extra_info"`
 	RDns      string `json:"r_dns,omitempty" gorm:"column:r_dns"`
 	Country   string `json:"country,omitempty"`
+	Isp       string `json:"isp,omitempty"`
 
 	NetBios     string `json:"netbios,omitempty" gorm:"column:netbios"`
 	WeakAccount string `json:"weak_account,omitempty" gorm:"column:weak_account"`

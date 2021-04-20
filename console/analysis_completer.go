@@ -8,9 +8,11 @@ var (
 	analysisSuggestions = []prompt.Suggest{
 		// Command
 		{"-sql", "select * from ent limit 1"},
+		{"-output-csv", "output.csv"},
 	}
 	analysisValueCheck = map[string]bool{
-		"-sql": false,
+		"-sql":        false,
+		"-output-csv": false,
 	}
 )
 
@@ -35,8 +37,14 @@ func (a *analysisRuntime) Completer(args []string) []prompt.Suggest {
 	case "-sql":
 		if len(args) == 2 {
 			return []prompt.Suggest{
-				{"select * from ent limit 1", "SQL语句查询并输出结果"},
+				{"select * from ent limit 1", "SQL语句查询并输出结果(支持ent"},
 				{"delete from ent", "删掉所有数据"},}
+		}
+	case "-output-csv":
+		if len(args) == 2 {
+			return []prompt.Suggest{
+				{"output.csv", "输出查询结果"},
+			}
 		}
 
 	}

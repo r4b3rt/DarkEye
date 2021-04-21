@@ -232,7 +232,6 @@ func (s *superScanRuntime) myCallback(a interface{}) {
 		Ip:        plg.TargetIp,
 		Port:      plg.TargetPort,
 		Service:   plg.Result.ServiceName,
-		Os:        plg.Result.NetBios.Os,
 		ExpHelper: plg.Result.ExpHelp,
 	}
 	message := ent.Service
@@ -245,14 +244,19 @@ func (s *superScanRuntime) myCallback(a interface{}) {
 		message += fmt.Sprintf(" ['%s' '%s' '%d' '%s']", ent.Title, ent.WebServer, ent.WebResponseCode, ent.Url)
 
 	}
-	if plg.Result.NetBios.Ip != "" ||
+	if plg.Result.NetBios.Net != "" ||
 		plg.Result.NetBios.Os != "" ||
 		plg.Result.NetBios.Shares != "" {
-		message += fmt.Sprintf(" ['%s' '%s' '%s']",
-			plg.Result.NetBios.Ip, plg.Result.NetBios.Os, plg.Result.NetBios.Shares)
+		message += fmt.Sprintf(" ['%s' '%s' '%s' '%s' '%s' '%s']",
+			plg.Result.NetBios.Os, plg.Result.NetBios.Net,
+			plg.Result.NetBios.Hw, plg.Result.NetBios.Shares,
+			plg.Result.NetBios.Domain, plg.Result.NetBios.UserName)
 
-		ent.NetBios = fmt.Sprintf(" ['%s' '%s']",
-			plg.Result.NetBios.Ip, plg.Result.NetBios.Shares)
+		ent.NetBios = fmt.Sprintf(" ['%s' '%s' '%s', '%s', '%s']",
+			plg.Result.NetBios.Net, plg.Result.NetBios.Hw,
+			plg.Result.NetBios.Shares,
+			plg.Result.NetBios.Domain,
+			plg.Result.NetBios.UserName)
 	}
 	if plg.Result.Cracked.Username != "" || plg.Result.Cracked.Password != "" {
 		message += fmt.Sprintf(" crack:['%s' '%s']",

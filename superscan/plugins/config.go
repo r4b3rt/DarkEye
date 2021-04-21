@@ -17,9 +17,13 @@ type Web struct {
 
 //NetBios add comment
 type NetBios struct {
-	Ip     string `json:",omitempty"`
-	Os     string
-	Shares string `json:",omitempty"`
+	Net      string
+	Name     string
+	UserName string
+	Os       string
+	Hw       string
+	Shares   string
+	Domain   string
 }
 
 //Account add comment
@@ -199,14 +203,9 @@ func init() {
 	}
 
 	///////// pre check
-	preServices["ms17010"] = Service{
-		name:  "ms17010",
-		port:  "445",
-		check: ms17010Check,
-	}
 	preServices["netbios"] = Service{
 		name:  "netbios",
-		port:  "135",
+		port:  "137",
 		check: nbCheck,
 	}
 

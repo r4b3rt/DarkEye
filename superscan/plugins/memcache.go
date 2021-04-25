@@ -44,3 +44,13 @@ func memCachedUnAuth(s *Service) (ok bool) {
 	}
 	return
 }
+
+func init() {
+	services["memcached"] = Service{
+		name:    "memcached",
+		port:    "11211",
+		check:   memCachedCheck,
+		connect: memCacheConn,
+		thread:  1,
+	}
+}

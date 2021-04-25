@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"context"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"gopkg.in/mgo.v2"
 	"strings"
 	"time"
@@ -40,4 +41,16 @@ func mongoUnAuth(s *Service) (ok bool) {
 		ok = true
 	}
 	return ok
+}
+
+func init() {
+	services["mongodb"] = Service{
+		name:    "mongodb",
+		port:    "27017",
+		user:    dic.DIC_USERNAME_MONGODB,
+		pass:    dic.DIC_PASSWORD_MONGODB,
+		check:   mongoCheck,
+		connect: mongodbConn,
+		thread:  1,
+	}
 }

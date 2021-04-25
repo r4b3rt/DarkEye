@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/melbahja/goph"
 	"github.com/zsdevX/DarkEye/common"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"golang.org/x/crypto/ssh"
 	"net"
 	"strconv"
@@ -71,4 +72,16 @@ func sshConn(parent context.Context, s *Service, user, pass string) (ok int) {
 	}
 	ok = OKDone
 	return
+}
+
+func init() {
+	services["ssh"] = Service{
+		name:    "ssh",
+		port:    "22",
+		user:    dic.DIC_USERNAME_SSH,
+		pass:    dic.DIC_PASSWORD_SSH,
+		check:   sshCheck,
+		connect: sshConn,
+		thread:  1,
+	}
 }

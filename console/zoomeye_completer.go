@@ -17,6 +17,7 @@ var (
 		{"port:", "搜索相关端口资产"},
 		{"service:", "搜索对应服务协议的资产"},
 		{"title:", `搜索html内容里标题中搜索数据`},
+		{"banner:", `服务器应答信息`},
 		{"site:", "搜索域名相关的资产"},
 		{"app:", `搜索中间件`},
 		{"hostname:", `搜索相关IP"主机名"的资产`},
@@ -40,6 +41,7 @@ var (
 		"port:":         false,
 		"service:":      false,
 		"title:":        false,
+		"banner:":       false,
 		"site:":         false,
 		"app:":          false,
 		"hostname:":     false,
@@ -62,15 +64,23 @@ func init() {
 
 func (z *zoomEyeRuntime) Completer(args []string) []prompt.Suggest {
 	if len(args) <= 1 {
+		filtered := make([]string, 0)
+		for _, v := range z.parent.CmdArgs {
+			if v != "-api" && v != "-page" {
+				continue
+			}
+			filtered = append(filtered, v)
+		}
 		return filterSuggestions(runCompleteCheck(zoomEyeSuggestions, z.parent.CmdArgs,
 			[]string{
 				"-api",
-			}), z.parent.CmdArgs)
+			}), filtered)
 	}
 	//过滤重复的命令
-	//过滤重复的命令
-	if isDuplicateArg(args[0], z.parent.CmdArgs) {
-		return []prompt.Suggest{}
+	if args[0] == "-api" || args[0] == "-page" {
+		if isDuplicateArg(args[0], z.parent.CmdArgs) {
+			return []prompt.Suggest{}
+		}
 	}
 	switch args[0] {
 	case "-api":
@@ -117,6 +127,10 @@ func (z *zoomEyeRuntime) Completer(args []string) []prompt.Suggest {
 	case "title:":
 		if len(args) == 2 {
 			return []prompt.Suggest{{`"Cisco"`, `搜索html内容里标题中存在"Cisco"的数据`},}
+		}
+	case "banner:":
+		if len(args) == 2 {
+			return []prompt.Suggest{{`"OpenSSh"`, `服务器应答包含的信息`},}
 		}
 	case "app:":
 		if len(args) == 2 {

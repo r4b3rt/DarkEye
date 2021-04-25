@@ -64,6 +64,7 @@ func (zoom *zoomEyeRuntime) Start(ctx context.Context) {
 				Version:         m.Version,
 				ExtraInfo:       m.ExtraInfo,
 				RDns:            m.RDns,
+				Isp:             m.Isp,
 			}
 			analysisRuntimeOptions.upInsertEnt(e)
 		}

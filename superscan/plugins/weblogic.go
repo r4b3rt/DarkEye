@@ -18,7 +18,7 @@ func checkWebLogic(s *Service) {
 		if !strings.Contains(loc, "LoginForm.jsp") {
 			return
 		}
-		//随意填写一个过期cookie
+		//随意填写的过期cookie
 		s.vars["cookie"] = "ADMINCONSOLESESSION=O9BKOxQLzl7ZoJBlf4IgIicF0g0WGpfNMrUaSWWIA2G5gdlL6yvH!-1249850057"
 		if ck, ok := response.ResponseHeaders["Set-Cookie"]; ok {
 			cks := strings.Split(ck, ";")

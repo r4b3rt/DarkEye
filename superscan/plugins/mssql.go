@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 	"time"
 
@@ -45,4 +46,16 @@ func mssqlConn(_ context.Context, s *Service, user, pass string) (ok int) {
 		color.Red(err.Error())
 	}
 	return
+}
+
+func init() {
+	services["mssql"] = Service{
+		name:    "mssql",
+		port:    "1433",
+		user:    dic.DIC_USERNAME_SQLSERVER,
+		pass:    dic.DIC_PASSWORD_SQLSERVER,
+		check:   mssqlCheck,
+		connect: mssqlConn,
+		thread:  1,
+	}
 }

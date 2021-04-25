@@ -3,6 +3,7 @@ package plugins
 import (
 	"fmt"
 	"github.com/hirochachacha/go-smb2"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"golang.org/x/net/context"
 	"net"
 	"strings"
@@ -58,4 +59,16 @@ func smbConn(parent context.Context, s *Service, user, pass string) (ok int) {
 	}
 	strings.TrimPrefix(",", s.parent.Result.NetBios.Shares)
 	return
+}
+
+func init() {
+	services["smb"] = Service{
+		name:    "smb",
+		port:    "445",
+		user:    dic.DIC_USERNAME_SMB,
+		pass:    dic.DIC_PASSWORD_SMB,
+		check:   smbCheck,
+		connect: smbConn,
+		thread:  1,
+	}
 }

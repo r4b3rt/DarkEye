@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 	"time"
 
@@ -46,4 +47,16 @@ func postgresConn(_ context.Context, s *Service, user, pass string) (ok int) {
 		ok = OKStop
 	}
 	return
+}
+
+func init() {
+	services["postgres"] = Service{
+		name:    "postgres",
+		port:    "5432",
+		user:    dic.DIC_USERNAME_POSTGRESQL,
+		pass:    dic.DIC_PASSWORD_POSTGRESQL,
+		check:   postgresCheck,
+		connect: postgresConn,
+		thread:  1,
+	}
 }

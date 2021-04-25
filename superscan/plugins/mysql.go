@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 	"time"
 
@@ -52,6 +53,18 @@ func mysqlConn(_ context.Context, s *Service, user, pass string)  (ok int) {
 	return
 }
 
+func init() {
+	services["mysql"] = Service{
+		name:    "mysql",
+		port:    "3306",
+		user:    dic.DIC_USERNAME_MYSQL,
+		pass:    dic.DIC_PASSWORD_MYSQL,
+		check:   mysqlCheck,
+		connect: mysqlConn,
+		thread:  1,
+	}
+}
+
 //接管mysql的垃圾日志
 type mysqlLogger interface {
 	Print(v ...interface{})
@@ -62,3 +75,5 @@ type mysqlNoLogger struct {
 
 func (*mysqlNoLogger) Print(v ...interface{}) {
 }
+
+

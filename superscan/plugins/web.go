@@ -8,10 +8,7 @@ import (
 )
 
 func webCheck(s *Service) {
-	timeOutSec := Config.TimeOut / 1000
-	if timeOutSec == 0 {
-		timeOutSec = 1
-	}
+	timeOutSec := 1 + Config.TimeOut/1000
 	ctx, _ := context.WithCancel(Config.ParentCtx)
 	s.parent.Result.Web.Server, s.parent.Result.Web.Title, s.parent.Result.Web.Code =
 		common.GetHttpTitle(ctx, "http", s.parent.TargetIp+":"+s.parent.TargetPort, timeOutSec)
@@ -20,12 +17,14 @@ func webCheck(s *Service) {
 	if strings.Contains(s.parent.Result.Web.Title, "The plain HTTP request was sent to HTTPS port") {
 		s.parent.Result.Web.Title = ""
 	}
+	//http失败后尝试https访问
 	if s.parent.Result.Web.Server == "" && s.parent.Result.Web.Title == "" {
 		s.parent.Result.Web.Server, s.parent.Result.Web.Title, s.parent.Result.Web.Code =
 			common.GetHttpTitle(ctx, "https", s.parent.TargetIp+":"+s.parent.TargetPort, timeOutSec)
 		s.parent.Result.Web.Tls = true
 		s.parent.Result.Web.Url = fmt.Sprintf("https://%s:%s", s.parent.TargetIp, s.parent.TargetPort)
 	}
+	//记录
 	if s.parent.Result.Web.Server != "" || s.parent.Result.Web.Title != "" {
 		if s.parent.Result.Web.Tls {
 			s.parent.Result.ServiceName = "https"
@@ -33,15 +32,40 @@ func webCheck(s *Service) {
 			s.parent.Result.ServiceName = "http"
 		}
 		s.parent.Hit = true
-		webCrackByFinger(s)
+		//尝试web相关爆破
+		webCrack(s)
 	}
 }
 
-func webCrackByFinger(s *Service) {
-	if strings.Contains(s.parent.Result.Web.Title, "Apache Tomcat") {
+func webCrack(s *Service) {
+	//尝试找爆破的web
+	switch WhatWeb(s.parent.Result.Web.Title) {
+	case Tomcat:
 		tomcatCheck(s)
-		return
+	case WebLogic:
+		checkWebLogic(s)
 	}
-	//Other
-	checkWebLogic(s)
+}
+
+func init() {
+	services["web"] = Service{
+		name:  "web",
+		check: webCheck,
+	}
+}
+
+const (
+	UnknownWeb = iota
+	WebLogic
+	Tomcat
+)
+
+func WhatWeb(finger string) int {
+	if strings.Contains(finger, "Apache Tomcat") {
+		return Tomcat
+	}
+	if strings.Contains(finger, "WebLogic") {
+		return WebLogic
+	}
+	return UnknownWeb
 }

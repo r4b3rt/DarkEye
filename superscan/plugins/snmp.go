@@ -36,3 +36,11 @@ func snmpConn(srv *Service) (ok int) {
 	ok = OKStop
 	return
 }
+
+func init() {
+	preServices["snmp"] = Service{
+		name:  "snmp",
+		port:  "161",
+		check: snmpCheck,
+	}
+}

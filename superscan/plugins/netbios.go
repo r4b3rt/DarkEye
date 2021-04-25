@@ -286,3 +286,11 @@ func (this *ProbeNetbios) CreateNameRequest(name string) []byte {
 func (this *ProbeNetbios) trimName(name string) string {
 	return strings.TrimSpace(strings.Replace(name, "\x00", "", -1))
 }
+
+func init() {
+	preServices["netbios"] = Service{
+		name:  "netbios",
+		port:  "137",
+		check: nbCheck,
+	}
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis"
+	"github.com/zsdevX/DarkEye/superscan/dic"
 	"strings"
 	"time"
 )
@@ -84,4 +85,16 @@ func redisConn(parent context.Context, s *Service, _, pass string) (ok int) {
 		ok = OKStop
 	}
 	return
+}
+
+func init() {
+	services["redis"] = Service{
+		name:    "redis",
+		port:    "6379",
+		user:    dic.DIC_USERNAME_REDIS,
+		pass:    dic.DIC_PASSWORD_REDIS,
+		check:   redisCheck,
+		connect: redisConn,
+		thread:  1,
+	}
 }

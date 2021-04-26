@@ -8,16 +8,36 @@ export GO111MODULE=off
 
 #Using go-sqlite3
 export CGO_ENABLED=1
-
 ldflag="-s -w"
+
+support_rdp() {
+os=$1
+if [ "$os" == "mac" ]; then
+#mac
+#cmake -D "CMAKE_OSX_ARCHITECTURES:STRING=x86_64" -DBUILD_SHARED_LIBS=OFF  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/Volumes/dev/gosrc/src/github.com/zsdevX/FreeRDP/formac
+path=/Volumes/dev/gosrc/src/github.com/zsdevX/freerdp_binary/formac
+openssl=/usr/local/opt/openssl/lib/
+export CGO_CFLAGS="-I${path}/include/freerdp3 -I${path}/include/winpr3"
+export CGO_LDFLAGS="${path}/lib/libfreerdp3.a $path/lib/libwinpr3.a $path/lib/libfreerdp-client3.a $openssl/libcrypto.a $openssl/libssl.a"
+else
+    export CGO_CFLAGS="-DNO_RDP_SUPPORT"
+fi
+
+#window
+
+#linux
+}
+
 
 build_win() {
     cd console
+    GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc"  go build -a  -ldflags "${ldflag}" -o ../dist/df_windows_386.exe
     GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -a -ldflags "${ldflag}" -o ../dist/df_windows_amd64.exe
     cd -
 }
 
 build_mac() {
+    support_rdp mac
     cd console
     go build -ldflags="${ldflag}" -o ../dist/df_darwin_amd64
     cd -
@@ -30,15 +50,10 @@ build_linux() {
 }
 
 build_all() {
+    build_mac
+    build_linux
+    build_win
     cd console
-#darwin
-    GOOS=darwin GOARCH=amd64 go build -ldflags "${ldflag}" -o ../dist/df_darwin_amd64
-#windows
-    GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc"  go build -a  -ldflags "${ldflag}" -o ../dist/df_windows_386.exe
-    GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -a -ldflags "${ldflag}" -o ../dist/df_windows_amd64.exe
-#linux
-    GOOS=linux GOARCH=386  CC=i486-linux-musl-gcc CGO_LDFLAGS="-static"  go build -a -ldflags "${ldflag}" -o ../dist/df_linux_386
-    GOOS=linux GOARCH=amd64 CC=x86_64-linux-musl-gcc CGO_LDFLAGS="-static"  go build -a  -ldflags "${ldflag}" -o ../dist/df_linux_amd64
 #arm
     GOOS=linux GOARCH=arm  CC=arm-linux-musleabihf-gcc CGO_LDFLAGS="-static" go build -a -ldflags "${ldflag}" -o ../dist/df_linux_arm
     GOOS=linux GOARCH=arm64 CC=aarch64-linux-musl-gcc CGO_LDFLAGS="-static" go build -a  -ldflags "${ldflag}" -o ../dist/df_linux_arm64
@@ -53,9 +68,7 @@ build_all() {
 
 prepare() {
     cd superscan/utils
-
     go run dic.go
-
     cd -
 }
 

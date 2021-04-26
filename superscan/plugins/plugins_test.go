@@ -8,11 +8,11 @@ import (
 
 func Test_crack(t *testing.T) {
 	s := new(Service)
-	*s = services["web"]
+	*s = services["rdp"]
 	s.thread = 1
 	s.parent = &Plugins{
-		TargetIp: "192.168.1.1",
-		TargetPort: "443",
+		TargetIp: "127.0.0.1",
+		TargetPort: "3389",
 	}
 	Config.UserList = []string{"varbing"}
 	Config.PassList = []string{"varbing@123@woshitiancai"}

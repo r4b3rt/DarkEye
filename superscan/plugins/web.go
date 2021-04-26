@@ -34,6 +34,8 @@ func webCheck(s *Service) {
 		s.parent.Hit = true
 		//尝试web相关爆破
 		webCrack(s)
+	} else {
+		s.parent.Result.Web.Url = ""
 	}
 }
 

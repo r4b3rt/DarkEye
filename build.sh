@@ -30,6 +30,7 @@ fi
 
 
 build_win() {
+    support_rdp win
     cd console
     GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc"  go build -a  -ldflags "${ldflag}" -o ../dist/df_windows_386.exe
     GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -a -ldflags "${ldflag}" -o ../dist/df_windows_amd64.exe
@@ -44,6 +45,7 @@ build_mac() {
 }
 
 build_linux() {
+    support_rdp linux
     cd console
     GOOS=linux GOARCH=amd64 CC=x86_64-linux-musl-gcc CGO_LDFLAGS="-static"  go build -a  -ldflags "${ldflag}" -o ../dist/df_linux_amd64
     cd -
@@ -53,6 +55,8 @@ build_all() {
     build_mac
     build_linux
     build_win
+
+    support_rdp "none"
     cd console
 #arm
     GOOS=linux GOARCH=arm  CC=arm-linux-musleabihf-gcc CGO_LDFLAGS="-static" go build -a -ldflags "${ldflag}" -o ../dist/df_linux_arm

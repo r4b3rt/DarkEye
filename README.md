@@ -77,6 +77,7 @@ Windows、Linux、MacOs、Arm、Mips[el]、FreeBsd ...
 ## 🛠 编译安装
 
 ```bash
+# https://github.com/zsdevX/freerdp_binary
 git clone https://github.com/zsdevX/DarkEye.git
 cd DarkEye
 ./build all

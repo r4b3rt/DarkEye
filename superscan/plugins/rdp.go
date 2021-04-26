@@ -1,21 +1,21 @@
 package plugins
 
 /*
-#ifndef DNO_RDP_SUPPORT
-#include <freerdp/gdi/gdi.h>
+#include <stdlib.h>
+#ifdef RDP_SUPPORT
 #include <freerdp/freerdp.h>
+#include <freerdp/gdi/gdi.h>
 
 int rdp_connect(char *server, char *port, char *domain, char *login, char *password) {
-
   int32_t err = 0;
   freerdp *instance = 0;
-  wLog *root = WLog_GetRoot();
-  WLog_SetStringLogLevel(root, "OFF");
 
   instance = freerdp_new();
   if (instance == NULL || freerdp_context_new(instance) == FALSE) {
     return -1;
   }
+  wLog *root = WLog_GetRoot();
+  WLog_SetStringLogLevel(root, "OFF");
 
   instance->settings->Username = login;
   instance->settings->Password = password;

@@ -11,17 +11,23 @@ export CGO_ENABLED=1
 ldflag="-s -w"
 
 support_rdp() {
-os=$1
-if [ "$os" == "mac" ]; then
+    os=$1
+    if [ "$os" == "mac" ]; then
 #mac
 #cmake -D "CMAKE_OSX_ARCHITECTURES:STRING=x86_64" -DBUILD_SHARED_LIBS=OFF  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/Volumes/dev/gosrc/src/github.com/zsdevX/FreeRDP/formac
-path=/Volumes/dev/gosrc/src/github.com/zsdevX/freerdp_binary/formac
-openssl=/usr/local/opt/openssl/lib/
-export CGO_CFLAGS="-I${path}/include/freerdp3 -I${path}/include/winpr3"
-export CGO_LDFLAGS="${path}/lib/libfreerdp3.a $path/lib/libwinpr3.a $path/lib/libfreerdp-client3.a $openssl/libcrypto.a $openssl/libssl.a"
-else
-    export CGO_CFLAGS="-DNO_RDP_SUPPORT"
-fi
+#make
+        path=${GOPATH}/src/github.com/zsdevX/freerdp_binary/formac
+        export CGO_CFLAGS="-I${path}/include/freerdp3 -I${path}/include/winpr3 -DRDP_SUPPORT"
+        export CGO_LDFLAGS="${path}/lib/libfreerdp3.a $path/lib/libwinpr3.a $path/lib/libfreerdp-client3.a $path/libcrypto.a $path/libssl.a"
+    elif [ "$os" == "linux" ]; then
+#cmake -GNinja  -DBUILD_SHARED_LIBS=OFF  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/share/fuck/freerdp-2.3.2/forlinux .
+#cmake --build . --target install
+#        path=${GOPATH}/src/github.com/zsdevX/freerdp_binary/forlinux
+ #       export CGO_CFLAGS="-I${path}/include/freerdp2 -I${path}/include/winpr2 -DRDP_SUPPORT -static"
+  #      export CGO_LDFLAGS="${path}/lib/libfreerdp2.a $path/lib/libwinpr2.a $path/lib/libfreerdp-client2.a $path/libcrypto.a $path/libssl.a"
+    else
+        echo ${os}":不支持rdp"
+    fi
 
 #window
 
@@ -47,7 +53,7 @@ build_mac() {
 build_linux() {
     support_rdp linux
     cd console
-    GOOS=linux GOARCH=amd64 CC=x86_64-linux-musl-gcc CGO_LDFLAGS="-static"  go build -a  -ldflags "${ldflag}" -o ../dist/df_linux_amd64
+    GOOS=linux GOARCH=amd64 CC=x86_64-linux-musl-gcc  go build -a  -ldflags "${ldflag}" -o ../dist/df_linux_amd64
     cd -
 }
 
@@ -56,7 +62,7 @@ build_all() {
     build_linux
     build_win
 
-    support_rdp "none"
+    support_rdp none
     cd console
 #arm
     GOOS=linux GOARCH=arm  CC=arm-linux-musleabihf-gcc CGO_LDFLAGS="-static" go build -a -ldflags "${ldflag}" -o ../dist/df_linux_arm

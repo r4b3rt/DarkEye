@@ -32,6 +32,7 @@ func (zoom *zoomEyeRuntime) Start(ctx context.Context) {
 	z.Query = strings.TrimSpace(zoom.search)
 	z.ApiKey = zoom.api
 	z.Pages = zoom.page
+	zoom.parent.taskId ++
 	common.Log("zoom.start", fmt.Sprintf("获取页面范围%s", z.Pages), common.INFO)
 	z.ErrChannel = make(chan string, 10)
 	go func() {
@@ -49,6 +50,7 @@ func (zoom *zoomEyeRuntime) Start(ctx context.Context) {
 	if matches := z.Run(zoom.parent.ctx); matches != nil {
 		for _, m := range matches {
 			e := &analysisEntity{
+				Task: strconv.Itoa(zoom.parent.taskId),
 				Ip:              m.Ip,
 				Port:            strconv.Itoa(m.Port),
 				Country:         m.Country,

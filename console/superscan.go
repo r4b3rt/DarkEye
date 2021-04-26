@@ -9,8 +9,8 @@ import (
 	"github.com/zsdevX/DarkEye/superscan"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
 	"golang.org/x/time/rate"
-	"net"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -202,6 +202,7 @@ func (s *superScanRuntime) initializer(parent context.Context) {
 	plugins.Config.ParentCtx = parent
 	plugins.Config.TimeOut = s.TimeOut
 	plugins.Config.Attack = s.Attack
+	s.parent.taskId ++
 }
 
 func (s *superScanRuntime) newBar(max int) *progressbar.ProgressBar {
@@ -229,48 +230,31 @@ func (s *superScanRuntime) newBar(max int) *progressbar.ProgressBar {
 func (s *superScanRuntime) myCallback(a interface{}) {
 	plg := a.(*plugins.Plugins)
 	ent := analysisEntity{
+		Task:      strconv.Itoa(s.parent.taskId),
 		Ip:        plg.TargetIp,
 		Port:      plg.TargetPort,
 		Service:   plg.Result.ServiceName,
 		ExpHelper: plg.Result.ExpHelp,
 	}
-	message := ent.Service
-	if ent.Title != "" {
+	if plg.Result.Web.Url != "" {
 		ent.Url = plg.Result.Web.Url
 		ent.Title = plg.Result.Web.Title
 		ent.WebServer = plg.Result.Web.Server
 		ent.WebResponseCode = plg.Result.Web.Code
-
-		message += fmt.Sprintf(" ['%s' '%s' '%d' '%s']", ent.Title, ent.WebServer, ent.WebResponseCode, ent.Url)
-
 	}
 	if plg.Result.NetBios.Net != "" ||
 		plg.Result.NetBios.Os != "" ||
 		plg.Result.NetBios.Shares != "" {
-		message += fmt.Sprintf(" ['%s' '%s' '%s' '%s' '%s' '%s']",
-			plg.Result.NetBios.Os, plg.Result.NetBios.Net,
-			plg.Result.NetBios.Hw, plg.Result.NetBios.Shares,
-			plg.Result.NetBios.Domain, plg.Result.NetBios.UserName)
-
 		ent.NetBios = fmt.Sprintf(" ['%s' '%s' '%s', '%s', '%s']",
 			plg.Result.NetBios.Net, plg.Result.NetBios.Hw,
 			plg.Result.NetBios.Shares,
 			plg.Result.NetBios.Domain,
 			plg.Result.NetBios.UserName)
 	}
-	if plg.Result.Cracked.Username != "" || plg.Result.Cracked.Password != "" {
-		message += fmt.Sprintf(" crack:['%s' '%s']",
-			plg.Result.Cracked.Username, plg.Result.Cracked.Password)
-
+	if plg.Result.Cracked.Username != "" ||
+		plg.Result.Cracked.Password != "" {
 		ent.WeakAccount = fmt.Sprintf(
 			"[%s/%s]", plg.Result.Cracked.Username, plg.Result.Cracked.Password)
-	}
-	if message != ent.Service {
-		if ent.ExpHelper != "" {
-			message += fmt.Sprintf(" [%s]", ent.ExpHelper)
-		}
-		//过滤下，只输出有指纹或被crack的资产
-		common.Log(net.JoinHostPort(ent.Ip, ent.Port)+"[Opened]", message, common.INFO)
 	}
 	analysisRuntimeOptions.upInsertEnt(&ent)
 }

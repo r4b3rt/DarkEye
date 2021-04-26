@@ -12,6 +12,7 @@ type RequestContext struct {
 	cancel      context.CancelFunc
 	running     atomic.Bool
 	Interactive bool
+	taskId      int
 }
 
 type analysisEntity struct {

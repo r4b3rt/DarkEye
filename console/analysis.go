@@ -55,44 +55,7 @@ func (a *analysisRuntime) Start(ctx context.Context) {
 		common.Log("analysis.query", "查询无数据", common.INFO)
 		return
 	}
-	sort.Slice(d, func(i, j int) bool {
-		return d[j].Ip > d[i].Ip
-	})
-
-	//查询结果写入内存
-	jsonString, _ := json.Marshal(d)
-	r := bytes.NewBuffer(jsonString)
-	importer, err := trdsql.NewBufferImporter("any", r, trdsql.InFormat(trdsql.JSON))
-	if err != nil {
-		common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
-		return
-	}
-	//查询输出table格式
-	writer := trdsql.NewWriter(trdsql.OutFormat(trdsql.AT))
-	trd := trdsql.NewTRDSQL(importer, trdsql.NewExporter(writer))
-	trd.Driver = "sqlite3"
-	err = trd.Exec("select * from any")
-	if err != nil {
-		common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
-		return
-	}
-	//查询导出文件
-	if a.output != "" {
-		fp, err := os.Create(a.output)
-		if err != nil {
-			common.Log(a.parent.CmdArgs[0]+".output", err.Error(), common.FAULT)
-		}
-		defer fp.Close()
-		writer := trdsql.NewWriter(trdsql.OutFormat(trdsql.CSV),
-			trdsql.OutHeader(true),
-			trdsql.OutStream(fp))
-		trd := trdsql.NewTRDSQL(importer, trdsql.NewExporter(writer))
-		err = trd.Exec("select * from any")
-		if err != nil {
-			common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
-			return
-		}
-	}
+	a.OutPut(d)
 }
 
 func (a *analysisRuntime) Init(requestContext *RequestContext) {
@@ -234,4 +197,54 @@ func (a *analysisRuntime) Var(condition string, field string) ([]string, error) 
 		}
 	}
 	return ret, nil
+}
+
+func (a *analysisRuntime) PrintCurrentTaskResult() {
+	e := make([]analysisEntity, 0)
+	sql := fmt.Sprintf(
+		"select task,ip,port,service,country,isp,weak_account,title,url,netbios from ent where task=%d",
+		a.parent.taskId)
+	a.d.Raw(sql).Scan(&e)
+	a.OutPut(e)
+}
+
+func (a *analysisRuntime) OutPut(d []analysisEntity) {
+	sort.Slice(d, func(i, j int) bool {
+		return d[j].Ip > d[i].Ip
+	})
+
+	//查询结果写入内存
+	jsonString, _ := json.Marshal(d)
+	r := bytes.NewBuffer(jsonString)
+	importer, err := trdsql.NewBufferImporter("any", r, trdsql.InFormat(trdsql.JSON))
+	if err != nil {
+		common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
+		return
+	}
+	//查询输出table格式
+	writer := trdsql.NewWriter(trdsql.OutFormat(trdsql.AT))
+	trd := trdsql.NewTRDSQL(importer, trdsql.NewExporter(writer))
+	trd.Driver = "sqlite3"
+	err = trd.Exec("select * from any")
+	if err != nil {
+		common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
+		return
+	}
+	//查询导出文件
+	if a.output != "" {
+		fp, err := os.Create(a.output)
+		if err != nil {
+			common.Log(a.parent.CmdArgs[0]+".output", err.Error(), common.FAULT)
+		}
+		defer fp.Close()
+		writer := trdsql.NewWriter(trdsql.OutFormat(trdsql.CSV),
+			trdsql.OutHeader(true),
+			trdsql.OutStream(fp))
+		trd := trdsql.NewTRDSQL(importer, trdsql.NewExporter(writer))
+		err = trd.Exec("select * from any")
+		if err != nil {
+			common.Log(a.parent.CmdArgs[0], err.Error(), common.FAULT)
+			return
+		}
+	}
 }

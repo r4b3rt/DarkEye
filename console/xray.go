@@ -60,6 +60,7 @@ func (x *xRayRuntime) Start(parent context.Context) {
 	if err := x.prepare(preCtx); err != nil {
 		common.Log("xRayRuntime.prepare", err.Error(), common.INFO)
 	}
+	x.parent.taskId ++
 	//爬取数据
 	cCtx, _ := context.WithCancel(parent)
 	if err := x.crawler(cCtx); err != nil {

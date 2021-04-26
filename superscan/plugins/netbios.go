@@ -35,7 +35,8 @@ func nbConn(s *Service) {
 	if err := this.ProcessReplies(); err != nil {
 		return
 	}
-
+	s.parent.Result.PortOpened = true
+	s.parent.Result.ServiceName = s.name
 	s.parent.Result.NetBios.Name = this.trimName(string(this.nb.statusReply.HostName[:]))
 	if this.nb.nameReply.Header.RecordType == 0x20 {
 		for _, a := range this.nb.nameReply.Addresses {
@@ -51,7 +52,6 @@ func nbConn(s *Service) {
 	if this.nb.statusReply.HWAddr != "00:00:00:00:00:00" {
 		s.parent.Result.NetBios.Hw = this.nb.statusReply.HWAddr
 	}
-
 	username := this.trimName(string(this.nb.statusReply.UserName[:]))
 	if len(username) > 0 {
 		s.parent.Result.NetBios.UserName = username
@@ -65,7 +65,6 @@ func nbConn(s *Service) {
 		if rName.Flag&0x0800 != 0 {
 			continue
 		}
-
 		s.parent.Result.NetBios.Domain = tName
 	}
 }
@@ -138,7 +137,9 @@ func (this *ProbeNetbios) ProcessReplies() error {
 			if this.nb.nameSent == nTime {
 				this.nb.nameSent = time.Now()
 				name := this.trimName(string(this.nb.statusReply.HostName[:]))
-				return this.SendNameRequest(name)
+				if err = this.SendNameRequest(name); err != nil {
+					return err
+				}
 			}
 		}
 		if reply.Header.RecordType == 0x20 {
@@ -200,7 +201,7 @@ func (this *ProbeNetbios) ParseReply(buff []byte) NetbiosReplyStatus {
 	resp := NetbiosReplyStatus{}
 	temp := bytes.NewBuffer(buff)
 
-	binary.Read(temp, binary.BigEndian, &resp.Header)
+	_ = binary.Read(temp, binary.BigEndian, &resp.Header)
 
 	if resp.Header.QuestionCount != 0 {
 		return resp
@@ -214,7 +215,7 @@ func (this *ProbeNetbios) ParseReply(buff []byte) NetbiosReplyStatus {
 	if resp.Header.RecordType == 0x21 {
 		var rcnt uint8
 		var ridx uint8
-		binary.Read(temp, binary.BigEndian, &rcnt)
+		_ = binary.Read(temp, binary.BigEndian, &rcnt)
 
 		for ridx = 0; ridx < rcnt; ridx++ {
 			name := NetbiosReplyName{}
@@ -231,7 +232,7 @@ func (this *ProbeNetbios) ParseReply(buff []byte) NetbiosReplyStatus {
 		}
 
 		var hwbytes [6]uint8
-		binary.Read(temp, binary.BigEndian, &hwbytes)
+		_ = binary.Read(temp, binary.BigEndian, &hwbytes)
 		resp.HWAddr = fmt.Sprintf("%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
 			hwbytes[0], hwbytes[1], hwbytes[2], hwbytes[3], hwbytes[4], hwbytes[5],
 		)
@@ -243,7 +244,7 @@ func (this *ProbeNetbios) ParseReply(buff []byte) NetbiosReplyStatus {
 		var ridx uint16
 		for ridx = 0; ridx < (resp.Header.RecordLength / 6); ridx++ {
 			addr := NetbiosReplyAddress{}
-			binary.Read(temp, binary.BigEndian, &addr)
+			_ = binary.Read(temp, binary.BigEndian, &addr)
 			resp.Addresses = append(resp.Addresses, addr)
 		}
 	}

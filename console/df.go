@@ -40,13 +40,20 @@ func main() {
 
 func interactive() {
 	fmt.Printf(common.Banner)
-	fmt.Println("Please use `exit` or `Ctrl-D` to exit this program.")
+	fmt.Println("Please use `exit` exit this program, use 'F1' 打印当前任务结果")
 	p := prompt.New(
 		mContext.executor,
 		mContext.completer,
 		prompt.OptionPrefix(">> "),
 		prompt.OptionInputTextColor(prompt.Yellow),
-		prompt.OptionLivePrefix(mContext.livePrefix))
+		prompt.OptionLivePrefix(mContext.livePrefix),
+		prompt.OptionAddKeyBind(prompt.KeyBind{
+			Key: prompt.F1,
+			Fn: func(buf *prompt.Buffer) {
+				analysisRuntimeOptions.PrintCurrentTaskResult()
+			}}, ),
+	)
+
 	p.Run()
 }
 
@@ -75,7 +82,7 @@ func usageForAll() {
 	fmt.Println("	-i", "bool")
 	fmt.Println("		Launch the darkEye framework", "(default: false)")
 
-	for _,v := range Names() {
+	for _, v := range Names() {
 		fmt.Println(fmt.Sprintf("	%s", v))
 		fmt.Println(fmt.Sprintf("		See 'df %s -h' for help", v))
 	}

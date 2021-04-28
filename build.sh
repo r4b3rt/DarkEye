@@ -12,34 +12,53 @@ ldflag="-s -w"
 
 support_rdp() {
     os=$1
-    if [ "$os" == "mac" ]; then
-#mac
+
+    case $os in
+        mac)
+#build in mac
 #cmake -D "CMAKE_OSX_ARCHITECTURES:STRING=x86_64" -DBUILD_SHARED_LIBS=OFF  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/Volumes/dev/gosrc/src/github.com/zsdevX/FreeRDP/formac
 #make
-        path=${GOPATH}/src/github.com/zsdevX/freerdp_binary/formac
-        export CGO_CFLAGS="-I${path}/include/freerdp3 -I${path}/include/winpr3 -DRDP_SUPPORT"
-        export CGO_LDFLAGS="${path}/lib/libfreerdp3.a $path/lib/libwinpr3.a $path/lib/libfreerdp-client3.a $path/libcrypto.a $path/libssl.a"
-    elif [ "$os" == "linux" ]; then
+            path=${GOPATH}/src/github.com/zsdevX/freerdp_binary/formac
+            export CGO_CFLAGS="-I${path}/include/freerdp3 -I${path}/include/winpr3 -DRDP_SUPPORT"
+            export CGO_LDFLAGS="${path}/lib/libfreerdp3.a $path/lib/libwinpr3.a $path/lib/libfreerdp-client3.a $path/libcrypto.a $path/libssl.a"
+            ;;
+        linux)
 #build in alpine:
-#cmake -DBUILD_SHARED_LIBS=OFF  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/share/fuck/freerdp-2.3.2/forlinux .
-#cmake --build . --target install
-        path=${GOPATH}/src/github.com/zsdevX/freerdp_binary/forlinux
-        export CGO_CFLAGS="-I${path}/include/freerdp2 -I${path}/include/winpr2 -DRDP_SUPPORT -static"
-        export CGO_LDFLAGS="${path}/lib64/libfreerdp2.a $path/lib64/libwinpr2.a $path/lib64/libfreerdp-client2.a $path/libssl.a $path/libcrypto.a "
-    else
-        echo ${os}":不支持rdp"
-    fi
+#docker pull alpine:latest
+#apk add git make cmake wget libstdc++ gcc g++ libuv-dev openssl-dev hwloc-dev linux-headers musl-dev
+#cmake -DBUILD_SHARED_LIBS=OFF  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/forlinux
+#make install
+            path=${GOPATH}/src/github.com/zsdevX/freerdp_binary/forlinux
+            export CGO_CFLAGS="-I${path}/include/freerdp2 -I${path}/include/winpr2 -DRDP_SUPPORT -static"
+            export CGO_LDFLAGS="${path}/lib64/libfreerdp2.a $path/lib64/libwinpr2.a $path/lib64/libfreerdp-client2.a $path/libssl.a $path/libcrypto.a"
+            ;;
+        win32)
+            ;;
+        win64)
+#build in windows:mingw
+#download:  git clone https://github.com/vityank/FreeRDP.git -b mingw
+#openssl: ./config  no-asm no-async no-shared
+#freerdp: cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWITH_CHANNELS=OFF -DCMAKE_INSTALL_PREFIX=/home/zs/FreeRDP/forwin64 -DOPENSSL_ROOT_DIR=/home/zs/openssl-OpenSSL_1_1_1k
+#            path=${GOPATH}/src/github.com/zsdevX/freerdp_binary/forwin64
+#            export CGO_CFLAGS="-I${path}/include/freerdp3 -I${path}/include/winpr3 -DRDP_SUPPORT"
+#            export CGO_LDFLAGS="${path}/lib/libfreerdp3.a $path/lib/libwinpr3.a $path/lib/libfreerdp-client3.a $path/libssl.a $path/libcrypto.a -lrt"
+            ;;
 
-#window
-
-#linux
+        *)
+            export CGO_CFLAGS="-static"
+            export CGO_LDFLAGS=
+            echo ${os}":不支持rdp"
+        ;;
+    esac
 }
 
 
 build_win() {
-    support_rdp win
+
     cd console
+    support_rdp win32
     GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc"  go build -a  -ldflags "${ldflag}" -o ../dist/df_windows_386.exe
+    support_rdp win64
     GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -a -ldflags "${ldflag}" -o ../dist/df_windows_amd64.exe
     cd -
 }
@@ -61,8 +80,11 @@ build_linux() {
 build_all() {
     build_mac
     build_linux
-    build_win
 
+    echo "windows版本和其它CPU架构后续发布(freerdp编译中...)"
+    return
+
+    build_win
     support_rdp none
     cd console
 #arm

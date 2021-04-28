@@ -16,6 +16,7 @@ int rdp_connect(char *server, char *port, char *domain, char *login, char *passw
 
   instance = freerdp_new();
   if (instance == NULL || freerdp_context_new(instance) == FALSE) {
+  	if (!instance) freerdp_free(instance);
     return -1;
   }
   wLog *root = WLog_GetRoot();
@@ -30,6 +31,9 @@ int rdp_connect(char *server, char *port, char *domain, char *login, char *passw
   instance->settings->Domain = domain;
   freerdp_connect(instance);
   err = freerdp_get_last_error(instance->context);
+  //Free
+  freerdp_disconnect(instance);
+  freerdp_free(instance);
   return err;
 }
 #else

@@ -29,6 +29,7 @@ type xRayRuntime struct {
 	proxyPort string
 	chrome    string
 	flagSet   *flag.FlagSet
+	cmd       []string
 }
 
 type xRayTarget struct {

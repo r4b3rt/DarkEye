@@ -55,6 +55,8 @@ func (ctx *RequestContext) executor(in string) {
 			if cmdValid(blocks[0]) {
 				ctx.CmdArgs = append(ctx.CmdArgs, blocks[0])
 				return
+			} else {
+				common.Log("executor", fmt.Sprintf("'%s' Not support Command", blocks[1]), common.FAULT)
 			}
 		case false:
 			ctx.runCmd(blocks)

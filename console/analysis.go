@@ -25,6 +25,7 @@ type analysisRuntime struct {
 	q       string
 	output  string
 	flagSet *flag.FlagSet
+	cmd     []string
 }
 
 var (
@@ -89,6 +90,15 @@ func (a *analysisRuntime) ValueCheck(value string) (bool, error) {
 		return v, nil
 	}
 	return false, fmt.Errorf("无此参数")
+}
+
+func (a *analysisRuntime) saveCmd(cmd []string) {
+
+}
+
+func (a *analysisRuntime) restoreCmd() {
+	//cmd := make([]string, 0)
+	a.parent.CmdArgs = a.cmd
 }
 
 func (a *analysisRuntime) CompileArgs(cmd []string) error {

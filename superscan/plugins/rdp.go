@@ -16,7 +16,7 @@ int rdp_connect(char *server, char *port, char *domain, char *login, char *passw
 
   instance = freerdp_new();
   if (instance == NULL || freerdp_context_new(instance) == FALSE) {
-  	if (!instance) freerdp_free(instance);
+  	if (instance) freerdp_free(instance);
     return -1;
   }
   wLog *root = WLog_GetRoot();
@@ -37,6 +37,7 @@ int rdp_connect(char *server, char *port, char *domain, char *login, char *passw
   return err;
 }
 #else
+#warn "Without rdp compiled"
 int rdp_connect(char *server, char *port, char *domain, char *login, char *password) {
 	return -1;
 }
@@ -53,7 +54,7 @@ func rdpCheck(s *Service) {
 	s.crack()
 }
 
-func RdpConn(_ context.Context, s *Service, user, pass string) (ok int) {
+func RdpConn(_ context.Context, s *Service, user, pass string) int {
 	username := C.CString(user)
 	password := C.CString(pass)
 	server := C.CString(s.parent.TargetIp)
@@ -66,9 +67,8 @@ func RdpConn(_ context.Context, s *Service, user, pass string) (ok int) {
 		C.free(unsafe.Pointer(domain))
 		C.free(unsafe.Pointer(port))
 		C.free(unsafe.Pointer(server))
-
 	}()
-	ret := C.rdp_connect(server, port, domain, username, password)
+	ret := int(C.rdp_connect(server, port, domain, username, password))
 	switch ret {
 	case 0:
 		// login success
@@ -77,17 +77,16 @@ func RdpConn(_ context.Context, s *Service, user, pass string) (ok int) {
 	case 0x00020014:
 	case 0x00020015:
 		// login failure
-		return OKNext
 	case 0x0002000d:
-		return OKNext
-	case 0x00020006:
-	case 0x00020008:
-	case 0x0002000c:
-		return OKStop
+		// ?
+	//case 0x00020006:
+	//case 0x00020008:
+	//case 0x0002000c:
+	//	return OKStop
 	default:
 		return OKTerm
 	}
-	return OKTerm
+	return OKNext
 }
 func init() {
 	services["rdp"] = Service{

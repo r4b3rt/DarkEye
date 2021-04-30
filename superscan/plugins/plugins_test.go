@@ -14,8 +14,8 @@ func Test_crack(t *testing.T) {
 		TargetIp: "127.0.0.1",
 		TargetPort: "3389",
 	}
-	Config.UserList = []string{"varbing"}
-	Config.PassList = []string{"varbing@123@woshitiancai"}
+	Config.UserList = []string{"zs"}
+	Config.PassList = []string{"111111"}
 
 	s.check(s)
 	b, _ := json.MarshalIndent(&s.parent.Result,"","	")

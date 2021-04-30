@@ -18,6 +18,7 @@ type zoomEyeRuntime struct {
 	search  string
 	page    string
 	flagSet *flag.FlagSet
+	cmd     []string
 }
 
 var (
@@ -50,7 +51,7 @@ func (zoom *zoomEyeRuntime) Start(ctx context.Context) {
 	if matches := z.Run(zoom.parent.ctx); matches != nil {
 		for _, m := range matches {
 			e := &analysisEntity{
-				Task: strconv.Itoa(zoom.parent.taskId),
+				Task:            strconv.Itoa(zoom.parent.taskId),
 				Ip:              m.Ip,
 				Port:            strconv.Itoa(m.Port),
 				Country:         m.Country,

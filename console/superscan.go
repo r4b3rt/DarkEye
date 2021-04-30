@@ -39,6 +39,7 @@ type superScanRuntime struct {
 	scan             *superscan.Scan
 	flagSet          *flag.FlagSet
 	sync.RWMutex
+	cmd []string
 }
 
 var (

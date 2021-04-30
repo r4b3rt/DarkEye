@@ -35,13 +35,15 @@ support_rdp() {
         win32)
             ;;
         win64)
-#build in windows:mingw
-#download:  git clone https://github.com/vityank/FreeRDP.git -b mingw
-#openssl: ./config  no-asm no-async no-shared
-#freerdp: cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWITH_CHANNELS=OFF -DCMAKE_INSTALL_PREFIX=/home/zs/FreeRDP/forwin64 -DOPENSSL_ROOT_DIR=/home/zs/openssl-OpenSSL_1_1_1k
-#            path=${GOPATH}/src/github.com/zsdevX/freerdp_binary/forwin64
-#            export CGO_CFLAGS="-I${path}/include/freerdp3 -I${path}/include/winpr3 -DRDP_SUPPORT"
-#            export CGO_LDFLAGS="${path}/lib/libfreerdp3.a $path/lib/libwinpr3.a $path/lib/libfreerdp-client3.a $path/libssl.a $path/libcrypto.a -lrt"
+#build in mac+mingw
+#step1:  git clone https://github.com/vityank/FreeRDP.git -b mingw
+#step2:  注释 winpr/include/winpr/spec.h:#define DECLSPEC_EXPORT 这个会和mingw的dlldecl冲突，太坑了。
+#Step3:  openssl: /Configure mingw64  no-asm no-async no-engine --prefix=/Volumes/dev/gosrc/src/github.com/zsdevX/openssl-OpenSSL_1_1_1k/install CROSS_COMPILE=x86_64-w64-mingw32-
+#Step4:  freerdp: cmake -DCMAKE_SYSTEM_NAME="Windows" -DCMAKE_C_COMPILER="x86_64-w64-mingw32-gcc" -DCMAKE_CXX_COMPILER="x86_64-w64-mingw32-g++" -DCMAKE_INSTALL_PREFIX=/Volumes/dev/gosrc/src/github.com/zsdevX/FreeRDP/forwin64  -DOPENSSL_ROOT_DIR=/Volumes/dev/gosrc/src/github.com/zsdevX/openssl-OpenSSL_1_1_1k -DCMAKE_EXE_LINKER_FLAGS="-L/usr/local/Cellar/mingw-w64/8.0.0/toolchain-x86_64/x86_64-w64-mingw32/lib" -DWIN32=1 -DUWP=1 -DBUILD_SHARED_LIBS=OFF ..
+            path=${GOPATH}/src/github.com/zsdevX/freerdp_binary/forwin64
+            export CGO_CFLAGS="-I${path}/include/freerdp3 -I${path}/include/winpr3 -DRDP_SUPPORT"
+           # export CGO_LDFLAGS="${path}/lib/libfreerdp3.a $path/lib/libwinpr3.a $path/lib/libfreerdp-client3.a $path/libcrypto.a $path/libssl.a -lws2_32 -limagehlp -lshlwapi"
+            export CGO_LDFLAGS="-L${path}/lib -L${path} -lcrypto -lssl -lwinpr3 -lfreerdp3  -lfreerdp-client3  -lws2_32 -limagehlp -lshlwapi"
             ;;
 
         *)
@@ -54,12 +56,11 @@ support_rdp() {
 
 
 build_win() {
-
     cd console
-    support_rdp win32
-    GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc"  go build -a  -ldflags "${ldflag}" -o ../dist/df_windows_386.exe
+  #  support_rdp win32
+   # GOOS=windows GOARCH=386 CC="i686-w64-mingw32-gcc"  go build -a  -ldflags "${ldflag}" -o ../dist/df_windows_386.exe
     support_rdp win64
-    GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc" go build -a -ldflags "${ldflag}" -o ../dist/df_windows_amd64.exe
+    GOOS=windows GOARCH=amd64 CC="x86_64-w64-mingw32-gcc"  go build -ldflags "${ldflag}" -o ../dist/df_windows_amd64.exe
     cd -
 }
 
@@ -80,11 +81,8 @@ build_linux() {
 build_all() {
     build_mac
     build_linux
-
-    echo "windows版本和其它CPU架构后续发布(freerdp编译中...)"
-    return
-
     build_win
+
     support_rdp none
     cd console
 #arm

@@ -69,7 +69,7 @@ func (ctx *RequestContext) executor(in string) {
 func (ctx *RequestContext) runCmd(args []string) {
 	switch strings.ToLower(args[0]) {
 	case "exploit":
-		if err := M[ID(ctx.CmdArgs[0])].CompileArgs(ctx.CmdArgs[1:]); err != nil {
+		if err := M[ID(ctx.CmdArgs[0])].CompileArgs(ctx.CmdArgs[1:], nil); err != nil {
 			common.Log("executor.exploit", err.Error(), common.FAULT)
 			return
 		}

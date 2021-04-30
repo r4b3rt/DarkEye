@@ -96,18 +96,24 @@ func (z *zoomEyeRuntime) ValueCheck(value string) (bool, error) {
 	return false, fmt.Errorf("无此参数")
 }
 
-func (z *zoomEyeRuntime) CompileArgs(cmd []string) error {
-	search := []string{"-search"}
-	ret, s := z.buildQuery(cmd)
-	if s == "" {
-		return fmt.Errorf("搜索参数为空")
+func (z *zoomEyeRuntime) CompileArgs(cmd []string, os []string) error {
+	if cmd != nil {
+		search := []string{"-search"}
+		ret, s := z.buildQuery(cmd)
+		if s == "" {
+			return fmt.Errorf("搜索参数为空")
+		}
+		search = append(search, s)
+		ret = append(ret, search...)
+		if err := z.flagSet.Parse(ret); err != nil {
+			return err
+		}
+		z.flagSet.Parsed()
+	} else {
+		if err := z.flagSet.Parse(os); err != nil {
+			return err
+		}
 	}
-	search = append(search, s)
-	ret = append(ret, search...)
-	if err := z.flagSet.Parse(ret); err != nil {
-		return err
-	}
-	z.flagSet.Parsed()
 	return nil
 }
 

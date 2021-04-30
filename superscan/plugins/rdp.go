@@ -7,8 +7,8 @@ package plugins
 /*
 #include <stdlib.h>
 #ifdef RDP_SUPPORT
+
 #include <freerdp/freerdp.h>
-#include <freerdp/gdi/gdi.h>
 
 int rdp_connect(char *server, char *port, char *domain, char *login, char *password) {
   int32_t err = 0;
@@ -36,8 +36,8 @@ int rdp_connect(char *server, char *port, char *domain, char *login, char *passw
   freerdp_free(instance);
   return err;
 }
+
 #else
-#warn "Without rdp compiled"
 int rdp_connect(char *server, char *port, char *domain, char *login, char *password) {
 	return -1;
 }
@@ -73,12 +73,10 @@ func RdpConn(_ context.Context, s *Service, user, pass string) int {
 	case 0:
 		// login success
 		return OKDone
-	case 0x00020009:
-	case 0x00020014:
-	case 0x00020015:
-		// login failure
-	case 0x0002000d:
-		// ?
+	case 0x00020009: // login failure
+	case 0x00020014: // login failure
+	case 0x00020015: // login failure
+	case 0x0002000d: //?
 	//case 0x00020006:
 	//case 0x00020008:
 	//case 0x0002000c:

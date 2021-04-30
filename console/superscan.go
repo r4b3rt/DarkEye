@@ -147,11 +147,17 @@ func (s *superScanRuntime) ValueCheck(value string) (bool, error) {
 	return false, fmt.Errorf("无此参数")
 }
 
-func (a *superScanRuntime) CompileArgs(cmd []string) error {
-	if err := a.flagSet.Parse(splitCmd(cmd)); err != nil {
-		return err
+func (s *superScanRuntime) CompileArgs(cmd []string, os []string) error {
+	if cmd != nil {
+		if err := s.flagSet.Parse(splitCmd(cmd)); err != nil {
+			return err
+		}
+		s.flagSet.Parsed()
+	} else {
+		if err := s.flagSet.Parse(os); err != nil {
+			return err
+		}
 	}
-	a.flagSet.Parsed()
 	return nil
 }
 
@@ -258,6 +264,8 @@ func (s *superScanRuntime) myCallback(a interface{}) {
 			"[%s/%s]", plg.Result.Cracked.Username, plg.Result.Cracked.Password)
 	}
 	analysisRuntimeOptions.upInsertEnt(&ent)
+	analysisRuntimeOptions.PrintCurrentTaskResult()
+
 }
 
 func (s *superScanRuntime) myBarCallback(i int) {

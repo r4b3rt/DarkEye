@@ -112,11 +112,17 @@ func (x *xRayRuntime) ValueCheck(value string) (bool, error) {
 	return false, fmt.Errorf("无此参数")
 }
 
-func (x *xRayRuntime) CompileArgs(cmd []string) error {
-	if err := x.flagSet.Parse(splitCmd(cmd)); err != nil {
-		return err
+func (x *xRayRuntime) CompileArgs(cmd []string, os []string) error {
+	if cmd != nil {
+		if err := x.flagSet.Parse(splitCmd(cmd)); err != nil {
+			return err
+		}
+		x.flagSet.Parsed()
+	} else {
+		if err := x.flagSet.Parse(os); err != nil {
+			return err
+		}
 	}
-	x.flagSet.Parsed()
 	return nil
 }
 

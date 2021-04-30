@@ -30,7 +30,7 @@ func main() {
 				m.Usage()
 				return
 			}
-			_ = m.CompileArgs(os.Args[2:])
+			_ = m.CompileArgs(nil, os.Args[2:])
 			m.Start(mContext.ctx)
 		} else {
 			usageForAll()

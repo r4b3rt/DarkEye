@@ -10,7 +10,7 @@ type Module interface {
 	Start(ctx context.Context)
 	Init(*RequestContext)
 	ValueCheck(string) (bool, error)
-	CompileArgs([]string) error
+	CompileArgs([]string, []string) error
 	Completer([]string) []prompt.Suggest
 	Usage()
 }

@@ -101,11 +101,17 @@ func (a *analysisRuntime) restoreCmd() {
 	a.parent.CmdArgs = a.cmd
 }
 
-func (a *analysisRuntime) CompileArgs(cmd []string) error {
-	if err := a.flagSet.Parse(splitCmd(cmd)); err != nil {
-		return err
+func (a *analysisRuntime) CompileArgs(cmd []string, os []string) error {
+	if cmd != nil {
+		if err := a.flagSet.Parse(splitCmd(cmd)); err != nil {
+			return err
+		}
+		a.flagSet.Parsed()
+	} else {
+		if err := a.flagSet.Parse(os); err != nil {
+			return err
+		}
 	}
-	a.flagSet.Parsed()
 	return nil
 }
 

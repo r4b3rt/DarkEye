@@ -117,6 +117,14 @@ func (z *zoomEyeRuntime) CompileArgs(cmd []string, os []string) error {
 	return nil
 }
 
+func (a *zoomEyeRuntime) saveCmd(cmd []string) {
+	a.cmd = cmdSave(cmd)
+}
+
+func (a *zoomEyeRuntime) restoreCmd() []string {
+	return cmdRestore(a.cmd)
+}
+
 func (z *zoomEyeRuntime) buildQuery(cmd []string) ([]string, string) {
 	ret := make([]string, 0)
 	s := ""

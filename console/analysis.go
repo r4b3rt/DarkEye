@@ -93,12 +93,11 @@ func (a *analysisRuntime) ValueCheck(value string) (bool, error) {
 }
 
 func (a *analysisRuntime) saveCmd(cmd []string) {
-
+	a.cmd = cmdSave(cmd)
 }
 
-func (a *analysisRuntime) restoreCmd() {
-	//cmd := make([]string, 0)
-	a.parent.CmdArgs = a.cmd
+func (a *analysisRuntime) restoreCmd() []string {
+	return cmdRestore(a.cmd)
 }
 
 func (a *analysisRuntime) CompileArgs(cmd []string, os []string) error {

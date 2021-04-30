@@ -12,6 +12,8 @@ type Module interface {
 	ValueCheck(string) (bool, error)
 	CompileArgs([]string, []string) error
 	Completer([]string) []prompt.Suggest
+	saveCmd(cmd []string)
+	restoreCmd() []string
 	Usage()
 }
 

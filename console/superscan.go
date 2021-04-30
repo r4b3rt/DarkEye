@@ -161,6 +161,14 @@ func (s *superScanRuntime) CompileArgs(cmd []string, os []string) error {
 	return nil
 }
 
+func (a *superScanRuntime) saveCmd(cmd []string) {
+	a.cmd = cmdSave(cmd)
+}
+
+func (a *superScanRuntime) restoreCmd() []string {
+	return cmdRestore(a.cmd)
+}
+
 func (a *superScanRuntime) Usage() {
 	fmt.Println(fmt.Sprintf("Usage of %s:", superScan))
 	fmt.Println("Options:")

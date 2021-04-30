@@ -126,6 +126,14 @@ func (x *xRayRuntime) CompileArgs(cmd []string, os []string) error {
 	return nil
 }
 
+func (a *xRayRuntime) saveCmd(cmd []string) {
+	a.cmd = cmdSave(cmd)
+}
+
+func (a *xRayRuntime) restoreCmd() []string {
+	return cmdRestore(a.cmd)
+}
+
 func (x *xRayRuntime) Usage() {
 	fmt.Println(fmt.Sprintf("Usage of %s:", xRayProgram))
 	fmt.Println("Options:")

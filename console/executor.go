@@ -37,12 +37,6 @@ func (ctx *RequestContext) executor(in string) {
 			ctx.returnCmd()
 			return
 		}
-		//处理主命令
-		if cmdValid(blocks[1]) {
-			ctx.CmdArgs = append(ctx.CmdArgs, blocks[1])
-		} else {
-			common.Log("executor", fmt.Sprintf("'%s' Not support Command", blocks[1]), common.FAULT)
-		}
 		return
 	case "":
 		break
@@ -54,6 +48,8 @@ func (ctx *RequestContext) executor(in string) {
 		case true:
 			if cmdValid(blocks[0]) {
 				ctx.CmdArgs = append(ctx.CmdArgs, blocks[0])
+				//恢复历史命令
+				ctx.CmdArgs = append(ctx.CmdArgs, M[ID(ctx.CmdArgs[0])].restoreCmd()...)
 				return
 			} else {
 				common.Log("executor", fmt.Sprintf("'%s' Not support Command", blocks[1]), common.FAULT)
@@ -96,6 +92,10 @@ func (ctx *RequestContext) runCmd(args []string) {
 			cmd += v + " "
 		}
 		ctx.CmdArgs = append(ctx.CmdArgs, strings.TrimSpace(cmd))
+		if len(ctx.CmdArgs) > 1 {
+			//保存
+			M[ID(ctx.CmdArgs[0])].saveCmd(ctx.CmdArgs)
+		}
 	}
 }
 
@@ -151,6 +151,9 @@ func splitCmd(cmd []string) []string {
 
 func (ctx *RequestContext) returnCmd() {
 	ctx.CmdArgs = ctx.CmdArgs[:len(ctx.CmdArgs)-1]
+	if len(ctx.CmdArgs) > 1 {
+		M[ID(ctx.CmdArgs[0])].saveCmd(ctx.CmdArgs)
+	}
 	return
 }
 
@@ -179,4 +182,22 @@ func cmdValid(cmd string) bool {
 		}
 	}
 	return false
+}
+
+func cmdSave(cmd []string) []string {
+	if len(cmd) == 1 {
+		return []string{}
+	}
+	cmd0 := make([]string, len(cmd)-1)
+	copy(cmd0, cmd[1:])
+	return cmd0
+}
+
+func cmdRestore(a []string) []string {
+	if len(a) == 0 {
+		return []string{}
+	}
+	cmd := make([]string, len(a))
+	copy(cmd, a)
+	return cmd
 }

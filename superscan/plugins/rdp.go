@@ -10,7 +10,7 @@ package plugins
 
 #include <freerdp/freerdp.h>
 
-int rdp_connect(char *server, char *port, char *domain, char *login, char *password) {
+int rdp_connect(char *server, char *port, char *domain, char *login, char *password, char *timeout) {
   int32_t err = 0;
   freerdp *instance = 0;
 
@@ -29,6 +29,7 @@ int rdp_connect(char *server, char *port, char *domain, char *login, char *passw
   instance->settings->ServerHostname = server;
   instance->settings->ServerPort = atoi(port);
   instance->settings->Domain = domain;
+  instance->settings->TcpAckTimeout = atoi(timeout);
   freerdp_connect(instance);
   err = freerdp_get_last_error(instance->context);
   //Free
@@ -38,7 +39,7 @@ int rdp_connect(char *server, char *port, char *domain, char *login, char *passw
 }
 
 #else
-int rdp_connect(char *server, char *port, char *domain, char *login, char *password) {
+int rdp_connect(char *server, char *port, char *domain, char *login, char *password, char *timeout) {
 	return -1;
 }
 #endif
@@ -46,6 +47,7 @@ int rdp_connect(char *server, char *port, char *domain, char *login, char *passw
 import "C"
 import (
 	"context"
+	"fmt"
 	"github.com/zsdevX/DarkEye/superscan/dic"
 	"unsafe"
 )
@@ -59,6 +61,7 @@ func RdpConn(_ context.Context, s *Service, user, pass string) int {
 	password := C.CString(pass)
 	server := C.CString(s.parent.TargetIp)
 	port := C.CString(s.parent.TargetPort)
+	timeout := C.CString(fmt.Sprint(Config.TimeOut))
 	domain := C.CString("")
 
 	defer func() {
@@ -67,8 +70,9 @@ func RdpConn(_ context.Context, s *Service, user, pass string) int {
 		C.free(unsafe.Pointer(domain))
 		C.free(unsafe.Pointer(port))
 		C.free(unsafe.Pointer(server))
+		C.free(unsafe.Pointer(timeout))
 	}()
-	ret := int(C.rdp_connect(server, port, domain, username, password))
+	ret := int(C.rdp_connect(server, port, domain, username, password, timeout))
 	switch ret {
 	case 0:
 		// login success
@@ -94,6 +98,6 @@ func init() {
 		pass:    dic.DIC_PASSWORD_RDP,
 		check:   rdpCheck,
 		connect: RdpConn,
-		thread:  1,
+		thread:  8,
 	}
 }

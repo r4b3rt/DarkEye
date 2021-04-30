@@ -194,14 +194,14 @@ func (s *superScanRuntime) newScan(ip string) *superscan.Scan {
 func (s *superScanRuntime) initializer(parent context.Context) {
 	//设置自定义文件字典替代内置字典
 	if s.UserList != "" {
-		if _, e := os.Stat(s.UserList); e != nil {
+		if _, e := os.Stat(s.UserList); e == nil {
 			plugins.Config.UserList = common.GenDicFromFile(s.UserList)
 		} else {
 			plugins.Config.UserList = strings.Split(s.UserList, ",")
 		}
 	}
 	if s.PassList != "" {
-		if _, e := os.Stat(s.PassList); e != nil {
+		if _, e := os.Stat(s.PassList); e == nil {
 			plugins.Config.PassList = common.GenDicFromFile(s.PassList)
 		} else {
 			plugins.Config.PassList = strings.Split(s.PassList, ",")

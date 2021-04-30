@@ -76,10 +76,19 @@ func (s *Service) job(parent context.Context, user string, dictPass []string) (s
 	if user == "空" {
 		user = ""
 	}
+	ctx, _ := context.WithCancel(parent)
 	for _, pass := range dictPass {
+		select {
+		//上层主动推出
+		case <-ctx.Done():
+			return true
+		default:
+		}
+
 		if pass == "空" {
 			pass = ""
 		}
+
 		pass = strings.Replace(pass, "%user%", user, -1)
 		//限速
 		Config.rateLimiter()

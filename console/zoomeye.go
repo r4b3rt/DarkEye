@@ -72,6 +72,7 @@ func (zoom *zoomEyeRuntime) Start(ctx context.Context) {
 			analysisRuntimeOptions.upInsertEnt(e)
 		}
 	}
+	analysisRuntimeOptions.PrintCurrentTaskResult()
 }
 
 func (z *zoomEyeRuntime) Init(requestContext *RequestContext) {

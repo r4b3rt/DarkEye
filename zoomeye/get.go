@@ -10,10 +10,14 @@ import (
 )
 
 func (z *ZoomEye) run(ctx context.Context, page int) *gjson.Result {
-	url := fmt.Sprintf("https://api.zoomeye.org/host/search?query=%s&page=%d",
-		url2.QueryEscape(z.Query), page)
+	u, _ := url2.Parse("https://api.zoomeye.org/host/search")
+	query := u.Query()
+	query.Add("page", fmt.Sprintf("%v", page))
+	query.Add("query", z.Query)
+	u.RawQuery = query.Encode()
+
 	req := common.HttpRequest{
-		Url:     url,
+		Url:     u.String(),
 		TimeOut: time.Duration(10),
 		Method:  "GET",
 		Ctx:     ctx,
@@ -37,7 +41,7 @@ func (z *ZoomEye) run(ctx context.Context, page int) *gjson.Result {
 	default:
 		//4xx错误
 		z.ErrChannel <-
-			fmt.Sprintf("获取信息失败%s:%s", url, string(response.Body))
+			fmt.Sprintf("获取信息失败%s:%s", req.Url, string(response.Body))
 	}
 	return nil
 }

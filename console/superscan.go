@@ -99,6 +99,7 @@ func (s *superScanRuntime) Start(parent context.Context) {
 		"已加载%d个IP,共计%d个端口,启动每IP扫描端口线程数%d,同时可同时检测IP数量%d",
 		len(scans), tot, s.Thread, s.MaxConcurrencyIp))
 	plugins.SupportPlugin()
+	fmt.Println(`交互模式下通过'F1'快捷键可实时结果'`)
 
 	//建立进度条
 	s.Bar = s.newBar(tot)
@@ -217,12 +218,13 @@ func (s *superScanRuntime) initializer(parent context.Context) {
 	plugins.Config.ParentCtx = parent
 	plugins.Config.TimeOut = s.TimeOut
 	plugins.Config.Attack = s.Attack
+	plugins.Config.UpdateDesc = s.myBarChangeDesc
 	s.parent.taskId ++
 }
 
 func (s *superScanRuntime) newBar(max int) *progressbar.ProgressBar {
 	bar := progressbar.NewOptions(max,
-		progressbar.OptionSetDescription("[Cracking ...]"),
+		progressbar.OptionSetDescription(fmt.Sprintf("%-24s", "Cracking...")),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowIts(),
 		progressbar.OptionOnCompletion(func() {
@@ -278,4 +280,16 @@ func (s *superScanRuntime) myCallback(a interface{}) {
 
 func (s *superScanRuntime) myBarCallback(i int) {
 	_ = s.Bar.Add(i)
+}
+
+func (s *superScanRuntime) myBarChangeDesc(a interface{}, args ...string) {
+	plg := a.(*plugins.Plugins)
+	ip := strings.Split(plg.TargetIp, ".")
+	desc := args[0] + "://" + "*" + ip[2] + "." + ip[3] + "/" + args[1]
+	b := fmt.Sprintf("%-24s", desc)
+	if len(desc) > 24 {
+		b = desc[:24]
+	}
+	s.Bar.Describe(b)
+	s.Bar.RenderBlank()
 }

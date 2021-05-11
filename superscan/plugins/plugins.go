@@ -88,8 +88,9 @@ func (s *Service) job(parent context.Context, user string, dictPass []string) (s
 		if pass == "空" {
 			pass = ""
 		}
-
+		//更新下状态，增加下友好性
 		pass = strings.Replace(pass, "%user%", user, -1)
+		Config.UpdateDesc(s.parent, s.name, pass)
 		//限速
 		Config.rateLimiter()
 		ok := s.connect(parent, s, user, pass)

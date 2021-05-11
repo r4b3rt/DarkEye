@@ -66,8 +66,9 @@ type config struct {
 	//扫服务线程
 	ServiceThread int
 	//Attack
-	Attack    bool
-	SshPubKey string
+	Attack     bool
+	SshPubKey  string
+	UpdateDesc func(interface{}, ...string)
 }
 
 const (

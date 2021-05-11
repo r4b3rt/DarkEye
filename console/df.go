@@ -31,6 +31,7 @@ func main() {
 				return
 			}
 			_ = m.CompileArgs(nil, os.Args[2:])
+			mContext.CmdArgs = append(mContext.CmdArgs, os.Args[1:2]...)
 			m.Start(mContext.ctx)
 		} else {
 			usageForAll()

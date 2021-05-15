@@ -33,6 +33,11 @@ support_rdp() {
             export CGO_LDFLAGS="${path}/lib64/libfreerdp2.a $path/lib64/libwinpr2.a $path/lib64/libfreerdp-client2.a $path/libssl.a $path/libcrypto.a"
             ;;
         win32)
+        #build in mac+mingw
+#step1:  git clone https://github.com/vityank/FreeRDP.git -b mingw
+#step2:  注释 winpr/include/winpr/spec.h:#define DECLSPEC_EXPORT 这个会和mingw的dlldecl冲突，太坑了。
+#Step3:  openssl: ./Configure mingw  no-asm no-async no-engine --prefix=/Volumes/dev/gosrc/src/github.com/zsdevX/openssl-OpenSSL_1_1_1k/install CROSS_COMPILE=i686-w64-mingw32-
+#Step4:  freerdp: cmake -DCMAKE_SYSTEM_NAME="Windows" -DCMAKE_C_COMPILER="i686-w64-mingw32-gcc" -DCMAKE_CXX_COMPILER="i686-w64-mingw32-g++" -DCMAKE_INSTALL_PREFIX=/Volumes/dev/gosrc/src/github.com/zsdevX/FreeRDP/forwin32  -DOPENSSL_ROOT_DIR=/Volumes/dev/gosrc/src/github.com/zsdevX/openssl-OpenSSL_1_1_1k -DCMAKE_EXE_LINKER_FLAGS="-L/usr/local/Cellar/mingw-w64/8.0.0/toolchain-x86_64/i686-w64-mingw32/lib" -DWIN32=1 -DUWP=1 -DBUILD_SHARED_LIBS=OFF ..
             ;;
         win64)
 #build in mac+mingw

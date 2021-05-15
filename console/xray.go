@@ -69,7 +69,9 @@ func (x *xRayRuntime) Start(parent context.Context) {
 		return
 	}
 	//模拟请求
+	pCtx, cancel := context.WithCancel(parent)
 	go func() {
+		defer cancel()
 		loop := 0
 		for loop < 10 {
 			if common.IsAlive(parent, "127.0.0.1", x.proxyPort, 1000) == common.Alive {
@@ -84,9 +86,9 @@ func (x *xRayRuntime) Start(parent context.Context) {
 		if err := x.simulate(sCtx); err != nil {
 			common.Log("xRayRuntime.simulate", err.Error(), common.INFO)
 		}
+		common.Log("xRayRuntime.proxyServer.simulate", "Done", common.INFO)
 	}()
 	//开始访问
-	pCtx, _ := context.WithCancel(parent)
 	x.proxyServer(pCtx)
 }
 
@@ -164,6 +166,7 @@ func (x *xRayRuntime) proxyServer(ctx context.Context) {
 }
 
 func (x *xRayRuntime) simulate(ctx context.Context) error {
+	analysisRuntimeOptions.q = "select url from crawler"
 	cr, err := analysisRuntimeOptions.getCrawler()
 	if err != nil {
 		return err
@@ -184,6 +187,8 @@ func (x *xRayRuntime) simulate(ctx context.Context) error {
 		}
 		if _, e := req.Go(); e != nil {
 			common.Log("xRayRuntime.proxyServer", e.Error(), common.ALERT)
+		} else {
+			common.Log("xRayRuntime.testing", req.Url, common.ALERT)
 		}
 
 	}
@@ -196,7 +201,7 @@ func (x *xRayRuntime) crawler(ctx context.Context) error {
 	}()
 	var urls []string
 	var err error
-	urls, err = analysisRuntimeOptions.Var("", "$URL")
+	urls, err = analysisRuntimeOptions.Var("", x.url)
 	if err != nil {
 		if _, e := os.Stat(x.url); e != nil {
 			urls = append(urls, x.url)

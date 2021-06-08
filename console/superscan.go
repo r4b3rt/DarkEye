@@ -125,7 +125,7 @@ func (s *superScanRuntime) Init() {
 	s.flagSet.BoolVar(&s.OnlyCheckAliveNetwork, "only-alive-network", false, "只检查活跃主机的网段(ping)")
 	s.flagSet.BoolVar(&s.OnlyCheckAliveHost, "alive-host-check", false, "检查所有活跃主机(ping)")
 	s.flagSet.StringVar(&s.Output, "output", "superScan.csv", "输出文件")
-	s.flagSet.StringVar(&s.WebSiteDomainList, "website-domain-list", "www.baidu.com", "网址域名或文件")
+	s.flagSet.StringVar(&s.WebSiteDomainList, "website-domain-list", "", "网址域名或文件")
 	s.MaxConcurrencyIp = 32
 	s.flagSet.Parse(os.Args[1:])
 

@@ -13,6 +13,11 @@
 
 ```bash
 df -ip 192.168.1.1-192.168.1.2
+扫描任务完成macdeMacBook-Pro:DarkEye mac$ ./dist/df_darwin_amd64 -ip 45.88.13.188 -website-domain-list www.hackdoor.org -port-list 80
+INFO[0000] 已加载1个IP,共计1个端口,启动每IP扫描端口线程数128,同时可同时检测IP数量32 
+INFO[0000] Plugins::netbios snmp postgres redis smb web memcached mssql mysql ftp mongodb ssh  
+
+Cracking...              100% [==================================================================================================================================================] (1/1, 13 it/min) 
 ```
 
 ### 网段发现

@@ -3,7 +3,7 @@ package plugins
 import (
 	"fmt"
 	"github.com/hirochachacha/go-smb2"
-	"github.com/zsdevX/DarkEye/superscan/dic"
+	"github.com/b1gcat/DarkEye/superscan/dic"
 	"golang.org/x/net/context"
 	"net"
 	"strings"

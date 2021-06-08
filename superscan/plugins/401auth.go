@@ -3,7 +3,7 @@ package plugins
 import (
 	"context"
 	"encoding/base64"
-	"github.com/zsdevX/DarkEye/common"
+	"github.com/b1gcat/DarkEye/common"
 	"net/http"
 	"strings"
 	"time"

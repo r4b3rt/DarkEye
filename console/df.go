@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/zsdevX/DarkEye/common"
+	"github.com/b1gcat/DarkEye/common"
 	"runtime"
 )
 

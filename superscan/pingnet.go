@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"github.com/elastic/beats/libbeat/common/atomic"
 	"github.com/fatih/color"
-	"github.com/zsdevX/DarkEye/common"
+	"github.com/b1gcat/DarkEye/common"
 	"net"
 	"os"
 	"os/exec"

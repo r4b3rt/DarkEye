@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis"
-	"github.com/zsdevX/DarkEye/superscan/dic"
+	"github.com/b1gcat/DarkEye/superscan/dic"
 	"strings"
 	"time"
 )

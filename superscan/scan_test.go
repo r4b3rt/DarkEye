@@ -2,7 +2,7 @@ package superscan
 
 import (
 	"context"
-	"github.com/zsdevX/DarkEye/superscan/plugins"
+	"github.com/b1gcat/DarkEye/superscan/plugins"
 	_ "net/http/pprof"
 	"testing"
 )

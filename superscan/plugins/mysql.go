@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/zsdevX/DarkEye/superscan/dic"
+	"github.com/b1gcat/DarkEye/superscan/dic"
 	"strings"
 	"time"
 

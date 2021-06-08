@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gocarina/gocsv"
 	"github.com/olekukonko/tablewriter"
-	"github.com/zsdevX/DarkEye/common"
+	"github.com/b1gcat/DarkEye/common"
 	"os"
 	"sort"
 )

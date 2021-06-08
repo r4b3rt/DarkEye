@@ -3,8 +3,8 @@ package superscan
 import (
 	"fmt"
 	"github.com/orcaman/concurrent-map"
-	"github.com/zsdevX/DarkEye/common"
-	"github.com/zsdevX/DarkEye/superscan/plugins"
+	"github.com/b1gcat/DarkEye/common"
+	"github.com/b1gcat/DarkEye/superscan/plugins"
 	"strconv"
 	"time"
 )

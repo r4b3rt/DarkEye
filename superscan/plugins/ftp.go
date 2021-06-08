@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/jlaffaye/ftp"
-	"github.com/zsdevX/DarkEye/common"
-	"github.com/zsdevX/DarkEye/superscan/dic"
+	"github.com/b1gcat/DarkEye/common"
+	"github.com/b1gcat/DarkEye/superscan/dic"
 	"net"
 	"time"
 )

@@ -2,7 +2,7 @@ package plugins
 
 import (
 	"context"
-	"github.com/zsdevX/DarkEye/superscan/dic"
+	"github.com/b1gcat/DarkEye/superscan/dic"
 	"gopkg.in/mgo.v2"
 	"strings"
 	"time"

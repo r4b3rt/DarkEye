@@ -1,6 +1,6 @@
 <h1 align="center">👏👏👏 欢迎使用 DarkEye 👏👏👏</h1>
 
-![Go Report Card](https://img.shields.io/github/release-date/zsdevX/DarkEye) [![Go Report Card](https://goreportcard.com/badge/github.com/zsdevX/DarkEye)](https://goreportcard.com/report/github.com/zsdevX/DarkEye)
+![Go Report Card](https://img.shields.io/github/release-date/b1gcat/DarkEye) [![Go Report Card](https://goreportcard.com/badge/github.com/b1gcat/DarkEye)](https://goreportcard.com/report/github.com/b1gcat/DarkEye)
 
 
 > Whatever!
@@ -76,7 +76,7 @@ Windows、Linux、MacOs、Arm、Mips[el]、FreeBsd ...
 ## 🛠 编译安装
 
 ```bash
-git clone https://github.com/zsdevX/DarkEye.git
+git clone https://github.com/b1gcat/DarkEye.git
 cd DarkEye
 ./build all
 

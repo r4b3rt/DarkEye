@@ -37,35 +37,36 @@ func nbConn(s *Service) {
 	}
 	s.parent.Result.PortOpened = true
 	s.parent.Result.ServiceName = s.name
-	s.parent.Result.NetBios.Name = this.trimName(string(this.nb.statusReply.HostName[:]))
+	hostname := this.trimName(string(this.nb.statusReply.HostName[:]))
+	s.parent.Result.Output.Set("netbios_hostname", hostname)
+
 	if this.nb.nameReply.Header.RecordType == 0x20 {
+		ipAddr := ""
 		for _, a := range this.nb.nameReply.Addresses {
 			net := fmt.Sprintf("%d.%d.%d.%d", a.Address[0], a.Address[1], a.Address[2], a.Address[3])
 			if net == "0.0.0.0" {
 				continue
 			}
-			s.parent.Result.NetBios.Net += net + ","
+			ipAddr += net + ","
 		}
-		s.parent.Result.NetBios.Net = strings.TrimSuffix(s.parent.Result.NetBios.Net, ",")
+		ipAddr = strings.TrimSuffix(ipAddr, ",")
+		s.parent.Result.Output.Set("netbios_ip_address", ipAddr)
 	}
 
-	if this.nb.statusReply.HWAddr != "00:00:00:00:00:00" {
-		s.parent.Result.NetBios.Hw = this.nb.statusReply.HWAddr
-	}
 	username := this.trimName(string(this.nb.statusReply.UserName[:]))
 	if len(username) > 0 {
-		s.parent.Result.NetBios.UserName = username
+		s.parent.Result.Output.Set("netbios_username", username)
 	}
 	for _, rName := range this.nb.statusReply.Names {
 
 		tName := this.trimName(string(rName.Name[:]))
-		if tName == s.parent.Result.NetBios.Name {
+		if tName == hostname {
 			continue
 		}
 		if rName.Flag&0x0800 != 0 {
 			continue
 		}
-		s.parent.Result.NetBios.Domain = tName
+		s.parent.Result.Output.Set("netbios_domain", tName)
 	}
 }
 

@@ -68,7 +68,7 @@ func sshConn(parent context.Context, s *Service, user, pass string) (ok int) {
 	defer client.Close()
 	out, err := client.Run("id")
 	if err == nil {
-		s.parent.Result.ExpHelp = string(out)
+		s.parent.Result.Output.Set("helper", string(out))
 	}
 	ok = OKDone
 	return

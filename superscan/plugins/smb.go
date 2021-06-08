@@ -54,10 +54,12 @@ func smbConn(parent context.Context, s *Service, user, pass string) (ok int) {
 		return
 	}
 	ok = OKDone
+	sharedDirectory := ""
 	for _, v := range names {
-		s.parent.Result.NetBios.Shares += "," + v
+		sharedDirectory += "," + v
 	}
-	strings.TrimPrefix(",", s.parent.Result.NetBios.Shares)
+	strings.TrimPrefix(",", sharedDirectory)
+	s.parent.Result.Output.Set("smb_shared", sharedDirectory)
 	return
 }
 

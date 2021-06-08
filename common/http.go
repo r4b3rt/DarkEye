@@ -85,6 +85,10 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 		return nil, err
 	}
 	for k, v := range m.Headers {
+		if strings.ToLower(k) == "host" {
+			req.Host = v
+			continue
+		}
 		req.Header[k] = []string{v}
 	}
 	resp, err := cli.Do(req)
@@ -116,8 +120,8 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 }
 
 //GetHttpTitle add comment
-func GetHttpTitle(ctx context.Context, proto, domain string, timeOutSec int) (server, title string, code int32) {
-	url := fmt.Sprintf(proto+"://%s", domain)
+func GetHttpTitle(ctx context.Context, proto, target, host string, timeOutSec int) (server, title string, code int32) {
+	url := fmt.Sprintf(proto+"://%s", target)
 	userAgent := UserAgents[0]
 	req := HttpRequest{
 		Url:     url,
@@ -125,6 +129,7 @@ func GetHttpTitle(ctx context.Context, proto, domain string, timeOutSec int) (se
 		Method:  "GET",
 		Headers: map[string]string{
 			"User-Agent": userAgent,
+			"Host":       host,
 		},
 		Ctx: ctx,
 	}

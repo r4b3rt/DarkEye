@@ -10,8 +10,9 @@ import (
 
 func mongoCheck(s *Service) {
 	if mongoUnAuth(s) {
-		s.parent.Result.Cracked = Account{Username: "空", Password: "空"}
+		s.parent.Result.Output.Set("account", `空/空`)
 		s.parent.Result.ServiceName = s.name
+		s.parent.Hit = true
 		return
 	}
 	s.crack()

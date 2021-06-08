@@ -10,10 +10,11 @@ import (
 
 func memCachedCheck(s *Service) {
 	if memCachedUnAuth(s) {
-		s.parent.Result.Cracked = Account{Username: "空", Password: "空"}
-		s.parent.Result.ServiceName = s.name
-		return
+		s.parent.Result.Output.Set("account", `空, 空`)
 	}
+	s.parent.Result.ServiceName = s.name
+	s.parent.Hit = true
+	return
 }
 
 func memCacheConn(parent context.Context, s *Service, user, pass string) (ok int) {
@@ -37,9 +38,8 @@ func memCachedUnAuth(s *Service) (ok bool) {
 		return
 	}
 	if strings.Contains(string(buff[:n]), "STAT") {
-		s.parent.Result.ExpHelp = `apt install libmemcached-tools
-			memcdump --servers=192.168.1.33 (列出key）
-			memccat --servers=192.168.1.33 key1 （列出key1内容）`
+		s.parent.Result.Output.Set("helper",
+			"apt install libmemcached-tools\nmemcdump --servers=192.168.1.33 (列出key）\nmemccat --servers=192.168.1.33 key1 （列出key1内容）\n")
 		return true
 	}
 	return

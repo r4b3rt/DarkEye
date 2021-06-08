@@ -25,11 +25,7 @@ func snmpConn(srv *Service) (ok int) {
 	for _, v := range resp.Variables {
 		switch v.Type {
 		case gosnmp.OctetString:
-			ck := Account{
-				Username: "public",
-			}
-			srv.parent.Result.NetBios.Os = v.Value.(string)
-			srv.parent.Result.Cracked = ck
+			srv.parent.Result.Output.Set("account", "public/")
 			return OKDone
 		}
 	}

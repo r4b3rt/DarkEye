@@ -17,8 +17,9 @@ func _401AuthConn(parent context.Context, s *Service, user, pass string) (ok int
 	ok = OKNext
 	authKey := base64.StdEncoding.EncodeToString([]byte(user + ":" + pass))
 	ctx, _ := context.WithCancel(parent)
+	vul, _ := s.parent.Result.Output.Get("http_vul_page")
 	req := common.HttpRequest{
-		Url:              s.parent.Result.Web.Url,
+		Url:              vul.(string),
 		TimeOut:          time.Duration(1 + Config.TimeOut/1000),
 		Method:           "GET",
 		NoFollowRedirect: true,

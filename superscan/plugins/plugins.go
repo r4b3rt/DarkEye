@@ -43,6 +43,9 @@ func (plg *Plugins) Check() {
 			break
 		}
 	}
+	if !plg.Hit {
+		plg.finger()
+	}
 	return
 }
 
@@ -108,7 +111,7 @@ func (s *Service) job(parent context.Context, user string, dictPass []string) (s
 			if pass == "" || ok == OKNoAuth {
 				pass = "空"
 			}
-			s.parent.Result.Cracked = Account{Username: user, Password: pass}
+			s.parent.Result.Output.Set("account", fmt.Sprintf("%s/%s", user, pass))
 			return true
 		case OKWait:
 			//太快了服务器限制
@@ -170,11 +173,11 @@ func (plg *Plugins) available(srvName, srvPort string, preCheck bool) bool {
 	return false
 }
 
-//SupportPlugin add comment
-func SupportPlugin() {
+//Plugin add comment
+func Plugin() {
 	list := ""
 	defer func() {
-		common.Log("Plugins:", list, common.ALERT)
+		common.Log("Plugins:", list, common.INFO)
 	}()
 	if Config.SelectPlugin != "" {
 		list = Config.SelectPlugin

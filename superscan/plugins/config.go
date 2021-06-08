@@ -2,42 +2,15 @@ package plugins
 
 import (
 	"context"
+	"github.com/orcaman/concurrent-map"
 	"golang.org/x/time/rate"
 )
 
-//Web add comment
-type Web struct {
-	Server string `json:",omitempty"`
-	Title  string `json:",omitempty"`
-	Code   int32  `json:",omitempty"`
-	Url    string `json:",omitempty"`
-	Tls    bool   `json:",omitempty"`
-}
-
-//NetBios add comment
-type NetBios struct {
-	Net      string
-	Name     string
-	UserName string
-	Os       string
-	Hw       string
-	Shares   string
-	Domain   string
-}
-
-//Account add comment
-type Account struct {
-	Username string `json:",omitempty"`
-	Password string `json:",omitempty"`
-}
-
 type Result struct {
 	PortOpened  bool
-	Cracked     Account `json:",omitempty"`
-	Web         Web     `json:",omitempty"`
-	NetBios     NetBios `json:",omitempty"`
-	ServiceName string  `json:",omitempty"`
-	ExpHelp     string  `json:"，omitempty"`
+	ServiceName string
+
+	Output cmap.ConcurrentMap
 }
 
 //Plugins add comment
@@ -55,8 +28,9 @@ type Plugins struct {
 type config struct {
 	TimeOut int
 	//自定义字典
-	UserList []string
-	PassList []string
+	UserList          []string
+	PassList          []string
+	WebSiteDomainList []string
 	//发包速度限制
 	PPS *rate.Limiter
 	//选择插件

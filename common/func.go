@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -103,4 +104,16 @@ func DialCtx(parent context.Context, protocol, addr string, timeOut time.Duratio
 	ctx, _ := context.WithTimeout(parent, timeOut)
 	return d.DialContext(ctx, protocol, addr)
 
+}
+
+func ParseFileOrVariable(name string) []string {
+	if name != "" {
+		if _, e := os.Stat(name); e == nil {
+			return GenDicFromFile(name)
+		} else {
+			return strings.Split(name, ",")
+		}
+	} else {
+		return nil
+	}
 }

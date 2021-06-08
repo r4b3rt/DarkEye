@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/antchfx/htmlquery"
@@ -119,16 +120,14 @@ func (m *HttpRequest) Go() (*HttpResponse, error) {
 	return &response, nil
 }
 
-//GetHttpTitle add comment
-func GetHttpTitle(ctx context.Context, proto, target, host string, timeOutSec int) (server, title string, code int32) {
-	url := fmt.Sprintf(proto+"://%s", target)
-	userAgent := UserAgents[0]
+//WhatWeb add comment
+func WhatWeb(ctx context.Context, proto, target, host string, timeOutSec int) (server, title string, code int32, finger string) {
 	req := HttpRequest{
-		Url:     url,
+		Url:     fmt.Sprintf(proto+"://%s", target),
 		TimeOut: time.Duration(timeOutSec),
 		Method:  "GET",
 		Headers: map[string]string{
-			"User-Agent": userAgent,
+			"User-Agent": UserAgents[0],
 			"Host":       host,
 		},
 		Ctx: ctx,
@@ -153,6 +152,14 @@ func GetHttpTitle(ctx context.Context, proto, target, host string, timeOutSec in
 		}
 	}
 	title = TrimLRS.ReplaceAllString(title, "")
+	//获取finger
+	//todo：fast match？
+	headerStr, err := json.Marshal(&response.ResponseHeaders)
+	if err != nil {
+		Log("whatWeb.Marshal", err.Error(), FAULT)
+		return
+	}
+	finger = getFinger(headerStr, response.Body)
 	return
 }
 
@@ -163,7 +170,7 @@ func defaultCheckRedirect(req *http.Request, via []*http.Request) error {
 	return nil
 }
 
-func noCheckRedirect(req *http.Request, via []*http.Request) error {
+func noCheckRedirect(_ *http.Request, via []*http.Request) error {
 	if len(via) >= 0 {
 		return errors.New("forbidden redirects")
 	}
@@ -194,4 +201,29 @@ func getRespBody(resp *http.Response) ([]byte, error) {
 		body = raw
 	}
 	return body, nil
+}
+
+func getFinger(header, body []byte) (finger string) {
+	match := true
+	for _, f := range httpFinger.Fingerprint {
+		match = true
+		switch f.Method {
+		case "keyword":
+			buf := header
+			if f.Location == "body" {
+				buf = body
+			}
+			for _, k := range f.Keyword {
+				if !bytes.Contains(buf, []byte(k)) {
+					match = false
+					break
+				}
+			}
+			if match {
+				finger = f.Cms
+				return
+			}
+		}
+	}
+	return
 }

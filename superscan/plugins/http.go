@@ -24,18 +24,19 @@ func webCheck(s *Service) {
 	httpTitle := ""
 	httpCode := ""
 	httpServer := ""
-
+	httpFinger := ""
 	defer func() {
 		if s.parent.Hit {
 			s.parent.Result.Output.Set("http_url", httpUrl)
 			s.parent.Result.Output.Set("http_server", httpServer)
 			s.parent.Result.Output.Set("http_code", httpCode)
 			s.parent.Result.Output.Set("http_title", httpTitle)
+			s.parent.Result.Output.Set("finger", httpFinger)
 		}
 	}()
 	for k, site := range targets {
 		for _, proto := range []string{"http", "https"} {
-			server, title, code := common.GetHttpTitle(ctx, proto, target, site, timeOutSec)
+			server, title, code, finger := common.WhatWeb(ctx, proto, target, site, timeOutSec)
 			//网不通或非http协议
 			if code == 0 {
 				continue
@@ -47,6 +48,7 @@ func webCheck(s *Service) {
 			httpServer += fmt.Sprint(k, ": ", server, "\r\n")
 			httpTitle += fmt.Sprint(k, ": ", title, "\r\n")
 			httpCode += fmt.Sprint(k, ": ", fmt.Sprint(code), "\r\n")
+			httpFinger += fmt.Sprint(k, ": ", fmt.Sprint(finger), "\r\n")
 		}
 	}
 }

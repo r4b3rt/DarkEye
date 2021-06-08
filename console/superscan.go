@@ -18,15 +18,15 @@ import (
 
 type superScanRuntime struct {
 	Attack                bool
-	IpList                string
+	Ip                    string
 	PortList              string
 	TimeOut               int
 	Thread                int
 	Plugin                string
 	PacketPerSecond       int
-	UserList              string
-	PassList              string
-	WebSiteDomainList     string
+	User                  string
+	Pass                  string
+	WebSiteDomain         string
 	ActivePort            string
 	Output                string
 	OnlyCheckAliveNetwork bool
@@ -55,11 +55,11 @@ func (s *superScanRuntime) Start() {
 
 	if s.OnlyCheckAliveNetwork || s.OnlyCheckAliveHost {
 		scan := s.newScan("")
-		scan.PingNet(s.IpList, s.OnlyCheckAliveHost)
+		scan.PingNet(s.Ip, s.OnlyCheckAliveHost)
 		return
 	}
 	//初始化scan对象
-	ips := strings.Split(s.IpList, ",")
+	ips := common.ParseFileOrVariable(s.Ip)
 	if len(ips) == 0 {
 		common.Log("superScan.start", "目标空", common.ALERT)
 		return
@@ -113,19 +113,19 @@ func (s *superScanRuntime) Start() {
 
 func (s *superScanRuntime) Init() {
 	s.flagSet.BoolVar(&s.Attack, "attack", false, "发现漏洞即刻攻击")
-	s.flagSet.StringVar(&s.IpList, "ip", "127.0.0.1", "a.b.c.1-a.b.c.255")
+	s.flagSet.StringVar(&s.Ip, "ip", "127.0.0.1", "a.b.c.1-a.b.c.255(多组逗号隔开)或文件(一行一组IP范围)")
 	s.flagSet.StringVar(&s.PortList, "port-list", common.PortList, "端口范围,默认1000+常用端口")
 	s.flagSet.IntVar(&s.TimeOut, "timeout", 3000, "网络超时请求(单位ms)")
 	s.flagSet.IntVar(&s.Thread, "thread", 128, "每个IP爆破端口的线程数量")
 	s.flagSet.IntVar(&s.PacketPerSecond, "pps", 0, "扫描工具整体发包频率 packets/秒")
 	s.flagSet.StringVar(&s.Plugin, "plugin", "", "指定协议插件爆破")
-	s.flagSet.StringVar(&s.UserList, "user-list", "", "字符串(u1,u2,u3)或文件(一个账号一行）")
-	s.flagSet.StringVar(&s.PassList, "pass-list", "", "字符串(p1,p2,p3)或文件（一个密码一行")
+	s.flagSet.StringVar(&s.User, "user", "", "用户名(多个逗号隔开)或文件(一行一个账号)")
+	s.flagSet.StringVar(&s.Pass, "pass", "", "密码(多个逗号隔开)或文件(一行一个密码)")
 	s.flagSet.StringVar(&s.ActivePort, "alive_port", "0", "使用已知开放的端口校正扫描行为。例如某服务器限制了IP访问频率，开启此功能后程序发现限制会自动调整保证扫描完整、准确")
 	s.flagSet.BoolVar(&s.OnlyCheckAliveNetwork, "only-alive-network", false, "只检查活跃主机的网段(ping)")
 	s.flagSet.BoolVar(&s.OnlyCheckAliveHost, "alive-host-check", false, "检查所有活跃主机(ping)")
 	s.flagSet.StringVar(&s.Output, "output", "superScan.csv", "输出文件")
-	s.flagSet.StringVar(&s.WebSiteDomainList, "website-domain-list", "", "网址域名或文件")
+	s.flagSet.StringVar(&s.WebSiteDomain, "website-domain", "", "域名(多个逗号隔开)或文件(一行一个域名)")
 	s.MaxConcurrencyIp = 32
 	s.flagSet.Parse(os.Args[1:])
 
@@ -145,9 +145,9 @@ func (s *superScanRuntime) newScan(ip string) *superscan.Scan {
 
 func (s *superScanRuntime) initializer() {
 	//设置自定义文件字典替代内置字典
-	plugins.Config.UserList = parseFileOrVariable(s.UserList)
-	plugins.Config.PassList = parseFileOrVariable(s.PassList)
-	plugins.Config.WebSiteDomainList = parseFileOrVariable(s.WebSiteDomainList)
+	plugins.Config.UserList = common.ParseFileOrVariable(s.User)
+	plugins.Config.PassList = common.ParseFileOrVariable(s.Pass)
+	plugins.Config.WebSiteDomainList = common.ParseFileOrVariable(s.WebSiteDomain)
 	//设置发包频率
 	if s.PacketPerSecond > 0 {
 		//每秒发包*mRateLimiter，缓冲10个
@@ -212,16 +212,4 @@ func (s *superScanRuntime) myBarChangeDesc(a interface{}, args ...string) {
 	}
 	s.Bar.Describe(b)
 	_ = s.Bar.RenderBlank()
-}
-
-func parseFileOrVariable(name string) []string {
-	if name != "" {
-		if _, e := os.Stat(name); e == nil {
-			return common.GenDicFromFile(name)
-		} else {
-			return strings.Split(name, ",")
-		}
-	} else {
-		return nil
-	}
 }

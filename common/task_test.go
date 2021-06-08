@@ -2,24 +2,29 @@ package common
 
 import (
 	"context"
-	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
 func Test_task(t *testing.T) {
-	task := NewTask(2000*2, context.TODO())
-	defer task.Wait()
-	i := 0
+	ctx, cancel := context.WithCancel(context.TODO())
+	time.AfterFunc(time.Second*10, func() {
+		t.Log("called cancel")
+		cancel()
+	})
+	jobs := 100
+	task := NewTask(jobs, ctx)
+	defer task.Wait("test")
 	for {
-		task.Job()
-		go func(idx int) {
+		if !task.Job() {
+			break
+		}
+		assert.LessOrEqual(t, len(task.jobs), 100)
+		go func() {
 			defer task.UnJob()
-			fmt.Println("hi", idx)
-			time.Sleep(time.Second)
+			time.Sleep(time.Millisecond * 5)
 			return
-		}(i)
-		i++
+		}()
 	}
-
 }

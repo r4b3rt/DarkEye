@@ -63,7 +63,7 @@ fiware-wilma:DarkEye mac$ ./dist/df_darwin_amd64 -ip 192.168.1.0-192.168.1.255 -
 ### 主机碰撞
 
 ```bash
-./dist/df_darwin_amd64 -ip 192.168.1.0-192.168.1.255 -website-domain-list website.txt
+./dist/df_darwin_amd64 -ip 192.168.1.0-192.168.1.255 -website-domain website.txt
 ```
 
 ## 支持平台

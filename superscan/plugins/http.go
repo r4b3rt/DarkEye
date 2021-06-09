@@ -16,7 +16,7 @@ func webCheck(s *Service) {
 	targets = append(targets, target)
 	if Config.WebSiteDomainList != nil {
 		for _, t := range Config.WebSiteDomainList {
-			targets = append(targets, t)
+			targets = append(targets, net.JoinHostPort(t, s.parent.TargetPort))
 		}
 	}
 

@@ -17,7 +17,7 @@ func memCachedCheck(s *Service) {
 	return
 }
 
-func memCacheConn(parent context.Context, s *Service, user, pass string) (ok int) {
+func memCacheConn(_ context.Context, s *Service, user, pass string) (ok int) {
 	return OKStop
 }
 

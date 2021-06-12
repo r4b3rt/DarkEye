@@ -1,11 +1,17 @@
 package main
 
 import (
+	"github.com/b1gcat/DarkEye/common"
 	"github.com/gocarina/gocsv"
 	"github.com/olekukonko/tablewriter"
-	"github.com/b1gcat/DarkEye/common"
+	"golang.org/x/time/rate"
 	"os"
 	"sort"
+	"time"
+)
+
+var (
+	outputRate = rate.NewLimiter(rate.Every(3*time.Second), 1)
 )
 
 func (s *superScanRuntime) OutPut() {
@@ -26,7 +32,16 @@ func (s *superScanRuntime) OutPut() {
 		return
 	}
 
-	t, _ := tablewriter.NewCSV(os.Stdout, s.Output, true)
+	if outputRate.Allow() {
+		s.display()
+	}
+}
+
+func (s *superScanRuntime) display() {
+	t, err := tablewriter.NewCSV(os.Stdout, s.Output, true)
+	if err != nil {
+		return
+	}
 	t.SetAlignment(tablewriter.ALIGN_LEFT) // Set Alignment
 	t.Render()
 }

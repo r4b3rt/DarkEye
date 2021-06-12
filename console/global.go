@@ -20,5 +20,5 @@ type analysisEntity struct {
 	Account string `mapstructure:"account" csv:"acct,omitempty"`
 	//Finger
 	Finger string `mapstructure:"finger"`
-	Helper string `mapstructure:"hlp"`
+	Helper string `mapstructure:"helper" csv:"hlp,omitempty"`
 }

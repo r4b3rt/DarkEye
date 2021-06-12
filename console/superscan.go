@@ -109,6 +109,7 @@ func (s *superScanRuntime) Start() {
 			sup.Run()
 		}(sc)
 	}
+	s.display()
 }
 
 func (s *superScanRuntime) Init() {

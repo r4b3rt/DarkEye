@@ -7,17 +7,21 @@ import (
 	"golang.org/x/time/rate"
 	"os"
 	"sort"
+	"sync"
 	"time"
 )
 
 var (
 	outputRate = rate.NewLimiter(rate.Every(3*time.Second), 1)
+	outputLk   sync.RWMutex
 )
 
 func (s *superScanRuntime) OutPut() {
 	//排序
+	outputLk.Lock()
+	defer outputLk.Unlock()
 	sort.Slice(s.result, func(i, j int) bool {
-		return s.result[j].Ip > s.result[i].Ip
+		return common.CompareIP(s.result[j].Ip, s.result[i].Ip) > 0
 	})
 	//写入文件
 	csvFile, err := os.OpenFile(s.Output, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)

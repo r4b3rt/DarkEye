@@ -3,7 +3,7 @@
 #brew reinstall FiloSottile/musl-cross/musl-cross --with-x86_64  --with-mips --with-i486 --with-aarch64  --with-arm-hf  --with-mipsel --with-mips64 --with-mips64el
 #brew install mingw-w64
 
-go env -w GOPROXY=https://goproxy.cn,direct
+go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/
 export GO111MODULE=off
 
 ldflag="-s -w"

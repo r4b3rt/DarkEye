@@ -41,7 +41,6 @@ build_all() {
     GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "${ldflag}" -o ../dist/df_linux_mipsle
 
     GOOS=linux GOARCH=mips64   go build -ldflags "${ldflag}" -o ../dist/df_linux_mips64
-    GOOS=linux GOARCH=mips64el go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips64el
     cd -
 }
 

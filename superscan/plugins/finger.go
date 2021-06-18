@@ -17,7 +17,7 @@ func (plg *Plugins) finger() {
 	}
 	defer conn.Close()
 	_ = conn.SetDeadline(time.Now().Add(time.Duration(Config.TimeOut) * time.Millisecond))
-	_, _ = conn.Write([]byte("asd\n"))
+	_, _ = conn.Write([]byte("info\n"))
 	buff := make([]byte, 1024)
 	n, err := conn.Read(buff)
 	if err != nil {

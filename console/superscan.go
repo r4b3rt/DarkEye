@@ -167,6 +167,7 @@ func (s *superScanRuntime) newBar(max int) *progressbar.ProgressBar {
 		progressbar.OptionSetDescription(fmt.Sprintf("%-24s", "Cracking...")),
 		progressbar.OptionShowCount(),
 		progressbar.OptionShowIts(),
+		progressbar.OptionThrottle(time.Second*1),
 		progressbar.OptionOnCompletion(func() {
 			_, _ = fmt.Fprint(os.Stderr, "\n扫描任务完成")
 		}),

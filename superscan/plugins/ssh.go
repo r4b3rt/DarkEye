@@ -1,15 +1,11 @@
 package plugins
 
-import "C"
 import (
 	"context"
-	"fmt"
-	"github.com/melbahja/goph"
 	"github.com/b1gcat/DarkEye/common"
 	"github.com/b1gcat/DarkEye/superscan/dic"
 	"golang.org/x/crypto/ssh"
 	"net"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -20,35 +16,27 @@ func sshCheck(s *Service) {
 
 func sshConn(parent context.Context, s *Service, user, pass string) (ok int) {
 	ok = OKNext
-	port, _ := strconv.Atoi(s.parent.TargetPort)
-	//初始化变量
-	client := &goph.Client{
-		Config: &goph.Config{
-			User:     user,
-			Addr:     s.parent.TargetIp,
-			Port:     uint(port),
-			Auth:     goph.Password(pass),
-			Timeout:  time.Duration(Config.TimeOut) * time.Millisecond,
-			Callback: ssh.InsecureIgnoreHostKey(),
-		},
-	}
+
+	timeOut := time.Millisecond * time.Duration(Config.TimeOut)
 	//初始化连接
 	conn, err := common.DialCtx(parent, "tcp",
-		net.JoinHostPort(client.Config.Addr, fmt.Sprint(client.Config.Port)),
-		client.Config.Timeout)
+		net.JoinHostPort(s.parent.TargetIp, s.parent.TargetPort), timeOut)
 	if err != nil {
 		//网络不通或墙了
 		ok = OKTerm
 		return
 	}
+	defer conn.Close()
 	config := &ssh.ClientConfig{
-		User:            client.Config.User,
-		Auth:            client.Config.Auth,
-		Timeout:         client.Config.Timeout,
-		HostKeyCallback: client.Config.Callback,
+		User:    user,
+		Auth:    []ssh.AuthMethod{ssh.Password(pass)},
+		Timeout: timeOut,
+		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+			return nil
+		},
 	}
-	_ = conn.SetReadDeadline(time.Now().Add(client.Config.Timeout))
-	c, ch, reqs, err := ssh.NewClientConn(conn, net.JoinHostPort(client.Config.Addr, fmt.Sprint(client.Config.Port)), config)
+	_ = conn.SetReadDeadline(time.Now().Add(timeOut))
+	c, ch, reqs, err := ssh.NewClientConn(conn, net.JoinHostPort(s.parent.TargetIp, s.parent.TargetPort), config)
 	if err != nil {
 		if strings.Contains(err.Error(), "password") {
 			//密码错误
@@ -63,14 +51,19 @@ func sshConn(parent context.Context, s *Service, user, pass string) (ok int) {
 		}
 		return
 	}
-	_ = conn.SetReadDeadline(time.Now().Add(client.Config.Timeout))
-	client.Client = ssh.NewClient(c, ch, reqs)
+	ok = OKDone
+	_ = conn.SetReadDeadline(time.Now().Add(timeOut))
+	client := ssh.NewClient(c, ch, reqs)
 	defer client.Close()
-	out, err := client.Run("id")
+	session, err := client.NewSession()
+	if err != nil {
+		return
+	}
+	defer session.Close()
+	out, err := session.CombinedOutput("id")
 	if err == nil {
 		s.parent.Result.Output.Set("helper", string(out))
 	}
-	ok = OKDone
 	return
 }
 

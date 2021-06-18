@@ -3,46 +3,26 @@ package plugins
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/orcaman/concurrent-map"
 	"testing"
 )
 
-func test_crack(t *testing.T) {
+func Test_crack(t *testing.T) {
 	s := new(Service)
-	*s = services["rdp"]
-	s.thread = 1
-	s.parent = &Plugins{
-		TargetIp:   "127.0.0.1",
-		TargetPort: "3389",
-	}
-	Config.UserList = []string{"zs"}
-	Config.PassList = []string{"111111"}
-
-	s.check(s)
-	b, _ := json.MarshalIndent(&s.parent.Result, "", "	")
-	fmt.Println(string(b))
-}
-
-func test_redis(t *testing.T) {
-	s := new(Service)
-	*s = services["redis"]
+	*s = services["ssh"]
 	s.thread = 1
 	s.parent = &Plugins{
 		TargetIp:   "",
-		TargetPort: "6379",
+		TargetPort: "22",
+		Result:Result{
+			Output:cmap.New(),
+		},
 	}
-	s.check(s)
-	b, _ := json.MarshalIndent(&s.parent.Result, "", "	")
-	fmt.Println(string(b))
-}
+	Config.UserList = []string{"root"}
+	Config.PassList = []string{""}
+	Config.TimeOut = 3000
 
-func test_netbios(t *testing.T) {
-	s := new(Service)
-	*s = preServices["netbios"]
-	s.thread = 1
-	s.parent = &Plugins{
-		TargetIp:   "192.168.1.11",
-		TargetPort: "137",
-	}
+
 	s.check(s)
 	b, _ := json.MarshalIndent(&s.parent.Result, "", "	")
 	fmt.Println(string(b))

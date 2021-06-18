@@ -43,9 +43,7 @@ func (plg *Plugins) Check() {
 			break
 		}
 	}
-	if !plg.Hit {
-		plg.finger()
-	}
+	plg.finger()
 	return
 }
 

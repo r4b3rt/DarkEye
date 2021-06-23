@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"context"
+	"fmt"
 	"github.com/b1gcat/DarkEye/common"
 	"github.com/b1gcat/DarkEye/superscan/dic"
 	"golang.org/x/crypto/ssh"
@@ -35,9 +36,10 @@ func sshConn(parent context.Context, s *Service, user, pass string) (ok int) {
 			return nil
 		},
 	}
-	_ = conn.SetReadDeadline(time.Now().Add(timeOut))
+	_ = conn.SetReadDeadline(time.Now().Add(time.Millisecond*1000))
 	c, ch, reqs, err := ssh.NewClientConn(conn, net.JoinHostPort(s.parent.TargetIp, s.parent.TargetPort), config)
 	if err != nil {
+		fmt.Println(err.Error())
 		if strings.Contains(err.Error(), "password") {
 			//密码错误
 			return
@@ -46,7 +48,6 @@ func sshConn(parent context.Context, s *Service, user, pass string) (ok int) {
 			return
 		}
 		if strings.Contains(err.Error(), "i/o timeout") {
-			ok = OKTerm
 			return
 		}
 		return
@@ -75,6 +76,6 @@ func init() {
 		pass:    dic.DIC_PASSWORD_SSH,
 		check:   sshCheck,
 		connect: sshConn,
-		thread:  1,
+		thread:  3,
 	}
 }

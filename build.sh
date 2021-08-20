@@ -36,11 +36,11 @@ build_all() {
 #arm
     GOOS=linux GOARCH=arm   go build -ldflags "${ldflag}" -o ../dist/df_linux_arm
     GOOS=linux GOARCH=arm64 go build -ldflags "${ldflag}" -o ../dist/df_linux_arm64
-#mip[sel][64]
-    GOOS=linux GOARCH=mips   GOMIPS=softfloat go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips
-    GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "${ldflag}" -o ../dist/df_linux_mipsle
 
-    GOOS=linux GOARCH=mips64   go build -ldflags "${ldflag}" -o ../dist/df_linux_mips64
+    GOOS=linux GOARCH=mips64  go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips64
+    GOOS=linux GOARCH=mips64le  go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips64le
+    GOOS=linux GOARCH=mips GOMIPS=softfloat go build -ldflags "${ldflag}" -o ../dist/df_linux_mips
+    GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "${ldflag}" -o ../dist/df_linux_mipsle
     cd -
 }
 

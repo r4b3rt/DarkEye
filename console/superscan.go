@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/miekg/dns"
 	"github.com/mitchellh/mapstructure"
 	"github.com/schollz/progressbar"
 	"github.com/sirupsen/logrus"
@@ -64,28 +65,12 @@ func (s *superScanRuntime) Start() {
 		common.Log("superScan.start", "目标空", common.ALERT)
 		return
 	}
-	tot := 0
-	scans := make([]*superscan.Scan, 0)
-	for _, ip := range ips {
-		base, start, end, err := common.GetIPRange(ip)
-		if err != nil {
-			common.Log(superScan, err.Error(), common.FAULT)
-			return
-		}
-		for {
-			nip := common.GenIP(base, start)
-			if common.CompareIP(nip, end) > 0 {
-				break
-			}
-			ss := s.newScan(nip)
-			ss.ActivePort = "0"
-			ss.Parent = s.ctx
-			_, t := common.GetPortRange(ss.PortRange)
-			tot += t
-			scans = append(scans, ss)
-			start++
-		}
+	tot, scans, err := s.loadTarget(ips)
+	if err != nil {
+		common.Log(superScan, err.Error(), common.FAULT)
+		return
 	}
+
 	logrus.Info(fmt.Sprintf(
 		"已加载%d个IP,共计%d个端口,启动每IP扫描端口线程数%d,同时可同时检测IP数量%d",
 		len(scans), tot, s.Thread, s.MaxConcurrencyIp))
@@ -110,6 +95,44 @@ func (s *superScanRuntime) Start() {
 		}(sc)
 	}
 	s.display()
+}
+
+func (s *superScanRuntime) loadTarget(ips []string) (int, []*superscan.Scan, error) {
+	tot := 0
+	t := 0
+
+	scans := make([]*superscan.Scan, 0)
+	for _, ip := range ips {
+		if _, ok := dns.IsDomainName(ip); ok {
+			t, scans = s.alloc(ip, scans)
+			tot += t
+			continue
+		}
+
+		base, start, end, err := common.GetIPRange(ip)
+		if err != nil {
+			return 0, nil, err
+		}
+		for {
+			nip := common.GenIP(base, start)
+			if common.CompareIP(nip, end) > 0 {
+				break
+			}
+			t, scans = s.alloc(ip, scans)
+			tot += t
+			start++
+		}
+	}
+	return tot, scans, nil
+}
+
+func (s *superScanRuntime) alloc(ip string, scans []*superscan.Scan) (int, []*superscan.Scan) {
+	ss := s.newScan(ip)
+	ss.ActivePort = "0"
+	ss.Parent = s.ctx
+	_, t := common.GetPortRange(ss.PortRange)
+	scans = append(scans, ss)
+	return t, scans
 }
 
 func (s *superScanRuntime) Init() {
@@ -207,7 +230,8 @@ func (s *superScanRuntime) myBarCallback(i int) {
 func (s *superScanRuntime) myBarChangeDesc(a interface{}, args ...string) {
 	plg := a.(*plugins.Plugins)
 	ip := strings.Split(plg.TargetIp, ".")
-	desc := args[0] + "://" + "*" + ip[2] + "." + ip[3] + "/" + args[1]
+	num := len(ip)
+	desc := args[0] + "://" + "*" + ip[num-2] + "." + ip[num-1] + "/" + args[1]
 	b := fmt.Sprintf("%-24s", desc)
 	if len(desc) > 24 {
 		b = desc[:24]

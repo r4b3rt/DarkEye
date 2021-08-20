@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/b1gcat/DarkEye/common"
 	"github.com/gocarina/gocsv"
-	"github.com/miekg/dns"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/time/rate"
 	"os"
@@ -22,10 +21,7 @@ func (s *superScanRuntime) OutPut() {
 	outputLk.Lock()
 	defer outputLk.Unlock()
 	sort.Slice(s.result, func(i, j int) bool {
-		if _, ok := dns.IsDomainName(s.result[i].Ip); ok {
-			return true
-		}
-		if _, ok := dns.IsDomainName(s.result[j].Ip); ok {
+		if !common.IPValid(s.result[i].Ip) || !common.IPValid(s.result[j].Ip) {
 			return true
 		}
 		return common.CompareIP(s.result[j].Ip, s.result[i].Ip) > 0

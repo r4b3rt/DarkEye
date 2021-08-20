@@ -18,16 +18,23 @@ type FromTo struct {
 	To   int
 }
 
+func IPValid(ip string) bool {
+	re := regexp.MustCompile(`\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}-\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}|\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`)
+	x := re.FindAllString(ip, -1)
+	if x == nil {
+		return false
+	}
+	if x[0] != ip {
+		return false
+	}
+
+	return true
+}
+
 //GetIPRange add comment
 func GetIPRange(ip string) (base string, start int, end string, err error) {
 	err = fmt.Errorf("IP格式错误(eg. 1.1.1.1-1.1.1.255)")
-	re := regexp.MustCompile(`\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}-\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}|\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`)
-	//检查格式
-	x := re.FindAllString(ip, -1)
-	if x == nil {
-		return
-	}
-	if x[0] != ip {
+	if !IPValid(ip) {
 		return
 	}
 

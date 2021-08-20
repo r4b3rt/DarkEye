@@ -4,13 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/miekg/dns"
-	"github.com/mitchellh/mapstructure"
-	"github.com/schollz/progressbar"
-	"github.com/sirupsen/logrus"
 	"github.com/b1gcat/DarkEye/common"
 	"github.com/b1gcat/DarkEye/superscan"
 	"github.com/b1gcat/DarkEye/superscan/plugins"
+	"github.com/mitchellh/mapstructure"
+	"github.com/schollz/progressbar"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
 	"os"
 	"strings"
@@ -103,7 +102,7 @@ func (s *superScanRuntime) loadTarget(ips []string) (int, []*superscan.Scan, err
 
 	scans := make([]*superscan.Scan, 0)
 	for _, ip := range ips {
-		if _, ok := dns.IsDomainName(ip); ok {
+		if ok := common.IPValid(ip); !ok {
 			t, scans = s.alloc(ip, scans)
 			tot += t
 			continue
@@ -118,7 +117,7 @@ func (s *superScanRuntime) loadTarget(ips []string) (int, []*superscan.Scan, err
 			if common.CompareIP(nip, end) > 0 {
 				break
 			}
-			t, scans = s.alloc(ip, scans)
+			t, scans = s.alloc(nip, scans)
 			tot += t
 			start++
 		}

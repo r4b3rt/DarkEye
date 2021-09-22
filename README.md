@@ -78,6 +78,7 @@ Windows、Linux、MacOs、Arm、Mips[el]、FreeBsd ...
 ```bash
 git clone https://github.com/b1gcat/DarkEye.git
 cd DarkEye
+go get -d -v ./...
 ./build all
 
 Tips:编译好后文件都自动发布到dist目录下

@@ -13,7 +13,7 @@ const (
 	ALERT = 3
 )
 
-//LogBuild add comment
+//Log add comment
 func Log(module, logCt string, level int) {
 	switch level {
 	case INFO:
@@ -22,5 +22,16 @@ func Log(module, logCt string, level int) {
 		logrus.Warn(module, ":", logCt)
 	case FAULT:
 		logrus.Error(module, ":", logCt)
+	}
+}
+
+func LogUi(logCt string, ui chan string, level int) {
+	switch level {
+	case INFO:
+		ui <- logCt
+	case ALERT:
+		ui <- logCt
+	case FAULT:
+		ui <- logCt
 	}
 }

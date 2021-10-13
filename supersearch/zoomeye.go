@@ -6,6 +6,7 @@ import (
 	"github.com/b1gcat/DarkEye/common"
 	"github.com/b1gcat/DarkEye/supersearch/ui"
 	"github.com/b1gcat/DarkEye/supersearch/zoomeye"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -45,8 +46,7 @@ https://www.zoomeye.org/
 				z.LineEditFacet.Text(),
 				log)
 			if m != nil {
-				f := time.Now().Format("20060102150405")
-				f = "zoomEye_" + f + ".csv"
+				f := filepath.Join(defaultOutputDir, "zoomEye_"+time.Now().Format("20060102150405")+".csv")
 				d, _ := json.Marshal(m)
 				if err := output(d, f); err != nil {
 					common.LogUi(err.Error(), log, common.FAULT)

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export QT_DEBUG_CONSOLE=true
+
 build_win() {
     ${GOPATH}/bin/rsrc -manifest DarkEye.manifest -ico qml/logo.ico -arch=386 -o DarkEye_windows.syso
     #docker pull therecipe/qt:windows_32_static

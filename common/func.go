@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -123,4 +124,21 @@ func ParseFileOrVariable(name string) []string {
 	} else {
 		return nil
 	}
+}
+
+func GetAllFiles(dir, filter string) ([]string, error) {
+	if dir == "" {
+		return nil, nil
+	}
+	var files []string
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if strings.HasSuffix(path, filter) {
+			files = append(files, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return files, err
 }

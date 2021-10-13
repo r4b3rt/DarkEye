@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	programName = "DarkEye"
+	programName      = "DarkEye"
+	defaultOutputDir = "."
 )
 
 func main() {
@@ -34,15 +35,22 @@ func runApp() {
 }
 
 func initMainWin(mainWin *ui.MainWindow) {
-	mainWin.PlainTextEditMain.SetPlainText(``)
-
 	mainWin.ActionZoomEye.ConnectTriggered(func(bool) {
 		zoomEyeInit()
 	})
-
-	mainWin.ActionREADME.ConnectTriggered(func(bool) {
+	mainWin.ActionXray.ConnectTriggered(func(bool) {
+		xrayInit()
+	})
+	mainWin.ActionAbout.ConnectTriggered(func(bool) {
 		widgets.QMessageBox_Information(nil, "信息", "https://github.com/b1gcat/DarkEye",
 			widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+	})
+	mainWin.ActionPath.ConnectTriggered(func(bool) {
+		qFile := widgets.NewQFileDialog2(nil, "选择日志文件目录", defaultOutputDir, "")
+		fn := qFile.GetExistingDirectory(nil, "目录", defaultOutputDir, widgets.QFileDialog__ShowDirsOnly)
+		if fn != "" {
+			defaultOutputDir = fn
+		}
 	})
 }
 

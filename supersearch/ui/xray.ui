@@ -190,6 +190,21 @@
        </property>
       </widget>
      </widget>
+     <widget class="QWidget" name="tabLog">
+      <attribute name="title">
+       <string>日志</string>
+      </attribute>
+      <widget class="QTextEdit" name="textEditLog">
+       <property name="geometry">
+        <rect>
+         <x>13</x>
+         <y>8</y>
+         <width>461</width>
+         <height>121</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </item>
    <item row="1" column="0">

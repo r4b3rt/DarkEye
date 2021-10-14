@@ -1,22 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"github.com/b1gcat/DarkEye/supersearch/ui"
-	"github.com/noborus/trdsql"
 	"github.com/therecipe/qt/widgets"
 	"os"
 	"runtime"
 )
 
-var (
-	programName      = "DarkEye"
-	defaultOutputDir = "."
-)
-
-func main() {
-	runApp()
-}
 
 func runApp() {
 	//加载配置
@@ -45,12 +35,8 @@ func initMainWin(mainWin *ui.MainWindow) {
 		widgets.QMessageBox_Information(nil, "信息", "https://github.com/b1gcat/DarkEye",
 			widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
 	})
-	mainWin.ActionPath.ConnectTriggered(func(bool) {
-		qFile := widgets.NewQFileDialog2(nil, "选择日志文件目录", defaultOutputDir, "")
-		fn := qFile.GetExistingDirectory(nil, "目录", defaultOutputDir, widgets.QFileDialog__ShowDirsOnly)
-		if fn != "" {
-			defaultOutputDir = fn
-		}
+	mainWin.ActionPreference.ConnectTriggered(func(bool) {
+		preferenceInit()
 	})
 }
 
@@ -64,27 +50,4 @@ func newLogChannel(view *widgets.QTextEdit) chan string {
 		}
 	}()
 	return logC
-}
-
-func output(d []byte, f string) error {
-	r := bytes.NewBuffer(d)
-	importer, err := trdsql.NewBufferImporter("any", r, trdsql.InFormat(trdsql.JSON))
-	if err != nil {
-		return err
-	}
-	fp, err := os.Create(f)
-	if err != nil {
-		return err
-	}
-	defer fp.Close()
-
-	writer := trdsql.NewWriter(trdsql.OutFormat(trdsql.CSV),
-		trdsql.OutHeader(true),
-		trdsql.OutStream(fp))
-	trd := trdsql.NewTRDSQL(importer, trdsql.NewExporter(writer))
-	err = trd.Exec("select * from any")
-	if err != nil {
-		return err
-	}
-	return nil
 }

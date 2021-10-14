@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/b1gcat/DarkEye/common"
 	"github.com/b1gcat/DarkEye/supersearch/ui"
 	"github.com/therecipe/qt/widgets"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -16,11 +16,13 @@ import (
 func xrayInit() {
 	ctx, cancel := context.WithCancel(context.Background())
 	x := ui.NewDialogXray(nil)
+	log := newLogChannel(x.TextEditLog)
 	//设置默认插件
 	x.LineEditPlugins.SetText(
 		"baseline,brute-force,cmd-injection,crlf-injection," +
 			"dirscan,jsonp,path-traversal,redirect,sqldet,ssrf," +
 			"upload,xss,xxe,fastjson,shiro,struts,thinkphp,phantasm")
+	x.LineEditPocs.SetPlaceholderText("*.yml")
 	//设置pocs目录
 	x.PushButtonPocs.ConnectClicked(func(bool) {
 		qFile := widgets.NewQFileDialog2(nil, "选择poc文件目录", defaultOutputDir, "")
@@ -30,7 +32,7 @@ func xrayInit() {
 
 	//自定义xray目录
 	x.PushButtonXrayWorkDir.ConnectClicked(func(bool) {
-		qFile := widgets.NewQFileDialog2(nil, "选择文件目录", x.LineEditWorkDir.Text(), "")
+		qFile := widgets.NewQFileDialog2(nil, "选择文件目录", defaultOutputDir, "")
 		fn := qFile.GetExistingDirectory(nil, "目录", defaultOutputDir, widgets.QFileDialog__ShowDirsOnly)
 		if fn != "" {
 			x.LineEditWorkDir.SetText(fn)
@@ -43,7 +45,7 @@ func xrayInit() {
 	x.ComboBoxTargetType.ConnectActivated2(func(s string) {
 		if s == "文件" {
 			qFile := widgets.NewQFileDialog2(nil, "选择文件", defaultOutputDir, "")
-			fn := qFile.GetOpenFileName(nil, "文件", ".", "", "", widgets.QFileDialog__ReadOnly)
+			fn := qFile.GetOpenFileName(nil, "文件", defaultOutputDir, "", "", widgets.QFileDialog__ReadOnly)
 			if fn == "" {
 				widgets.QMessageBox_Information(nil, "信息", "未选择任何目标文件",
 					widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
@@ -70,20 +72,36 @@ func xrayInit() {
 		defer func() {
 			x.PushButtonStart.SetEnabled(true)
 		}()
-		xRayRun(ctx, x)
+		xRayRun(ctx, x, log)
 	})
 
 	x.Show()
 }
 
-func xRayRun(ctx context.Context, x *ui.DialogXray) {
+func xRayRun(ctx context.Context, x *ui.DialogXray, log chan string) {
+	if x.TabWidget.CurrentIndex() >= 2 {
+		return
+	}
 	activeMode := x.TabWidget.CurrentIndex() == 0
 	runXray := "xray ws"
 	if x.LineEditPlugins.Text() != "" {
 		runXray += " --plugins " + x.LineEditPlugins.Text()
 	}
+	//加载自定义
 	if x.LineEditPocs.Text() != "" {
-		runXray += " -p " + strings.TrimRight(x.LineEditPocs.Text(), "/") + "*.yaml"
+		cusPocs, _ := common.GetAllFiles(x.LineEditPocs.Text(), ".yml")
+		if cusPocs != nil {
+			list := ""
+			for k, v := range cusPocs {
+				if k != 0 {
+					list += ","
+				}
+				list += v
+			}
+			if list != "" {
+				runXray += " -p " + list
+			}
+		}
 	}
 	f := filepath.Join(defaultOutputDir,
 		"xray_"+
@@ -91,26 +109,18 @@ func xRayRun(ctx context.Context, x *ui.DialogXray) {
 			"."+strings.Split(x.ComboBoxOutput.CurrentText(), "-")[1])
 	runXray += " --" + x.ComboBoxOutput.CurrentText() + " " + f
 
+	if localWebHook != "" {
+		runXray += "  --webhook-output " + localWebHook
+	}
+
 	if !activeMode {
 		xrayRunPassive(ctx, runXray, x)
 	} else {
 		xrayRunActive(ctx, runXray, x)
 	}
-
-	if _, err := os.Stat(f); err == nil {
-		widgets.QMessageBox_Information(nil, "记录", f,
-			widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
-	} else {
-		widgets.QMessageBox_Information(nil, "记录", "无记录生成",
-			widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
-	}
 }
 
 func xrayRunActive(ctx context.Context, runXray string, x *ui.DialogXray) {
-	defer func() {
-		widgets.QMessageBox_Information(nil, "信息", "结束xrayRunActive",
-			widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
-	}()
 	if x.LineEditExtra.Text() != "" {
 		runXray += " " + x.LineEditExtra.Text()
 	}
@@ -129,10 +139,6 @@ func xrayRunActive(ctx context.Context, runXray string, x *ui.DialogXray) {
 }
 
 func xrayRunPassive(ctx context.Context, runXray string, x *ui.DialogXray) {
-	defer func() {
-		widgets.QMessageBox_Information(nil, "信息", "结束xrayRunPassive",
-			widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
-	}()
 	runXray += " --listen 0.0.0.0:" + x.LineEditListen.Text()
 	select {
 	case <-ctx.Done():

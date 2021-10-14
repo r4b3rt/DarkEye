@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -16,3 +17,11 @@ func Test_getIPRange(t *testing.T) {
 	nip := GenIP(base, start)
 	assert.Equal(t, base, nip)
 }
+
+func Test_GetAllFiles(t *testing.T) {
+	list, err := GetAllFiles("/Users/b1gcat/Desktop/hack/hacking/xray1.7/poc/self_poc/", ".yml")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, true, len(list) > 0)
+	fmt.Println(list)
+}
+

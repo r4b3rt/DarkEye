@@ -20,6 +20,6 @@ func Test_http(t *testing.T) {
 	assert.Equal(t, nil, err)
 	s.(*discovery).logger.SetLevel(logrus.DebugLevel)
 	//assert.Equal(t, true, s.(*discovery).pingWithPrivileged(context.Background(), "127.0.0.1") == nil)
-	r, err := s.(*discovery).Start(context.Background(), "47.92.207.116","443")
+	r, err := s.(*discovery).Start(context.Background(), "4","443")
 	fmt.Println(r, err)
 }

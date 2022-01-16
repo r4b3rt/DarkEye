@@ -25,8 +25,8 @@ type config struct {
 type myScan struct {
 	s        scan.Scan
 	p        *pool
-	disco    string
 	discoNet bool
+	sid      int //scan id
 }
 
 var (

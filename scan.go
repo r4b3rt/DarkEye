@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/b1gcat/DarkEye/scan"
 	"github.com/sirupsen/logrus"
 	"net"
 	"sync"
@@ -58,7 +59,7 @@ func (c *config) _scanning(ipc string, ipCs []net.IP, port []string, sc *myScan)
 			c._scanningOne(ctx, tip, port, sc,
 				func(l interface{}) (stop bool) {
 					//!discovery
-					if sc.disco == "" {
+					if sc.sid > scan.DiscoEnd {
 						c.output(l)
 						stop = true //stop if found one
 						return
@@ -83,7 +84,7 @@ func (c *config) _scanning(ipc string, ipCs []net.IP, port []string, sc *myScan)
 func (c *config) _scanningOne(ctx context.Context, f net.IP, port []string,
 	sc *myScan, cb func(interface{}) bool) {
 
-	if sc.disco == "ping" {
+	if sc.sid == scan.DiscoPing {
 		r, err := sc.s.Start(ctx, f.String(), "0")
 		if err != nil || r == nil {
 			logrus.Debug("_scanningOne.not.found:", err)
@@ -95,7 +96,7 @@ func (c *config) _scanningOne(ctx context.Context, f net.IP, port []string,
 	}
 
 	for _, p := range port {
-		if sc.disco == "" {
+		if sc.sid > scan.DiscoEnd {
 			if !sc.s.Identify(ctx, f.String(), p) {
 				logrus.Debug("_scanningOne.ident.fail:", f.String(), ":", p)
 				return

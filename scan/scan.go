@@ -16,6 +16,10 @@ type Scan interface {
 
 const (
 	Discovery int = iota
+	DiscoTcp
+	DiscoPing
+	DiscoHttp
+	DiscoEnd
 	RiskStart
 	Ssh
 	Redis
@@ -33,8 +37,9 @@ type IdListType map[string]int
 
 var (
 	IdList = IdListType{
-		"tcp":       Discovery,
-		"ping":      Discovery,
+		"tcp":       DiscoTcp,
+		"ping":      DiscoPing,
+		"http":      DiscoHttp,
 		"ssh":       Ssh,
 		"redis":     Redis,
 		"mssql":     Mssql,

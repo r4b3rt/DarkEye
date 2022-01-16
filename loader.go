@@ -9,54 +9,51 @@ import (
 )
 
 func (c *config) loader() error {
-	loaders, err := c.readLoaders()
-	if err != nil {
-		return err
-	}
-
 	logrus.Info("start action:", c.action)
+	var err error
 	defer logrus.Info("stop")
 	switch c.action {
 	case "disco-net":
 		fallthrough
 	case "disco-host":
-		disco, ok := loaders[scan.Discovery]
-		if !ok {
-			return fmt.Errorf("missing tcp or ping in loader: -loader ping")
-		}
-		my, err := c.scanInit(scan.Discovery, disco)
-		if err != nil {
-			return err
-		}
-		my.disco = disco
-		my.discoNet = c.action == "disco-net"
-		c.run(my)
+		err = c.scanStart(scan.Discovery, scan.DiscoEnd, c.action == "disco-net")
 	case "risk":
-		wg := sync.WaitGroup{}
-		start := scan.RiskStart
-		for start < scan.RiskEnd {
-			start++
-			if _, ok := loaders[start]; !ok {
-				logrus.Info("ignore:", scan.IdList.Name(start))
-				continue
-			}
-			my, err := c.scanInit(start)
-			if err != nil {
-				return err
-			}
-			wg.Add(1)
-			go func(sc *myScan) {
-				defer wg.Done()
-				c.run(my)
-			}(my)
-		}
-		wg.Wait()
+		err = c.scanStart(scan.RiskStart, scan.RiskEnd, false)
 	case "localhost":
 	default:
 		err = fmt.Errorf("not support action %v", c.action)
 	}
 
 	return err
+}
+
+func (c *config) scanStart(start, end int, discoNet bool) error {
+	loaders, err := c.readLoaders()
+	if err != nil {
+		return err
+	}
+
+	wg := sync.WaitGroup{}
+	for start < end {
+		start++
+		if _, ok := loaders[start]; !ok {
+			logrus.Info("ignore:", scan.IdList.Name(start))
+			continue
+		}
+		my, err := c.scanInit(start)
+		if err != nil {
+			return err
+		}
+		my.discoNet = discoNet
+		my.sid = start
+		wg.Add(1)
+		go func(sc *myScan) {
+			defer wg.Done()
+			c.run(my)
+		}(my)
+	}
+	wg.Wait()
+	return nil
 }
 
 func (c *config) scanInit(sid int, args ...interface{}) (*myScan, error) {

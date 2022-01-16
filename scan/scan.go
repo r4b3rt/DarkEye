@@ -16,9 +16,9 @@ type Scan interface {
 
 const (
 	Discovery int = iota
+	DiscoHttp
 	DiscoTcp
 	DiscoPing
-	DiscoHttp
 	DiscoEnd
 	RiskStart
 	Ssh

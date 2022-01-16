@@ -5,6 +5,7 @@ import (
 	"flag"
 	"github.com/b1gcat/DarkEye/scan"
 	"github.com/sirupsen/logrus"
+	"strings"
 )
 
 type config struct {
@@ -43,8 +44,8 @@ func main() {
 }
 
 func initialize() {
-	flag.StringVar(&gConfig.action, "a", "disco-net",
-		"Format: disco-host,disco-net,risk,localhost")
+	flag.StringVar(&gConfig.action, "action", "disco-net",
+		"Format: "+myActionList.String())
 	flag.StringVar(&gConfig.loaders, "loader", "all",
 		"Support loader: "+scan.IdList.String())
 	flag.StringVar(&gConfig.ip, "ip", "127.0.0.1-254",
@@ -68,4 +69,40 @@ func initialize() {
 	}
 
 	gConfig.ctx, gConfig.cancel = context.WithCancel(context.Background())
+}
+
+const (
+	actionDiscoNet int = iota
+	actionDiscoHost
+	actionRisk
+	actionLocalInfo
+	actionUnknown
+)
+
+type actionList map[int]string
+
+var (
+	myActionList = actionList{
+		actionDiscoNet:  "disco-net",
+		actionDiscoHost: "disco-host",
+		actionRisk:      "risk",
+		actionLocalInfo: "local-info",
+	}
+)
+
+func (a actionList) String() string {
+	r := make([]string, 0)
+	for _, l := range myActionList {
+		r = append(r, l)
+	}
+	return strings.Join(r, ",")
+}
+
+func (a actionList) Id(name string) int {
+	for k, v := range myActionList {
+		if v == name {
+			return k
+		}
+	}
+	return actionUnknown
 }

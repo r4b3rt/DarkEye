@@ -12,14 +12,16 @@ func (c *config) loader() error {
 	logrus.Info("start action:", c.action)
 	var err error
 	defer logrus.Info("stop")
-	switch c.action {
-	case "disco-net":
+	switch myActionList.Id(c.action) {
+	case actionDiscoNet:
+		//support tcp,icmp
+		err = c.scanStart(scan.DiscoHttp, scan.DiscoEnd, true)
 		fallthrough
-	case "disco-host":
-		err = c.scanStart(scan.Discovery, scan.DiscoEnd, c.action == "disco-net")
-	case "risk":
+	case actionDiscoHost:
+		err = c.scanStart(scan.Discovery, scan.DiscoEnd, false)
+	case actionRisk:
 		err = c.scanStart(scan.RiskStart, scan.RiskEnd, false)
-	case "localhost":
+	case actionLocalInfo:
 	default:
 		err = fmt.Errorf("not support action %v", c.action)
 	}
@@ -40,7 +42,15 @@ func (c *config) scanStart(start, end int, discoNet bool) error {
 			logrus.Info("ignore:", scan.IdList.Name(start))
 			continue
 		}
-		my, err := c.scanInit(start)
+		var my *myScan
+		switch {
+		case start < scan.DiscoEnd:
+			my, err = c.scanInit(start, scan.IdList.Name(start))
+		case start > scan.RiskStart && start < scan.RiskEnd:
+			my, err = c.scanInit(start)
+		default:
+			return fmt.Errorf("unknown scan id %v", start)
+		}
 		if err != nil {
 			return err
 		}

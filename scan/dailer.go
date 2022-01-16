@@ -2,7 +2,10 @@ package scan
 
 import (
 	"context"
+	"crypto/tls"
+	"fmt"
 	"net"
+	"net/http"
 	"time"
 )
 
@@ -29,4 +32,26 @@ func hello(parent context.Context, protocol, addr string, hi []byte, timeout int
 		return nil, err
 	}
 	return buf[:n], nil
+}
+
+func newHttpClient(timeout int) *http.Client {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		DialContext: (&net.Dialer{
+			Timeout:   time.Duration(timeout) * time.Microsecond,
+			KeepAlive: -1,
+		}).DialContext,
+		ResponseHeaderTimeout: time.Duration(timeout) * time.Microsecond,
+		TLSHandshakeTimeout:   time.Duration(timeout) * time.Microsecond,
+	}
+
+	return &http.Client{
+		Transport: tr,
+		CheckRedirect: func(_ *http.Request, via []*http.Request) error {
+			if len(via) >= 10 {
+				return fmt.Errorf("forbidden redirects(10)")
+			}
+			return nil
+		},
+	}
 }

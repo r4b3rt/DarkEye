@@ -12,13 +12,13 @@
 ### 主机发现
 
 ```bash
-superscan -a disco-host -disco ping -ip 192.168.1.1-2
+superscan -action disco-host -loader tcp -ip 192.168.1.1-2
 ```
 
 ### 网段发现
 
 ```bash
-superscan -a disco-net -disco ping -ip 192.168.1-254
+superscan -a disco-net -loader ping -ip 192.168.1-254
 ```
 
 ## 参数说明
@@ -27,8 +27,7 @@ superscan -a disco-net -disco ping -ip 192.168.1-254
 | ----- | ------------------------------------------------------------ |
 | ip    | 192.168.1.1-2<br />192.168.1-2<br />192.168.1.1/24<br />192.168.1.1<br />ip .txt<br />说明：命令行传多组ip用逗号分隔；文件中的多组ip用换行分割。 |
 | p     |                                                              |
-| a     | disco-host<br />disco-net<br />risk<br />localhost           |
-| disco | ping<br />tcp                                                |
+| action     | disco-host<br />disco-net<br />risk<br />localhost           | |
 
 
 

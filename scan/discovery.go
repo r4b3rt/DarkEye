@@ -3,6 +3,7 @@ package scan
 import (
 	"bytes"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"net"
 	"os/exec"
@@ -18,11 +19,14 @@ type discovery struct {
 	pingShell      string
 	pingMatch      string
 	withPrivileged bool
+
+	logger *logrus.Logger
 }
 
 func NewDiscovery(timeout int, args []interface{}) (Scan, error) {
 	s := &discovery{
 		timeout: timeout,
+		logger:  logrus.New(),
 	}
 	if len(args) == 0 {
 		s.disco = "ping"
@@ -30,6 +34,7 @@ func NewDiscovery(timeout int, args []interface{}) (Scan, error) {
 		switch args[0].(string) {
 		case "ping":
 		case "tcp":
+		case "http":
 		default:
 			return nil, fmt.Errorf("only support ping or tcp")
 		}
@@ -71,6 +76,14 @@ func (s *discovery) Start(ctx context.Context, ip, port string) (interface{}, er
 	case "ping":
 		if s.ping(ctx, ip) {
 			return fmt.Sprintf("%s alive", ip), nil
+		}
+	case "http":
+		r, err := s.http(ctx, ip, port)
+		if err != nil {
+			return nil, err
+		}
+		if r != nil {
+			return r, nil
 		}
 	default:
 		return nil, fmt.Errorf("not support check %v", s.disco)

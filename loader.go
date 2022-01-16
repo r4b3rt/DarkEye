@@ -12,15 +12,15 @@ func (c *config) loader() error {
 	logrus.Info("start action:", c.action)
 	var err error
 	defer logrus.Info("stop")
+	discoNet := false
 	switch myActionList.Id(c.action) {
 	case actionDiscoNet:
-		//support tcp,icmp
-		err = c.scanStart(scan.DiscoHttp, scan.DiscoEnd, true)
+		discoNet = true
 		fallthrough
 	case actionDiscoHost:
-		err = c.scanStart(scan.Discovery, scan.DiscoEnd, false)
+		err = c.scanStart(scan.Discovery, scan.DiscoEnd, discoNet)
 	case actionRisk:
-		err = c.scanStart(scan.RiskStart, scan.RiskEnd, false)
+		err = c.scanStart(scan.RiskStart, scan.RiskEnd, discoNet)
 	case actionLocalInfo:
 	default:
 		err = fmt.Errorf("not support action %v", c.action)

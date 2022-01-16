@@ -36,13 +36,14 @@ func hello(parent context.Context, protocol, addr string, hi []byte, timeout int
 
 func newHttpClient(timeout int) *http.Client {
 	tr := &http.Transport{
+		DisableKeepAlives: true,
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		DialContext: (&net.Dialer{
-			Timeout:   time.Duration(timeout) * time.Microsecond,
+			Timeout:   time.Duration(timeout) * time.Millisecond,
 			KeepAlive: -1,
 		}).DialContext,
-		ResponseHeaderTimeout: time.Duration(timeout) * time.Microsecond,
-		TLSHandshakeTimeout:   time.Duration(timeout) * time.Microsecond,
+		ResponseHeaderTimeout: time.Duration(timeout) * time.Millisecond,
+		TLSHandshakeTimeout:   time.Duration(timeout) * time.Millisecond,
 	}
 
 	return &http.Client{

@@ -80,7 +80,11 @@ func (id IdListType) Name(sid int) string {
 func New(id, timeout int, args ...interface{}) (Scan, error) {
 	u, p := genUsePass(IdList.Name(id))
 	switch id {
-	case Discovery:
+	case DiscoPing:
+		fallthrough
+	case DiscoTcp:
+		fallthrough
+	case DiscoHttp:
 		return NewDiscovery(timeout, args)
 	case Ssh:
 		return NewSSh(timeout, append(args, u, p))

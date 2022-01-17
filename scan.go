@@ -57,18 +57,16 @@ func (c *config) _scanning(ipc string, ipCs []net.IP, port []string, sc *myScan)
 		go func(tip net.IP) {
 			defer sc.p.Done()
 			c._scanningOne(ctx, tip, port, sc,
-				func(l interface{}) (stop bool) {
+				func(l interface{}) {
 					//!discovery
 					if sc.sid > scan.DiscoEnd {
 						c.output(l)
-						stop = true //stop if found one
 						return
 					}
 					//discovery host or Net
-					if sc.discoNet {
-						stop = true //stop if found one ip in C
+					if sc.action == actionDiscoNet {
 						once.Do(func() {
-							c.output(ipc, "alive")
+							c.output(sc.sid.String(), ipc, "alive")
 							quit.Store(true)
 							cancel()
 						})
@@ -82,9 +80,9 @@ func (c *config) _scanning(ipc string, ipCs []net.IP, port []string, sc *myScan)
 }
 
 func (c *config) _scanningOne(ctx context.Context, f net.IP, port []string,
-	sc *myScan, cb func(interface{}) bool) {
+	sc *myScan, cb func(interface{})) {
 
-	if sc.sid == scan.DiscoPing {
+	if sc.sid == scan.DiscoPing || sc.sid == scan.DiscoNb {
 		r, err := sc.s.Start(ctx, f.String(), "0")
 		if err != nil || r == nil {
 			logrus.Debug("_scanningOne.not.found:", err)
@@ -95,21 +93,29 @@ func (c *config) _scanningOne(ctx context.Context, f net.IP, port []string,
 		return
 	}
 
-	for _, p := range port {
-		if sc.sid > scan.DiscoEnd {
-			if !sc.s.Identify(ctx, f.String(), p) {
-				logrus.Debug("_scanningOne.ident.fail:", f.String(), ":", p)
+	for _, _p := range port {
+		select {
+		case <-ctx.Done():
+			break
+		default:
+		}
+		sc.pp.Add(1)
+		go func(p string) {
+			defer sc.pp.Done()
+			if sc.sid >= scan.DiscoEnd {
+				if !sc.s.Identify(ctx, f.String(), p) {
+					logrus.Debug("_scanningOne.ident.fail:", f.String(), ":", p)
+					return
+				}
+			}
+			r, err := sc.s.Start(ctx, f.String(), p)
+			if err != nil || r == nil {
+				logrus.Debug("_scanningOne.not.found:", err)
 				return
 			}
-		}
-		r, err := sc.s.Start(ctx, f.String(), p)
-		if err != nil || r == nil {
-			logrus.Debug("_scanningOne.not.found:", err)
-			continue
-		}
-		//found
-		if cb(r) {
-			return
-		}
+			//found callback
+			cb(r)
+		}(_p)
 	}
+	sc.pp.Wait()
 }

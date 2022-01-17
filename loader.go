@@ -12,50 +12,22 @@ func (c *config) loader() error {
 	logrus.Info("start action:", c.action)
 	var err error
 	defer logrus.Info("stop")
-	discoNet := false
-	switch myActionList.Id(c.action) {
-	case actionDiscoNet:
-		discoNet = true
-		fallthrough
-	case actionDiscoHost:
-		err = c.scanStart(scan.Discovery, scan.DiscoEnd, discoNet)
-	case actionRisk:
-		err = c.scanStart(scan.RiskStart, scan.RiskEnd, discoNet)
-	case actionLocalInfo:
-	default:
-		err = fmt.Errorf("not support action %v", c.action)
-	}
 
-	return err
-}
-
-func (c *config) scanStart(start, end int, discoNet bool) error {
 	loaders, err := c.readLoaders()
 	if err != nil {
 		return err
 	}
 
 	wg := sync.WaitGroup{}
-	for start < end {
-		start++
-		if _, ok := loaders[start]; !ok {
-			logrus.Info("ignore:", scan.IdList.Name(start))
-			continue
-		}
+
+	for _, loader := range loaders {
 		var my *myScan
-		switch {
-		case start < scan.DiscoEnd:
-			my, err = c.scanInit(start, scan.IdList.Name(start))
-		case start > scan.RiskStart && start < scan.RiskEnd:
-			my, err = c.scanInit(start)
-		default:
-			return fmt.Errorf("unknown scan id %v", start)
-		}
+		my, err = c.scanInit(loader)
 		if err != nil {
 			return err
 		}
-		my.discoNet = discoNet
-		my.sid = start
+		my.action = myActionList.Id(c.action)
+		my.sid = loader
 		wg.Add(1)
 		go func(sc *myScan) {
 			defer wg.Done()
@@ -63,34 +35,56 @@ func (c *config) scanStart(start, end int, discoNet bool) error {
 		}(my)
 	}
 	wg.Wait()
-	return nil
+
+	return err
 }
 
-func (c *config) scanInit(sid int, args ...interface{}) (*myScan, error) {
+func (c *config) scanInit(sid scan.IdType) (*myScan, error) {
 	var err error
 
 	my := &myScan{
-		p: EzPool(c.maxThreadForEach),
+		p:  EzPool(c.maxThreadForEachScan),
+		pp: EzPool(c.maxThreadForEachIPScan),
 	}
-	my.s, err = scan.New(sid, c.timeout, args)
+	my.s, err = scan.New(sid, c.timeout)
 	return my, err
 }
 
-func (c *config) readLoaders() (map[int]string, error) {
-	r := make(map[int]string, 0)
+func (c *config) readLoaders() ([]scan.IdType, error) {
+	r := make([]scan.IdType, 0)
 	loaders := strings.Split(c.loaders, ",")
-	if loaders[0] == "all" {
-		loaders = strings.Split(scan.IdList.String(), ",")
-	}
 	for _, l := range loaders {
 		id := scan.IdList.Id(l)
 		if id == scan.Unknown {
 			return nil, fmt.Errorf("unkown loader %v", id)
 		}
-		if k, ok := r[id]; ok {
-			logrus.Warn("overwrite ", k, "=>", l)
+		switch c.action {
+		case actionDiscoNet.String():
+			if id == scan.DiscoNb || id == scan.DiscoHttp {
+				logrus.Info("ignoring scan:", id.String())
+				continue
+			}
+			fallthrough
+		case actionDiscoHost.String():
+			if id > scan.DiscoEnd {
+				logrus.Info("ignoring scan:", id.String())
+				continue
+			}
+		case actionRisk.String():
+			if id <= scan.RiskStart || id >= scan.RiskEnd {
+				logrus.Info("ignoring scan:", id.String())
+				continue
+			}
+		case actionLocalInfo.String():
+			fallthrough
+		default:
+			return nil, fmt.Errorf("not support action:%v", c.action)
 		}
-		r[id] = l
+
+		r = append(r, id)
+	}
+	for _, l := range r {
+		logrus.Info("enabled:", l.String())
 	}
 	return r, nil
 }

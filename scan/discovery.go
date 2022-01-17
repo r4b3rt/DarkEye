@@ -14,7 +14,7 @@ import (
 
 type discovery struct {
 	timeout        int
-	disco          string
+	disco          IdType
 	pingCommand    string
 	pingShell      string
 	pingMatch      string
@@ -23,24 +23,13 @@ type discovery struct {
 	logger *logrus.Logger
 }
 
-func NewDiscovery(timeout int, args []interface{}) (Scan, error) {
+func NewDiscovery(timeout int, disco IdType) (Scan, error) {
 	s := &discovery{
 		timeout: timeout,
 		logger:  logrus.New(),
 	}
-	if len(args) == 0 {
-		s.disco = "ping"
-	} else {
-		switch args[0].(string) {
-		case "ping":
-		case "tcp":
-		case "http":
-		default:
-			return nil, fmt.Errorf("only support ping or tcp")
-		}
-		s.disco = args[0].(string)
-	}
-	if s.disco == "ping" {
+	s.disco = disco
+	if s.disco == DiscoPing {
 		switch runtime.GOOS {
 		case "linux":
 			s.pingCommand = "ping -c 1 -w 1"
@@ -66,25 +55,21 @@ func NewDiscovery(timeout int, args []interface{}) (Scan, error) {
 
 func (s *discovery) Start(ctx context.Context, ip, port string) (interface{}, error) {
 	switch s.disco {
-	case "tcp":
+	case DiscoTcp:
 		c, err := dail(ctx, "tcp", net.JoinHostPort(ip, port), s.timeout)
 		if err != nil {
 			return nil, err
 		}
 		defer c.Close()
 		return fmt.Sprintf("%s %s open", ip, port), nil
-	case "ping":
+	case DiscoPing:
 		if s.ping(ctx, ip) {
 			return fmt.Sprintf("%s alive", ip), nil
 		}
-	case "http":
-		r, err := s.http(ctx, ip, port)
-		if err != nil {
-			return nil, err
-		}
-		if r != nil {
-			return r, nil
-		}
+	case DiscoHttp:
+		return s.http(ctx, ip, port)
+	case DiscoNb:
+		return s.nb(ctx, ip)
 	default:
 		return nil, fmt.Errorf("not support check %v", s.disco)
 	}

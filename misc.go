@@ -23,6 +23,7 @@ func readList(l string) []string {
 	return strings.Split(string(lb), "\n")
 }
 
+//portSplit split port range to []string
 func portSplit(p string) []string {
 	var list []string
 	if _, err := os.Stat(p); err != nil {

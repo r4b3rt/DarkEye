@@ -15,8 +15,9 @@ type config struct {
 	action  string
 	timeout int
 
-	maxThreadForEach int
-	debug            bool
+	maxThreadForEachScan   int
+	maxThreadForEachIPScan int
+	debug                  bool
 
 	//cache
 	ctx    context.Context
@@ -24,16 +25,15 @@ type config struct {
 }
 
 type myScan struct {
-	s        scan.Scan
-	p        *pool
-	discoNet bool
-	sid      int //scan id
+	s      scan.Scan
+	p      *pool
+	pp     *pool
+	action actionType
+	sid    scan.IdType //scan id
 }
 
 var (
-	gConfig = &config{
-		maxThreadForEach: 1024,
-	}
+	gConfig = &config{}
 	Version = "v3.0.0"
 )
 
@@ -44,9 +44,9 @@ func main() {
 }
 
 func initialize() {
-	flag.StringVar(&gConfig.action, "action", "disco-net",
+	flag.StringVar(&gConfig.action, "action", actionDiscoNet.String(),
 		"Format: "+myActionList.String())
-	flag.StringVar(&gConfig.loaders, "loader", "all",
+	flag.StringVar(&gConfig.loaders, "loader", scan.IdList.String(),
 		"Support loader: "+scan.IdList.String())
 	flag.StringVar(&gConfig.ip, "ip", "127.0.0.1-254",
 		"Format: 1.1.1.1-254,2.1.1.1,3.1.1.1/24")
@@ -62,6 +62,10 @@ func initialize() {
 		"Format: 80,80-81")
 	flag.BoolVar(&gConfig.debug,
 		"debug", false, "for debugger")
+	flag.IntVar(&gConfig.maxThreadForEachScan,
+		"t", 256, "thread for every service")
+	flag.IntVar(&gConfig.maxThreadForEachIPScan,
+		"tt", 32, "thread for every ip")
 	flag.Parse()
 
 	if gConfig.debug {
@@ -71,15 +75,17 @@ func initialize() {
 	gConfig.ctx, gConfig.cancel = context.WithCancel(context.Background())
 }
 
+type actionType int
+
 const (
-	actionDiscoNet int = iota
+	actionDiscoNet actionType = iota
 	actionDiscoHost
 	actionRisk
 	actionLocalInfo
 	actionUnknown
 )
 
-type actionList map[int]string
+type actionList map[actionType]string
 
 var (
 	myActionList = actionList{
@@ -98,11 +104,18 @@ func (a actionList) String() string {
 	return strings.Join(r, ",")
 }
 
-func (a actionList) Id(name string) int {
+func (a actionList) Id(name string) actionType {
 	for k, v := range myActionList {
 		if v == name {
 			return k
 		}
 	}
 	return actionUnknown
+}
+
+func (a actionType) String() string {
+	if n, ok := myActionList[a]; ok {
+		return n
+	}
+	return "unknown"
 }

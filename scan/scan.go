@@ -14,11 +14,14 @@ type Scan interface {
 	Output() interface{}
 }
 
+type IdType int
+
 const (
-	Discovery int = iota
+	Discovery IdType = iota
 	DiscoHttp
 	DiscoTcp
 	DiscoPing
+	DiscoNb
 	DiscoEnd
 	RiskStart
 	Ssh
@@ -33,13 +36,14 @@ const (
 	Unknown
 )
 
-type IdListType map[string]int
+type IdListType map[string]IdType
 
 var (
 	IdList = IdListType{
 		"tcp":       DiscoTcp,
 		"ping":      DiscoPing,
 		"http":      DiscoHttp,
+		"nb":        DiscoNb,
 		"ssh":       Ssh,
 		"redis":     Redis,
 		"mssql":     Mssql,
@@ -59,7 +63,7 @@ func (id IdListType) String() string {
 	return strings.Join(r, ",")
 }
 
-func (id IdListType) Id(name string) int {
+func (id IdListType) Id(name string) IdType {
 	i, ok := id[name]
 	if ok {
 		return i
@@ -67,9 +71,9 @@ func (id IdListType) Id(name string) int {
 	return Unknown
 }
 
-func (id IdListType) Name(sid int) string {
-	for k, v := range id {
-		if sid == v {
+func (id IdType) String() string {
+	for k, v := range IdList {
+		if id == v {
 			return k
 		}
 	}
@@ -77,15 +81,17 @@ func (id IdListType) Name(sid int) string {
 }
 
 //New says @timeout:millisecond
-func New(id, timeout int, args ...interface{}) (Scan, error) {
-	u, p := genUsePass(IdList.Name(id))
+func New(id IdType, timeout int, args ...interface{}) (Scan, error) {
+	u, p := genUsePass(id.String())
 	switch id {
 	case DiscoPing:
-		fallthrough
+		return NewDiscovery(timeout, DiscoPing)
 	case DiscoTcp:
-		fallthrough
+		return NewDiscovery(timeout, DiscoTcp)
 	case DiscoHttp:
-		return NewDiscovery(timeout, args)
+		return NewDiscovery(timeout, DiscoHttp)
+	case DiscoNb:
+		return NewDiscovery(timeout, DiscoHttp)
 	case Ssh:
 		return NewSSh(timeout, append(args, u, p))
 	case Redis:

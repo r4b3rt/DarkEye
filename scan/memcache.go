@@ -4,15 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"net"
 )
 
 type memCacheConf struct {
 	timeout  int
-	username []string
-	password []string
-	logger   *logrus.Logger
+	risk
 }
 
 func NewMemCache(timeout int) (Scan, error) {
@@ -27,9 +24,7 @@ func (s *memCacheConf) Start(parent context.Context, ip, port string) (interface
 }
 
 func (s *memCacheConf) Setup(args ...interface{}) {
-	s.username = args[0].([]string)
-	s.password = args[1].([]string)
-	s.logger = args[2].(*logrus.Logger)
+	setupRisk(&s.risk, args)
 }
 
 func (s *memCacheConf) Identify(parent context.Context, ip, port string) bool {

@@ -12,6 +12,7 @@ type config struct {
 	ip      string
 	port    string
 	loaders string
+	host    string
 	action  string
 	timeout int
 
@@ -50,6 +51,8 @@ func initialize() {
 		"Support loader: "+scan.IdList.String())
 	flag.StringVar(&gConfig.ip, "ip", "127.0.0.1-254",
 		"Format: 1.1.1.1-254,2.1.1.1,3.1.1.1/24")
+	flag.StringVar(&gConfig.host, "host", "www.baidu.com",
+		"Format: www.a.com,www.b.com OR host.txt")
 	flag.IntVar(&gConfig.timeout,
 		"timeout", 2000, "Format: 2000")
 	flag.StringVar(&gConfig.port,
@@ -80,6 +83,7 @@ type actionType int
 const (
 	actionDiscoNet actionType = iota
 	actionDiscoHost
+	actionIpHost
 	actionRisk
 	actionLocalInfo
 	actionUnknown
@@ -91,6 +95,7 @@ var (
 	myActionList = actionList{
 		actionDiscoNet:  "disco-net",
 		actionDiscoHost: "disco-host",
+		actionIpHost:    "ip-host",
 		actionRisk:      "risk",
 		actionLocalInfo: "local-info",
 	}

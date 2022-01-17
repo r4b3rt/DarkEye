@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"net"
 	"strings"
 	"time"
@@ -14,9 +13,7 @@ import (
 
 type postgresConf struct {
 	timeout  int
-	username []string
-	password []string
-	logger   *logrus.Logger
+	risk
 }
 
 func NewPostgres(timeout int) (Scan, error) {
@@ -33,9 +30,7 @@ func (s *postgresConf) Start(parent context.Context, ip, port string) (interface
 }
 
 func (s *postgresConf) Setup(args ...interface{}) {
-	s.username = args[0].([]string)
-	s.password = args[1].([]string)
-	s.logger = args[2].(*logrus.Logger)
+	setupRisk(&s.risk, args)
 }
 
 func (s *postgresConf) crack(parent context.Context, addr, user, pass string) bool {

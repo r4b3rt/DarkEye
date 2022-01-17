@@ -5,15 +5,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/jlaffaye/ftp"
-	"github.com/sirupsen/logrus"
 	"net"
 )
 
 type ftpConf struct {
 	timeout  int
-	username []string
-	password []string
-	logger   *logrus.Logger
+	risk
 }
 
 func NewFtp(timeout int) (Scan, error) {
@@ -30,9 +27,7 @@ func (s *ftpConf) Start(parent context.Context, ip, port string) (interface{}, e
 }
 
 func (s *ftpConf) Setup(args ...interface{}) {
-	s.username = args[0].([]string)
-	s.password = args[1].([]string)
-	s.logger = args[2].(*logrus.Logger)
+	setupRisk(&s.risk, args)
 }
 
 func (s *ftpConf) crack(parent context.Context, addr, user, pass string) bool {

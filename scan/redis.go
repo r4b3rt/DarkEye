@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis"
-	"github.com/sirupsen/logrus"
 	"net"
 	"strings"
 	"time"
@@ -13,11 +12,7 @@ import (
 
 type redisConf struct {
 	timeout  int
-	username []string
-	password []string
-	logger   *logrus.Logger
-	
-	weakPass string
+	risk
 }
 
 func NewRedis(timeout int) (Scan, error) {
@@ -34,9 +29,7 @@ func (s *redisConf) Start(parent context.Context, ip, port string) (interface{},
 }
 
 func (s *redisConf) Setup(args ...interface{}) {
-	s.username = args[0].([]string)
-	s.password = args[1].([]string)
-	s.logger = args[2].(*logrus.Logger)
+	setupRisk(&s.risk, args)
 }
 
 func (s *redisConf) crack(parent context.Context, addr, user, pass string) bool {
@@ -57,7 +50,6 @@ func (s *redisConf) crack(parent context.Context, addr, user, pass string) bool 
 		return false
 	}
 	if strings.Contains(r, "PONG") {
-		s.weakPass = pass
 		return true
 	}
 	return false

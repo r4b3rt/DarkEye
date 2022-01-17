@@ -16,28 +16,53 @@ import (
 )
 
 type httpDisco struct {
-	Server     string
-	StatusCode int
-	Title      string
-	Url        string
+	Host        string
+	Server      string
+	StatusCode  int
+	Title       string
+	Url         string
+	RedirectUrl []string
 }
 
 func (s *discovery) http(ctx context.Context, ip, port string) (interface{}, error) {
-	url, err := s.httpIdent(ctx, ip, port)
-	if err != nil {
-		return nil, err
+	hosts := make([]string, 0)
+	hosts = append(hosts, ip)
+	if s.host != nil {
+		hosts = append(hosts, s.host...)
 	}
-	disco := &httpDisco{}
-	return s.httpFetch(ctx, url, disco, true)
+	//ip host check
+	r := make([]httpDisco, 0)
+	for _, h := range hosts {
+		host := net.JoinHostPort(h, port)
+		url, err := s.httpIdent(ctx, host, ip, port)
+		if err != nil {
+			s.logger.Debug("http.httpIdent:", err.Error())
+			continue
+		}
+		disco := httpDisco{
+			Host: h,
+			RedirectUrl: make([]string, 0),
+		}
+		x, _ := s.httpFetch(ctx, host, url, &disco, true)
+		if x != nil {
+			r = append(r, disco)
+		}
+	}
+	switch len(r) {
+	default:
+		return r, nil
+	case 0:
+		return nil, nil
+	}
 }
 
-func (s *discovery) httpFetch(ctx context.Context, test *urlpkg.URL, disco *httpDisco, redirect bool) (interface{}, error) {
-	client := newHttpClient(s.timeout)
+func (s *discovery) httpFetch(ctx context.Context, host string, test *urlpkg.URL, disco *httpDisco, redirect bool) (interface{}, error) {
+	client := newHttpClient(s.timeout, disco)
 	request, err := http.NewRequestWithContext(ctx, "GET", test.String(), nil)
 	if err != nil {
 		return nil, err
 	}
-	request.Host = test.Host //very important
+	request.Host = host //very important
 	request.Header.Add("Accept-Encoding", "gzip")
 	request.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0")
 	response, err := client.Do(request)
@@ -99,7 +124,7 @@ func (s *discovery) httpFetch(ctx context.Context, test *urlpkg.URL, disco *http
 
 	test, err = s.findRefreshInMeta(test, doc)
 	if err == nil {
-		return s.httpFetch(ctx, test, disco, true)
+		return s.httpFetch(ctx, host, test, disco, true)
 	}
 	s.logger.Debug("findRefreshInMeta:", err.Error())
 	return disco, nil
@@ -144,12 +169,12 @@ func (s *discovery) findRefreshInMeta(old *urlpkg.URL, doc *html.Node) (*urlpkg.
 }
 
 //httpIdent return url, host, error
-func (s *discovery) httpIdent(ctx context.Context, ip, port string) (*urlpkg.URL, error) {
+func (s *discovery) httpIdent(ctx context.Context, host, ip, port string) (*urlpkg.URL, error) {
 	test := &urlpkg.URL{
 		Scheme: "http",
 		Host:   net.JoinHostPort(ip, port),
 	}
-	ok, err := s._httpIdent(ctx, test)
+	ok, err := s._httpIdent(ctx, host, test)
 	if ok {
 		return test, nil
 	}
@@ -158,18 +183,20 @@ func (s *discovery) httpIdent(ctx context.Context, ip, port string) (*urlpkg.URL
 
 	//if error fallthrough ...
 	test.Scheme = "https"
-	if ok, err = s._httpIdent(ctx, test); ok {
+	if ok, err = s._httpIdent(ctx, host, test); ok {
 		return test, nil
 	}
 	return nil, fmt.Errorf("not a http or https")
 }
 
-func (s *discovery) _httpIdent(ctx context.Context, test *urlpkg.URL) (ok bool, err error) {
-	cli := newHttpClient(s.timeout)
+func (s *discovery) _httpIdent(ctx context.Context, host string, test *urlpkg.URL) (ok bool, err error) {
+	cli := newHttpClient(s.timeout, nil)
 	req, err := http.NewRequestWithContext(ctx, "GET", test.String(), nil)
 	if err != nil {
 		return
 	}
+	req.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0")
+	req.Host = host
 	resp, err := cli.Do(req)
 	if err != nil {
 		s.logger.Debug("_httpIdent:", err.Error())

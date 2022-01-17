@@ -47,6 +47,15 @@ func (c *config) scanInit(sid scan.IdType) (*myScan, error) {
 		pp: EzPool(c.maxThreadForEachIPScan),
 	}
 	my.s, err = scan.New(sid, c.timeout)
+	l := logrus.New()
+	l.SetLevel(logrus.GetLevel())
+	switch {
+	case sid > scan.DiscoHttp && c.action == actionIpHost.String():
+		my.s.Setup(l, readList(c.host))
+	default:
+		my.s.Setup(l)
+	}
+
 	return my, err
 }
 
@@ -75,6 +84,10 @@ func (c *config) readLoaders() ([]scan.IdType, error) {
 				logrus.Info("ignoring scan:", id.String())
 				continue
 			}
+		case actionIpHost.String():
+			r = append(r, scan.DiscoHttp)
+			logrus.Info("force enabled:", scan.DiscoHttp.String())
+			return r, nil
 		case actionLocalInfo.String():
 			fallthrough
 		default:

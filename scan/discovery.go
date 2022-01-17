@@ -19,6 +19,7 @@ type discovery struct {
 	pingShell      string
 	pingMatch      string
 	withPrivileged bool
+	host           []string
 
 	logger *logrus.Logger
 }
@@ -54,7 +55,19 @@ func NewDiscovery(timeout int, disco IdType) (Scan, error) {
 }
 
 func (s *discovery) Setup(args ...interface{}) {
-	s.logger = args[0].(*logrus.Logger)
+	for k, v := range args {
+		switch v.(type) {
+		case *logrus.Logger:
+			s.logger = v.(*logrus.Logger)
+		case []string:
+			switch k {
+			case 1: //args[1] host
+				if x, ok := v.([]string); ok {
+					s.host = x
+				}
+			}
+		}
+	}
 }
 
 func (s *discovery) Start(ctx context.Context, ip, port string) (interface{}, error) {

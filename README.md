@@ -25,15 +25,24 @@
  ./dist/superscan_darwin_amd64 -action disco-net -loader ping -ip 192.168.1-254 
 ```
 
+### 3、协议爆破
+可查看帮助选取loader，默认为所有协议插件
+```bash
+./dist/superscan_darwin_amd64 -action risk -loader ssh -p 22  -ip 192.168.1.253 
+```
+
+### 4、IP域名碰撞
+```bash
+./dist/superscan_darwin_amd64 -action ip-host -ip 192.168.1.1-2 -p 80 -host host.txt
+```
+
 ## ⚡️技巧
 
 1. 查看帮助：`./dist/superscan_darwin_amd64 -h`。
-
 2. 当IP数量多时，可以使用`-t 256`增加IP并发。
-
 3. 当端口数量多时，可以使用`-tt 100`增加端口并发。
+3. `-ip`参数可接：掩码：`a.b.c.d/24`、范围：`a.b.c.1-254`、子网范围 :`a.b.1-254`、IP:`a.b.c.d`
 
-   
 
 ## 🛠 编译安装
 

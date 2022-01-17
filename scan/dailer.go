@@ -34,7 +34,7 @@ func hello(parent context.Context, protocol, addr string, hi []byte, timeout int
 	return buf[:n], nil
 }
 
-func newHttpClient(timeout int) *http.Client {
+func newHttpClient(timeout int, disco *httpDisco) *http.Client {
 	tr := &http.Transport{
 		DisableKeepAlives: true,
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -48,7 +48,10 @@ func newHttpClient(timeout int) *http.Client {
 
 	return &http.Client{
 		Transport: tr,
-		CheckRedirect: func(_ *http.Request, via []*http.Request) error {
+		CheckRedirect: func(r *http.Request, via []*http.Request) error {
+			if disco != nil {
+				disco.RedirectUrl = append(disco.RedirectUrl, r.URL.String())
+			}
 			if len(via) >= 10 {
 				return fmt.Errorf("forbidden redirects(10)")
 			}

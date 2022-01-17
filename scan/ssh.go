@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 	"net"
 	"time"
@@ -12,9 +11,7 @@ import (
 
 type sshConf struct {
 	timeout  int
-	username []string
-	password []string
-	logger   *logrus.Logger
+	risk
 }
 
 func NewSSh(timeout int) (Scan, error) {
@@ -30,9 +27,7 @@ func (s *sshConf) Start(parent context.Context, ip, port string) (interface{}, e
 }
 
 func (s *sshConf) Setup(args ...interface{}) {
-	s.username = args[0].([]string)
-	s.password = args[1].([]string)
-	s.logger = args[2].(*logrus.Logger)
+	setupRisk(&s.risk, args)
 }
 
 func (s *sshConf) crack(_ context.Context, addr, user, pass string) bool {

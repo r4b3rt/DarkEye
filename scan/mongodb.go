@@ -3,7 +3,6 @@ package scan
 import (
 	"context"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"net"
 	"strings"
@@ -12,9 +11,7 @@ import (
 
 type mongodbConf struct {
 	timeout  int
-	username []string
-	password []string
-	logger   *logrus.Logger
+	risk
 }
 
 func NewMongodb(timeout int) (Scan, error) {
@@ -40,9 +37,7 @@ func (s *mongodbConf) Start(parent context.Context, ip, port string) (interface{
 }
 
 func (s *mongodbConf) Setup(args ...interface{}) {
-	s.username = args[0].([]string)
-	s.password = args[1].([]string)
-	s.logger = args[2].(*logrus.Logger)
+	setupRisk(&s.risk, args)
 }
 
 func (s *mongodbConf) crack(parent context.Context, addr, user, pass string) bool {

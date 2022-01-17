@@ -3,6 +3,7 @@ package scan
 import (
 	"context"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -23,4 +24,30 @@ func weakPass(parent context.Context, s, addr string, ul, pl []string,
 		}
 	}
 	return nil, nil
+}
+
+func setupRisk(r *risk, args ...interface{}) {
+	for k, v := range args {
+		switch v.(type) {
+		case *logrus.Logger:
+			r.logger = v.(*logrus.Logger)
+		case []string:
+			switch k {
+			case 1:
+				if x, ok := v.([]string); ok {
+					r.username = x
+				}
+			case 2:
+				if x, ok := v.([]string); ok {
+					r.password = x
+				}
+			}
+		}
+	}
+}
+
+type risk struct {
+	username []string
+	password []string
+	logger   *logrus.Logger
 }

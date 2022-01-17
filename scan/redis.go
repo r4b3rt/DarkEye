@@ -20,12 +20,9 @@ type redisConf struct {
 	weakPass string
 }
 
-func NewRedis(timeout int, args []interface{}) (Scan, error) {
+func NewRedis(timeout int) (Scan, error) {
 	s := &redisConf{
 		timeout:  timeout,
-		username: args[0].([]string),
-		password: args[1].([]string),
-		logger:   args[2].(*logrus.Logger),
 	}
 
 	return s, nil
@@ -34,6 +31,12 @@ func NewRedis(timeout int, args []interface{}) (Scan, error) {
 func (s *redisConf) Start(parent context.Context, ip, port string) (interface{}, error) {
 	addr := net.JoinHostPort(ip, port)
 	return weakPass(parent, "redis", addr, s.username, s.password, s.crack)
+}
+
+func (s *redisConf) Setup(args ...interface{}) {
+	s.username = args[0].([]string)
+	s.password = args[1].([]string)
+	s.logger = args[2].(*logrus.Logger)
 }
 
 func (s *redisConf) crack(parent context.Context, addr, user, pass string) bool {

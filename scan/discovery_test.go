@@ -9,14 +9,14 @@ import (
 )
 
 func Test_pingWithPrivileged(t *testing.T) {
-	s, err := New(DiscoPing, 100, "ping")
+	s, err := New(DiscoPing, 100)
 	assert.Equal(t, nil, err)
 	//assert.Equal(t, true, s.(*discovery).pingWithPrivileged(context.Background(), "127.0.0.1") == nil)
 	assert.Equal(t, true, s.(*discovery).ping(context.Background(), "127.0.0.1"))
 }
 
 func Test_http(t *testing.T) {
-	s, err := New(DiscoHttp, 2000, "http")
+	s, err := New(DiscoHttp, 2000)
 	assert.Equal(t, nil, err)
 	s.(*discovery).logger.SetLevel(logrus.DebugLevel)
 	//assert.Equal(t, true, s.(*discovery).pingWithPrivileged(context.Background(), "127.0.0.1") == nil)

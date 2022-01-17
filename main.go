@@ -61,7 +61,7 @@ func initialize() {
 			"554,53,110,1080,22",
 		"Format: 80,80-81")
 	flag.BoolVar(&gConfig.debug,
-		"debug", false, "for debugger")
+		"verbose", false, "for debugger")
 	flag.IntVar(&gConfig.maxThreadForEachScan,
 		"t", 256, "thread for every service")
 	flag.IntVar(&gConfig.maxThreadForEachIPScan,

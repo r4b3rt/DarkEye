@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/b1gcat/DarkEye/dict"
+	"github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -11,6 +12,7 @@ type Scan interface {
 	Identify(parent context.Context, ip, port string) bool
 	Start(parent context.Context, ip, port string) (interface{}, error)
 	Attack(parent context.Context, ip, port string) error
+	Setup(args ...interface{})
 	Output() interface{}
 }
 
@@ -80,42 +82,57 @@ func (id IdType) String() string {
 	return "unknown"
 }
 
-//New says @timeout:millisecond
-func New(id IdType, timeout int, args ...interface{}) (Scan, error) {
-	u, p := genUsePass(id.String())
+/*New says
+@timeout:millisecond
+*/
+func New(id IdType, timeout int) (Scan, error) {
+	var s Scan
+	var err error
+
 	switch id {
 	case DiscoPing:
-		return NewDiscovery(timeout, DiscoPing)
+		fallthrough
 	case DiscoTcp:
-		return NewDiscovery(timeout, DiscoTcp)
+		fallthrough
 	case DiscoHttp:
-		return NewDiscovery(timeout, DiscoHttp)
+		fallthrough
 	case DiscoNb:
-		return NewDiscovery(timeout, DiscoHttp)
+		s, err = NewDiscovery(timeout, id)
 	case Ssh:
-		return NewSSh(timeout, append(args, u, p))
+		s, err = NewSSh(timeout)
 	case Redis:
-		return NewRedis(timeout, append(args, u, p))
+		s, err = NewRedis(timeout)
 	case Mssql:
-		return NewMssql(timeout, append(args, u, p))
+		s, err = NewMssql(timeout)
 	case Ftp:
-		return NewFtp(timeout, append(args, u, p))
+		s, err = NewFtp(timeout)
 	case Memcached:
-		return NewMemCache(timeout, append(args, u, p))
+		s, err = NewMemCache(timeout)
 	case Mongodb:
-		return NewMongodb(timeout, append(args, u, p))
+		s, err = NewMongodb(timeout)
 	case Mysql:
-		return NewMysql(timeout, append(args, u, p))
+		s, err = NewMysql(timeout)
 	case Postgres:
-		return NewPostgres(timeout, append(args, u, p))
+		s, err = NewPostgres(timeout)
 	default:
 		return nil, fmt.Errorf("不支持的扫描类型 %v", id)
 	}
+	if err != nil {
+		return nil, err
+	}
+	switch {
+	case id >= RiskStart && id <= RiskEnd:
+		u, p := genUsePass(id.String())
+		s.Setup(u, p, logrus.New())
+	case id >= Discovery && id <= DiscoEnd:
+		s.Setup(logrus.New())
+	}
+	return s, err
 }
 
 func genUsePass(name string) ([]string, []string) {
-	user := fmt.Sprintf("dict_%s_username", name)
-	pass := fmt.Sprintf("dict_%s_password", name)
+	user := fmt.Sprintf("dic_username_%s.txt", name)
+	pass := fmt.Sprintf("dic_password_%s.txt", name)
 
 	u, err := dict.Asset(user)
 	if err != nil {
@@ -126,13 +143,15 @@ func genUsePass(name string) ([]string, []string) {
 		return nil, nil
 	}
 
-	ul := strings.Split(string(u), "\n")
+	us := strings.ReplaceAll(string(u), "\r", "")
+	ul := strings.Split(us, "\n")
 	for k, v := range ul {
 		if v == "空" {
 			ul[k] = ""
 		}
 	}
-	pl := strings.Split(string(p), "\n")
+	ps := strings.ReplaceAll(string(p), "\r", "")
+	pl := strings.Split(ps, "\n")
 	for k, v := range pl {
 		if v == "空" {
 			pl[k] = ""

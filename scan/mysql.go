@@ -19,12 +19,9 @@ type mysqlConf struct {
 	logger   *logrus.Logger
 }
 
-func NewMysql(timeout int, args []interface{}) (Scan, error) {
+func NewMysql(timeout int) (Scan, error) {
 	s := &mysqlConf{
 		timeout:  timeout,
-		username: args[0].([]string),
-		password: args[1].([]string),
-		logger:   args[2].(*logrus.Logger),
 	}
 
 	return s, nil
@@ -33,6 +30,12 @@ func NewMysql(timeout int, args []interface{}) (Scan, error) {
 func (s *mysqlConf) Start(parent context.Context, ip, port string) (interface{}, error) {
 	addr := net.JoinHostPort(ip, port)
 	return weakPass(parent, "mysql", addr, s.username, s.password, s.crack)
+}
+
+func (s *mysqlConf) Setup(args ...interface{}) {
+	s.username = args[0].([]string)
+	s.password = args[1].([]string)
+	s.logger = args[2].(*logrus.Logger)
 }
 
 func (s *mysqlConf) crack(parent context.Context, addr, user, pass string) bool {

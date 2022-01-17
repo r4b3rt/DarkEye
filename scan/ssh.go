@@ -17,20 +17,22 @@ type sshConf struct {
 	logger   *logrus.Logger
 }
 
-func NewSSh(timeout int, args []interface{}) (Scan, error) {
+func NewSSh(timeout int) (Scan, error) {
 	s := &sshConf{
-		timeout:  timeout,
-		username: args[0].([]string),
-		password: args[1].([]string),
-		logger:   args[2].(*logrus.Logger),
+		timeout: timeout,
 	}
-
 	return s, nil
 }
 
 func (s *sshConf) Start(parent context.Context, ip, port string) (interface{}, error) {
 	addr := net.JoinHostPort(ip, port)
 	return weakPass(parent, "ssh", addr, s.username, s.password, s.crack)
+}
+
+func (s *sshConf) Setup(args ...interface{}) {
+	s.username = args[0].([]string)
+	s.password = args[1].([]string)
+	s.logger = args[2].(*logrus.Logger)
 }
 
 func (s *sshConf) crack(_ context.Context, addr, user, pass string) bool {
@@ -45,6 +47,7 @@ func (s *sshConf) crack(_ context.Context, addr, user, pass string) bool {
 	}
 	cli, err := ssh.Dial("tcp", addr, config)
 	if err != nil {
+		s.logger.Debug("sshConf.Dial:", err.Error())
 		return false
 	}
 	defer cli.Close()

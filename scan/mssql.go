@@ -19,12 +19,9 @@ type mssqlConf struct {
 	logger   *logrus.Logger
 }
 
-func NewMssql(timeout int, args []interface{}) (Scan, error) {
+func NewMssql(timeout int) (Scan, error) {
 	s := &mssqlConf{
 		timeout:  timeout,
-		username: args[0].([]string),
-		password: args[1].([]string),
-		logger:   args[2].(*logrus.Logger),
 	}
 
 	return s, nil
@@ -33,6 +30,12 @@ func NewMssql(timeout int, args []interface{}) (Scan, error) {
 func (s *mssqlConf) Start(parent context.Context, ip, port string) (interface{}, error) {
 	addr := net.JoinHostPort(ip, port)
 	return weakPass(parent, "mssql", addr, s.username, s.password, s.crack)
+}
+
+func (s *mssqlConf) Setup(args ...interface{}) {
+	s.username = args[0].([]string)
+	s.password = args[1].([]string)
+	s.logger = args[2].(*logrus.Logger)
 }
 
 func (s *mssqlConf) crack(parent context.Context, addr, user, pass string) bool {

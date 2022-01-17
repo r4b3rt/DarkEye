@@ -53,6 +53,10 @@ func NewDiscovery(timeout int, disco IdType) (Scan, error) {
 	return s, nil
 }
 
+func (s *discovery) Setup(args ...interface{}) {
+	s.logger = args[0].(*logrus.Logger)
+}
+
 func (s *discovery) Start(ctx context.Context, ip, port string) (interface{}, error) {
 	switch s.disco {
 	case DiscoTcp:

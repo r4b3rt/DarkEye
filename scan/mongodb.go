@@ -17,12 +17,9 @@ type mongodbConf struct {
 	logger   *logrus.Logger
 }
 
-func NewMongodb(timeout int, args []interface{}) (Scan, error) {
+func NewMongodb(timeout int) (Scan, error) {
 	s := &mongodbConf{
 		timeout:  timeout,
-		username: args[0].([]string),
-		password: args[1].([]string),
-		logger:   args[2].(*logrus.Logger),
 	}
 
 	return s, nil
@@ -40,6 +37,12 @@ func (s *mongodbConf) Start(parent context.Context, ip, port string) (interface{
 		}
 	}
 	return weakPass(parent, "mongodb", addr, s.username, s.password, s.crack)
+}
+
+func (s *mongodbConf) Setup(args ...interface{}) {
+	s.username = args[0].([]string)
+	s.password = args[1].([]string)
+	s.logger = args[2].(*logrus.Logger)
 }
 
 func (s *mongodbConf) crack(parent context.Context, addr, user, pass string) bool {

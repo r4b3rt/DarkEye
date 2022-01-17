@@ -16,12 +16,9 @@ type ftpConf struct {
 	logger   *logrus.Logger
 }
 
-func NewFtp(timeout int, args []interface{}) (Scan, error) {
+func NewFtp(timeout int) (Scan, error) {
 	s := &ftpConf{
 		timeout:  timeout,
-		username: args[0].([]string),
-		password: args[1].([]string),
-		logger:   args[2].(*logrus.Logger),
 	}
 
 	return s, nil
@@ -30,6 +27,12 @@ func NewFtp(timeout int, args []interface{}) (Scan, error) {
 func (s *ftpConf) Start(parent context.Context, ip, port string) (interface{}, error) {
 	addr := net.JoinHostPort(ip, port)
 	return weakPass(parent, "ftp", addr, s.username, s.password, s.crack)
+}
+
+func (s *ftpConf) Setup(args ...interface{}) {
+	s.username = args[0].([]string)
+	s.password = args[1].([]string)
+	s.logger = args[2].(*logrus.Logger)
 }
 
 func (s *ftpConf) crack(parent context.Context, addr, user, pass string) bool {

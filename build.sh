@@ -36,7 +36,7 @@ build_all() {
 }
 
 build_dict() {
-  rm -f "${topDir}"/dict/bindata.go && go-bindata -ignore .DS_Store -pkg dict -o "${topDir}"/dict/dict.go "${topDir}"/dict/...
+  rm -f "${topDir}"/dict/dict.go && cd "${topDir}"/dict && go-bindata -ignore .DS_Store -pkg dict -o "${topDir}"/dict/dict.go ./...
 }
 
 compress() {

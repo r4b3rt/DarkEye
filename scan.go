@@ -92,7 +92,6 @@ func (c *config) _scanningOne(ctx context.Context, f net.IP, port []string,
 		cb(r)
 		return
 	}
-
 	for _, _p := range port {
 		select {
 		case <-ctx.Done():

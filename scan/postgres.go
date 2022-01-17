@@ -19,12 +19,9 @@ type postgresConf struct {
 	logger   *logrus.Logger
 }
 
-func NewPostgres(timeout int, args []interface{}) (Scan, error) {
+func NewPostgres(timeout int) (Scan, error) {
 	s := &postgresConf{
 		timeout:  timeout,
-		username: args[0].([]string),
-		password: args[1].([]string),
-		logger:   args[2].(*logrus.Logger),
 	}
 
 	return s, nil
@@ -33,6 +30,12 @@ func NewPostgres(timeout int, args []interface{}) (Scan, error) {
 func (s *postgresConf) Start(parent context.Context, ip, port string) (interface{}, error) {
 	addr := net.JoinHostPort(ip, port)
 	return weakPass(parent, "postgres", addr, s.username, s.password, s.crack)
+}
+
+func (s *postgresConf) Setup(args ...interface{}) {
+	s.username = args[0].([]string)
+	s.password = args[1].([]string)
+	s.logger = args[2].(*logrus.Logger)
 }
 
 func (s *postgresConf) crack(parent context.Context, addr, user, pass string) bool {

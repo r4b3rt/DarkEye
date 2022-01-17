@@ -9,11 +9,11 @@ import (
 )
 
 func Test_redis(t *testing.T) {
+	s, err := New(Redis, 5000)
+	assert.Equal(t, nil, err)
 	l := logrus.New()
 	l.SetLevel(logrus.DebugLevel)
-	s, err := New(Redis, 5000,
-		[]string{"test", ""}, []string{"%user%"}, l)
-	assert.Equal(t, nil, err)
+	s.Setup([]string{"test","kali"}, []string{"%user%"}, l)
 	assert.Equal(t, true, s.(*redisConf).Identify(context.Background(), "vulfocus.fofa.so", "28262"))
 	assert.Equal(t, false, s.(*redisConf).Identify(context.Background(), "192.168.1.1", "80"))
 

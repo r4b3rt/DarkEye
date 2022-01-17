@@ -15,19 +15,21 @@ type memCacheConf struct {
 	logger   *logrus.Logger
 }
 
-func NewMemCache(timeout int, args []interface{}) (Scan, error) {
+func NewMemCache(timeout int) (Scan, error) {
 	s := &memCacheConf{
 		timeout:  timeout,
-		username: args[0].([]string),
-		password: args[1].([]string),
-		logger:   args[2].(*logrus.Logger),
 	}
-
 	return s, nil
 }
 
 func (s *memCacheConf) Start(parent context.Context, ip, port string) (interface{}, error) {
 	return fmt.Sprintf("memcached %s unauth", net.JoinHostPort(ip, port)), nil
+}
+
+func (s *memCacheConf) Setup(args ...interface{}) {
+	s.username = args[0].([]string)
+	s.password = args[1].([]string)
+	s.logger = args[2].(*logrus.Logger)
 }
 
 func (s *memCacheConf) Identify(parent context.Context, ip, port string) bool {

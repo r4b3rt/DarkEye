@@ -57,6 +57,7 @@ func (s *postgresConf) auth(_ context.Context, addr, user, pass string) (*sql.DB
 }
 
 func (s *postgresConf) Identify(_ context.Context, _, port string) bool {
+	//fixme: need better identifying
 	return port == "5432"
 }
 

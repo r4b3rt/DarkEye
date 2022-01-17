@@ -28,10 +28,17 @@
 ### 3、协议爆破
 可查看帮助选取loader，默认为所有协议插件
 ```bash
-./dist/superscan_darwin_amd64 -action risk -loader ssh -p 22  -ip 192.168.1.253 
+./dist/superscan_darwin_amd64 -action risk -loader ssh -p 22  -ip 192.168.1.253 		
+```
+
+修改爆破字典
+
+```bash
+./dist/superscan_darwin_amd64 -action risk -ip 192.168.1.253 -p 22 -user varbing -pass pass.txt
 ```
 
 ### 4、IP域名碰撞
+
 ```bash
 ./dist/superscan_darwin_amd64 -action ip-host -ip 192.168.1.1-2 -p 80 -host host.txt
 ```

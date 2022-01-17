@@ -52,6 +52,8 @@ func (c *config) scanInit(sid scan.IdType) (*myScan, error) {
 	switch {
 	case sid > scan.DiscoHttp && c.action == actionIpHost.String():
 		my.s.Setup(l, readList(c.host))
+	case sid > scan.RiskStart && sid <= scan.RiskEnd && (c.user != "" || c.pass != ""):
+		my.s.Setup(l, readList(c.user), readList(c.pass))
 	default:
 		my.s.Setup(l)
 	}

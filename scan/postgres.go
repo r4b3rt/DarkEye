@@ -12,13 +12,13 @@ import (
 )
 
 type postgresConf struct {
-	timeout  int
+	timeout int
 	risk
 }
 
 func NewPostgres(timeout int) (Scan, error) {
 	s := &postgresConf{
-		timeout:  timeout,
+		timeout: timeout,
 	}
 
 	return s, nil

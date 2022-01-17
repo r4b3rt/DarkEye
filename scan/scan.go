@@ -42,18 +42,18 @@ type IdListType map[string]IdType
 
 var (
 	IdList = IdListType{
-		"tcp":       DiscoTcp,
-		"ping":      DiscoPing,
-		"http":      DiscoHttp,
-		"nb":        DiscoNb,
-		"ssh":       Ssh,
-		"redis":     Redis,
-		"mssql":     Mssql,
-		"ftp":       Ftp,
-		"memcached": Memcached,
-		"mongodb":   Mongodb,
-		"mysql":     Mysql,
-		"postgres":  Postgres,
+		"tcp":        DiscoTcp,
+		"ping":       DiscoPing,
+		"http":       DiscoHttp,
+		"nb":         DiscoNb,
+		"ssh":        Ssh,
+		"redis":      Redis,
+		"mssql":      Mssql,
+		"ftp":        Ftp,
+		"memcached":  Memcached,
+		"mongodb":    Mongodb,
+		"mysql":      Mysql,
+		"postgresql": Postgres,
 	}
 )
 
@@ -123,7 +123,7 @@ func New(id IdType, timeout int) (Scan, error) {
 	switch {
 	case id >= RiskStart && id <= RiskEnd:
 		u, p := genUsePass(id.String())
-		s.Setup(u, p, logrus.New())
+		s.Setup(logrus.New(), u, p)
 	case id >= Discovery && id <= DiscoEnd:
 		s.Setup(logrus.New())
 	}

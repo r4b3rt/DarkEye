@@ -12,9 +12,12 @@ type config struct {
 	ip      string
 	port    string
 	loaders string
-	host    string
 	action  string
 	timeout int
+
+	host string //ip-host collision
+	user string
+	pass string
 
 	maxThreadForEachScan   int
 	maxThreadForEachIPScan int
@@ -53,6 +56,10 @@ func initialize() {
 		"Format: 1.1.1.1-254,2.1.1.1,3.1.1.1/24")
 	flag.StringVar(&gConfig.host, "host", "www.baidu.com",
 		"Format: www.a.com,www.b.com OR host.txt")
+	flag.StringVar(&gConfig.user, "user", "",
+		"Format: user1,user2 OR user.txt")
+	flag.StringVar(&gConfig.pass, "pass", "",
+		"Format: pass1,pass2 OR pass.txt")
 	flag.IntVar(&gConfig.timeout,
 		"timeout", 2000, "Format: 2000")
 	flag.StringVar(&gConfig.port,

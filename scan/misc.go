@@ -26,7 +26,7 @@ func weakPass(parent context.Context, s, addr string, ul, pl []string,
 	return nil, nil
 }
 
-func setupRisk(r *risk, args ...interface{}) {
+func setupRisk(r *risk, args []interface{}) {
 	for k, v := range args {
 		switch v.(type) {
 		case *logrus.Logger:
@@ -34,14 +34,25 @@ func setupRisk(r *risk, args ...interface{}) {
 		case []string:
 			switch k {
 			case 1:
-				if x, ok := v.([]string); ok {
+				x, ok := v.([]string)
+				if !ok {
+					break
+				}
+				if len(x) != 0 {
+					r.logger.Debug("user dict change to:", x)
 					r.username = x
 				}
 			case 2:
-				if x, ok := v.([]string); ok {
+				x, ok := v.([]string)
+				if !ok {
+					break
+				}
+				if len(x) != 0 {
+					r.logger.Debug("pass dict change to:", x)
 					r.password = x
 				}
 			}
+		default:
 		}
 	}
 }

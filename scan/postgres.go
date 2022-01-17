@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net"
-	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -57,22 +56,8 @@ func (s *postgresConf) auth(_ context.Context, addr, user, pass string) (*sql.DB
 	return sql.Open("postgres", source)
 }
 
-func (s *postgresConf) Identify(parent context.Context, ip, port string) bool {
-	d, err := s.auth(parent, net.JoinHostPort(ip, port), "fuck", "fuck")
-	if err != nil {
-		s.logger.Debug("postgresConf.Identify:", err.Error())
-		return false
-	}
-	defer d.Close()
-	d.SetConnMaxLifetime(time.Millisecond * time.Duration(s.timeout))
-	err = d.Ping()
-	if err != nil {
-		s.logger.Debug("postgresConf.Ping:", err.Error())
-		if !strings.Contains(err.Error(), "password authentication") {
-			return false
-		}
-	}
-	return true
+func (s *postgresConf) Identify(_ context.Context, _, port string) bool {
+	return port == "5432"
 }
 
 func (s *postgresConf) Attack(parent context.Context, ip, port string) error {

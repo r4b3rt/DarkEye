@@ -50,6 +50,9 @@ func (c *config) _scanning(ipc string, ipCs []net.IP, port []string, sc *myScan)
 
 	quit.Store(false)
 	for _, ip := range ipCs {
+		if c._scanJustCount(sc, len(port)) {
+			continue
+		}
 		if quit.Load().(bool) {
 			break
 		}
@@ -58,22 +61,18 @@ func (c *config) _scanning(ipc string, ipCs []net.IP, port []string, sc *myScan)
 			defer sc.p.Done()
 			c._scanningOne(ctx, tip, port, sc,
 				func(l interface{}) {
-					//!discovery
-					if sc.sid > scan.DiscoEnd {
-						c.output(l)
-						return
-					}
-					//discovery host or Net
-					if sc.action == actionDiscoNet {
+					switch sc.action {
+					case actionDiscoNet:
 						once.Do(func() {
 							c.output(sc.sid.String(), ipc, "alive")
 							quit.Store(true)
 							cancel()
 						})
 						return
+					default:
+						c.output(l)
+						return //continue for disco
 					}
-					c.output(l)
-					return //continue for disco
 				})
 		}(ip)
 	}
@@ -82,7 +81,11 @@ func (c *config) _scanning(ipc string, ipCs []net.IP, port []string, sc *myScan)
 func (c *config) _scanningOne(ctx context.Context, f net.IP, port []string,
 	sc *myScan, cb func(interface{})) {
 
-	if sc.sid == scan.DiscoPing || sc.sid == scan.DiscoNb {
+	switch sc.sid {
+	case scan.DiscoNb:
+		fallthrough
+	case scan.DiscoPing:
+		defer sc.bar.Inc()
 		r, err := sc.s.Start(ctx, f.String(), "0")
 		if err != nil || r == nil {
 			logrus.Debug("_scanningOne.not.found:", err)
@@ -92,29 +95,52 @@ func (c *config) _scanningOne(ctx context.Context, f net.IP, port []string,
 		cb(r)
 		return
 	}
+
+	pp := EzPool(c.maxThreadForEachIPScan)
+	defer pp.Wait()
+
 	for _, _p := range port {
 		select {
 		case <-ctx.Done():
-			break
+			pp.Close()
+			return
 		default:
 		}
-		sc.pp.Add(1)
+		pp.Add(1)
 		go func(p string) {
-			defer sc.pp.Done()
-			if sc.sid >= scan.DiscoEnd {
+			defer func() {
+				sc.bar.Inc()
+				pp.Done()
+			}()
+			switch {
+			case sc.sid >= scan.DiscoEnd:
 				if !sc.s.Identify(ctx, f.String(), p) {
 					logrus.Debug("_scanningOne.ident.fail:", f.String(), ":", p)
 					return
 				}
+				fallthrough
+			default:
+				r, err := sc.s.Start(ctx, f.String(), p)
+				if err != nil || r == nil {
+					logrus.Debug("_scanningOne.not.found:", err)
+					return
+				}
+				//found callback
+				cb(r)
 			}
-			r, err := sc.s.Start(ctx, f.String(), p)
-			if err != nil || r == nil {
-				logrus.Debug("_scanningOne.not.found:", err)
-				return
-			}
-			//found callback
-			cb(r)
 		}(_p)
 	}
-	sc.pp.Wait()
+}
+
+func (c *config) _scanJustCount(sc *myScan, ports int) bool {
+	if sc.sid != scan.Nothing {
+		return false
+	}
+	switch {
+	case sc.sid == scan.DiscoPing || sc.sid == scan.DiscoNb:
+		sc.total++ //ip
+	default:
+		sc.total += int64(ports)
+	}
+	return true
 }

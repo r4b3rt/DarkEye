@@ -16,8 +16,12 @@ type config struct {
 	timeout int
 
 	host string //ip-host collision
-	user string
-	pass string
+	user string //user dict for risk
+	pass string //pass dict for risk
+
+	outfile  string //output file
+	bar      bool   //progress
+	progress *progress
 
 	maxThreadForEachScan   int
 	maxThreadForEachIPScan int
@@ -30,15 +34,18 @@ type config struct {
 
 type myScan struct {
 	s      scan.Scan
-	p      *pool
-	pp     *pool
+	p      *pool //for ip
 	action actionType
 	sid    scan.IdType //scan id
+	bar    *bar
+	total  int64
 }
 
 var (
-	gConfig = &config{}
-	Version = "v3.0.0"
+	gConfig = &config{
+		progress: &progress{},
+	}
+	Version = "v5.0.0"
 )
 
 func main() {
@@ -60,6 +67,10 @@ func initialize() {
 		"Format: user1,user2 OR user.txt")
 	flag.StringVar(&gConfig.pass, "pass", "",
 		"Format: pass1,pass2 OR pass.txt")
+	flag.StringVar(&gConfig.outfile, "o", "output.txt",
+		"output to file")
+	flag.BoolVar(&gConfig.bar, "bar", false,
+		"show progress for each loader")
 	flag.IntVar(&gConfig.timeout,
 		"timeout", 2000, "Format: 2000")
 	flag.StringVar(&gConfig.port,

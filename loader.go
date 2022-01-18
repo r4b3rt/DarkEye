@@ -18,14 +18,20 @@ func (c *config) loader() error {
 		return err
 	}
 
+	c.progress.init(c.bar)
 	wg := sync.WaitGroup{}
-
 	for _, loader := range loaders {
 		var my *myScan
 		my, err = c.scanInit(loader)
 		if err != nil {
 			return err
 		}
+		if c.bar {
+			my.sid = scan.Nothing
+			c.run(my) //calc total ip
+		}
+		my.bar = c.progress.Add(loader.String(), my.total)
+		my.total = 0
 		my.action = myActionList.Id(c.action)
 		my.sid = loader
 		wg.Add(1)
@@ -44,7 +50,6 @@ func (c *config) scanInit(sid scan.IdType) (*myScan, error) {
 
 	my := &myScan{
 		p:  EzPool(c.maxThreadForEachScan),
-		pp: EzPool(c.maxThreadForEachIPScan),
 	}
 	my.s, err = scan.New(sid, c.timeout)
 	l := logrus.New()

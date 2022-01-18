@@ -2,21 +2,25 @@ package main
 
 import (
 	"sync"
+	"sync/atomic"
 )
 
 type pool struct {
-	queue chan int
-	wg    *sync.WaitGroup
+	status atomic.Value
+	queue  chan int
+	wg     *sync.WaitGroup
 }
 
 func EzPool(size int) *pool {
 	if size <= 0 {
 		size = 1
 	}
-	return &pool{
+	p := &pool{
 		queue: make(chan int, size),
 		wg:    &sync.WaitGroup{},
 	}
+	p.status.Store(true)
+	return p
 }
 
 func (p *pool) Add(delta int) {
@@ -32,5 +36,12 @@ func (p *pool) Done() {
 }
 
 func (p *pool) Wait() {
+	if !p.status.Load().(bool) {
+		return
+	}
 	p.wg.Wait()
+}
+
+func (p *pool) Close() {
+	p.status.Store(false)
 }

@@ -56,9 +56,17 @@ func (s *postgresConf) auth(_ context.Context, addr, user, pass string) (*sql.DB
 	return sql.Open("postgres", source)
 }
 
-func (s *postgresConf) Identify(_ context.Context, _, port string) bool {
+func (s *postgresConf) Identify(parent context.Context, ip, port string) bool {
 	//fixme: need better identifying
-	return port == "5432"
+	if port != "5432" {
+		return false
+	}
+	c, err := dail(parent, "tcp", net.JoinHostPort(ip, port), s.timeout)
+	if err != nil {
+		return false
+	}
+	c.Close()
+	return true
 }
 
 func (s *postgresConf) Attack(parent context.Context, ip, port string) error {

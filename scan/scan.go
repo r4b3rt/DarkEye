@@ -19,7 +19,8 @@ type Scan interface {
 type IdType int
 
 const (
-	Discovery IdType = iota
+	Nothing IdType = iota
+	Discovery
 	DiscoHttp
 	DiscoTcp
 	DiscoPing

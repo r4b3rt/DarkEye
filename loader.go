@@ -10,6 +10,7 @@ import (
 
 func (c *config) loader() error {
 	logrus.Info("start action:", c.action)
+	logrus.Info("output:", c.outfile)
 	var err error
 	defer logrus.Info("stop")
 
@@ -49,7 +50,7 @@ func (c *config) scanInit(sid scan.IdType) (*myScan, error) {
 	var err error
 
 	my := &myScan{
-		p:  EzPool(c.maxThreadForEachScan),
+		p: EzPool(c.maxThreadForEachScan),
 	}
 	my.s, err = scan.New(sid, c.timeout)
 	l := logrus.New()

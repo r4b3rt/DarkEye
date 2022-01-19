@@ -13,6 +13,9 @@
 支持多种`loader: tcp、ping、http、nb`
 ```bash
 ./dist/superscan_darwin_amd64 -action host -ip 192.168.1.1-254
+
+指定http发现
+./dist/superscan_darwin_amd64 -action host -loader http -ip 192.168.1.1-254 
 ```
 
 ### 2、网段发现

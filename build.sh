@@ -30,6 +30,8 @@ build_others() {
 }
 
 build_dict() {
+  #update finger
+  wget https://raw.githubusercontent.com/EASY233/Finger/main/library/finger.json -v -O dict/finger.json
   rm -f "${topDir}"/dict/dict.go && cd "${topDir}"/dict && go-bindata -ignore .DS_Store -pkg dict -o "${topDir}"/dict/dict.go ./...
 }
 

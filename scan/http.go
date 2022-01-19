@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/antchfx/htmlquery"
 	"golang.org/x/net/html"
+	"golang.org/x/text/encoding/simplifiedchinese"
 	"io"
 	"io/ioutil"
 	"net"
@@ -15,6 +16,10 @@ import (
 	"strings"
 )
 
+type cms struct {
+	Favicon string
+	Cms     string
+}
 type httpDisco struct {
 	Host        string
 	Server      string
@@ -22,6 +27,7 @@ type httpDisco struct {
 	Title       string
 	Url         string
 	RedirectUrl []string
+	Cms         []cms
 }
 
 func (s *discovery) http(ctx context.Context, ip, port string) (interface{}, error) {
@@ -40,8 +46,9 @@ func (s *discovery) http(ctx context.Context, ip, port string) (interface{}, err
 			continue
 		}
 		disco := httpDisco{
-			Host: h,
+			Host:        h,
 			RedirectUrl: make([]string, 0),
+			Cms:         make([]cms, 0),
 		}
 		x, _ := s.httpFetch(ctx, host, url, &disco, true)
 		if x != nil {
@@ -104,18 +111,31 @@ func (s *discovery) httpFetch(ctx context.Context, host string, test *urlpkg.URL
 
 	if body == nil {
 		return disco, nil
+	} else {
+		defaultFavicon := test.String() + "/favicon.ico"
+		s.findFavicon(ctx, host, test, defaultFavicon, disco)
+		if favicon := getFavicon(body); favicon != nil {
+			for _, fav := range favicon {
+				s.findFavicon(ctx, host, test, fav[1], disco)
+			}
+		}
 	}
 
 	//parse title
 	doc, err := htmlquery.Parse(bytes.NewReader(body))
 	if err != nil {
-		s.logger.Debug("htmlquery.Parse:", err.Error())
+		s.logger.Debug("html.query.Parse:", err.Error())
 		return disco, nil
 	}
 	t := htmlquery.FindOne(doc, "//title")
 
 	if t != nil {
 		disco.Title = htmlquery.InnerText(t)
+		if !isUtf8([]byte(disco.Title)) {
+			if message, err := simplifiedchinese.GBK.NewDecoder().String(disco.Title); err == nil {
+				disco.Title = message
+			}
+		}
 	}
 
 	if !redirect {
@@ -128,6 +148,44 @@ func (s *discovery) httpFetch(ctx context.Context, host string, test *urlpkg.URL
 	}
 	s.logger.Debug("findRefreshInMeta:", err.Error())
 	return disco, nil
+}
+
+func (s *discovery) findFavicon(ctx context.Context, host string, test *urlpkg.URL, favicon string, disco *httpDisco) {
+	cli := newHttpClient(s.timeout, disco)
+	cli.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
+	url := test.String()
+	if strings.HasPrefix(favicon, "http") {
+		url = favicon
+	} else {
+		url = test.String() + favicon
+	}
+	s.logger.Debug("getting favicon:", url)
+	request, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		s.logger.Debug("findFavicon.NewRequestWithContext:", err.Error())
+		return
+	}
+	request.Host = host
+	request.Header.Add("Accept-Encoding", "xZip") //
+	request.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0")
+	response, err := cli.Do(request)
+	if err != nil {
+		s.logger.Debug("findFavicon.do:", err.Error())
+		return
+	}
+	defer response.Body.Close()
+	if response.StatusCode == 200 {
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			s.logger.Debug("findFavicon.ReadAll:", err.Error())
+			return
+		}
+		fh := mmh3Hash32(standBase64(body))
+		finger, _ := faviconHash[fh]
+		disco.Cms = append(disco.Cms, cms{fh, finger})
+	}
 }
 
 func (s *discovery) findRefreshInMeta(old *urlpkg.URL, doc *html.Node) (*urlpkg.URL, error) {

@@ -20,19 +20,13 @@ build_linux() {
 }
 
 build_others() {
-    GOOS=linux GOARCH=arm   go build -ldflags "${ldflag}" -o ../dist/df_linux_arm
-    GOOS=linux GOARCH=arm64 go build -ldflags "${ldflag}" -o ../dist/df_linux_arm64
+    GOOS=linux GOARCH=arm   go build -ldflags "${ldflag}" -o "${topDir}"/dist/"${AppName}"_linux_arm
+    GOOS=linux GOARCH=arm64 go build -ldflags "${ldflag}" -o "${topDir}"/dist/"${AppName}"_linux_arm64
 
-    GOOS=linux GOARCH=mips64  go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips64
-    GOOS=linux GOARCH=mips64le  go build  -ldflags "${ldflag}" -o ../dist/df_linux_mips64le
-    GOOS=linux GOARCH=mips GOMIPS=softfloat go build -ldflags "${ldflag}" -o ../dist/df_linux_mips
-    GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "${ldflag}" -o ../dist/df_linux_mipsle
-}
-
-build_all() {
-    build_mac
-    build_linux
-    build_win
+    GOOS=linux GOARCH=mips64  go build  -ldflags "${ldflag}" -o "${topDir}"/dist/"${AppName}"_linux_mips64
+    GOOS=linux GOARCH=mips64le  go build  -ldflags "${ldflag}" -o "${topDir}"/dist/"${AppName}"_linux_mips64le
+    GOOS=linux GOARCH=mips GOMIPS=softfloat go build -ldflags "${ldflag}" -o "${topDir}"/dist/"${AppName}"_linux_mips
+    GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "${ldflag}" -o "${topDir}"/dist/"${AppName}"_linux_mipsle
 }
 
 build_dict() {
@@ -40,9 +34,10 @@ build_dict() {
 }
 
 compress() {
-    upx -9 df_windows_*
-    upx -9 df_linux_*
-   # upx -9 df_darwin_*
+  files=`ls dist/superscan_*`
+  for f in ${files}; do
+    upx "${f}" -o"${f}".upx
+  done
 }
 
 case "$1" in
@@ -58,11 +53,21 @@ case "$1" in
     "win")
         build_win
         ;;
-    "win")
+    "others")
         build_others
         ;;
+    "compress")
+        compress
+        ;;
+      all)
+        build_mac
+        build_linux
+        build_win
+        build_others
+        compress
+        ;;
       *)
-        echo "./build.sh [mac|win|linux]"
+        echo "./build.sh [mac|win|linux|dict|others|compress]"
         ;;
 esac
 

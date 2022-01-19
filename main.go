@@ -5,6 +5,7 @@ import (
 	"flag"
 	"github.com/b1gcat/DarkEye/scan"
 	"github.com/sirupsen/logrus"
+	"runtime"
 	"strings"
 )
 
@@ -72,7 +73,7 @@ func initialize() {
 	flag.BoolVar(&gConfig.bar, "bar", false,
 		"show progress for each loader")
 	flag.IntVar(&gConfig.timeout,
-		"timeout", 2000, "Format: 2000")
+		"timeout", 3000, "Format: 2000")
 	flag.StringVar(&gConfig.port,
 		"p",
 		"21,23,80-89,389,443,445,512,513,514,873,"+
@@ -84,7 +85,7 @@ func initialize() {
 	flag.BoolVar(&gConfig.debug,
 		"v", false, "for debugger")
 	flag.IntVar(&gConfig.maxThreadForEachScan,
-		"t", 64, "thread for every service")
+		"t", 32, "thread for every service")
 	flag.IntVar(&gConfig.maxThreadForEachIPScan,
 		"tt", 100, "thread for every ip")
 	flag.Parse()
@@ -92,14 +93,18 @@ func initialize() {
 	if gConfig.debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
-
+	if runtime.NumCPU() > 1 {
+		runtime.GOMAXPROCS(runtime.NumCPU() - 1)
+	}
+	setNoFiles()
 	gConfig.ctx, gConfig.cancel = context.WithCancel(context.Background())
 }
 
 type actionType int
 
 const (
-	actionDiscoNet actionType = iota
+	actionNone actionType = iota
+	actionDiscoNet
 	actionDiscoHost
 	actionIpHost
 	actionRisk

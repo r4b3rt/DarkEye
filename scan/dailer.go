@@ -12,8 +12,8 @@ import (
 func dail(parent context.Context, protocol, addr string, timeout int) (net.Conn, error) {
 	timeOut := time.Millisecond * time.Duration(timeout)
 	d := net.Dialer{Timeout: timeOut}
-	ctx, _ := context.WithTimeout(parent, timeOut)
-	return d.DialContext(ctx, protocol, addr)
+	//ctx, _ := context.WithTimeout(parent, timeOut)
+	return d.DialContext(context.Background(), protocol, addr)
 }
 
 func hello(parent context.Context, protocol, addr string, hi []byte, timeout int) ([]byte, error) {
@@ -37,7 +37,7 @@ func hello(parent context.Context, protocol, addr string, hi []byte, timeout int
 func newHttpClient(timeout int, disco *httpDisco) *http.Client {
 	tr := &http.Transport{
 		DisableKeepAlives: true,
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 		DialContext: (&net.Dialer{
 			Timeout:   time.Duration(timeout) * time.Millisecond,
 			KeepAlive: -1,

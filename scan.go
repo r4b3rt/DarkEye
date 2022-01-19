@@ -133,7 +133,7 @@ func (c *config) _scanningOne(ctx context.Context, f net.IP, port []string,
 }
 
 func (c *config) _scanJustCount(sc *myScan, ports int) bool {
-	if sc.sid != scan.Nothing {
+	if sc.action != actionNone {
 		return false
 	}
 	switch {

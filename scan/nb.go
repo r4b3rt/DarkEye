@@ -12,16 +12,16 @@ import (
 )
 
 type nb struct {
+	Ip string
 	Hostname string
 	Address  []string
 	Username string
 	Domain   []string
 }
 
-func (s *discovery) nb(parent context.Context, ip string) (interface{}, error) {
-	c := net.Dialer{Timeout: time.Duration(s.timeout) * time.Microsecond}
-	ctx, _ := context.WithCancel(parent)
-	conn, err := c.DialContext(ctx, "udp", net.JoinHostPort(ip, "137"))
+func (s *discovery) nb(_ context.Context, ip string) (interface{}, error) {
+	c := net.Dialer{Timeout: time.Duration(s.timeout) * time.Millisecond}
+	conn, err := c.Dial("udp", net.JoinHostPort(ip, "137"))
 	if err != nil {
 		return nil, err
 	}
@@ -38,6 +38,7 @@ func (s *discovery) nb(parent context.Context, ip string) (interface{}, error) {
 		return nil, err
 	}
 	result := nb{
+		Ip: ip,
 		Hostname: this.trimName(string(this.nb.statusReply.HostName[:])),
 		Address:  make([]string, 0),
 		Domain:   make([]string, 0),
@@ -120,7 +121,7 @@ func (this *ProbeNetbios) ProcessReplies() error {
 	packet := 2
 	for packet > 0 {
 		packet--
-		_ = this.socket.SetDeadline(time.Now().Add(time.Duration(this.timeout) * time.Millisecond))
+		_ = this.socket.SetReadDeadline(time.Now().Add(time.Duration(this.timeout) * time.Millisecond))
 		rLen, err := this.socket.Read(buff)
 		if err != nil {
 			return err
@@ -151,7 +152,7 @@ func (this *ProbeNetbios) ProcessReplies() error {
 }
 
 func (this *ProbeNetbios) SendRequest(req []byte) error {
-	_ = this.socket.SetDeadline(time.Now().Add(time.Duration(this.timeout) * time.Millisecond))
+	_ = this.socket.SetWriteDeadline(time.Now().Add(time.Duration(this.timeout) * time.Millisecond))
 	if _, err := this.socket.Write(req); err != nil {
 		return err
 	}

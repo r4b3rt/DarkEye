@@ -9,8 +9,8 @@ import (
 )
 
 func (c *config) loader() error {
-	logrus.Info("start action:", c.action)
-	logrus.Info("output:", c.outfile)
+	logrus.Info("start action:", c.action, " scan")
+	logrus.Info("output:[", c.outfile, "]")
 	var err error
 	defer logrus.Info("stop")
 
@@ -27,14 +27,14 @@ func (c *config) loader() error {
 		if err != nil {
 			return err
 		}
+		my.sid = loader
 		if c.bar {
-			my.sid = scan.Nothing
+			my.action = actionNone
 			c.run(my) //calc total ip
 		}
 		my.bar = c.progress.Add(loader.String(), my.total)
 		my.total = 0
 		my.action = myActionList.Id(c.action)
-		my.sid = loader
 		wg.Add(1)
 		go func(sc *myScan) {
 			defer wg.Done()

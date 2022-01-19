@@ -111,8 +111,8 @@ type actionList map[actionType]string
 
 var (
 	myActionList = actionList{
-		actionDiscoNet:  "disco-net",
-		actionDiscoHost: "disco-host",
+		actionDiscoNet:  "net",
+		actionDiscoHost: "host",
 		actionIpHost:    "ip-host",
 		actionRisk:      "risk",
 		actionLocalInfo: "local-info",

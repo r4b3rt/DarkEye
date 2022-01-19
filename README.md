@@ -3,7 +3,7 @@
 ![Go Report Card](https://img.shields.io/github/release-date/b1gcat/DarkEye) [![Go Report Card](https://goreportcard.com/badge/github.com/b1gcat/DarkEye)](https://goreportcard.com/report/github.com/b1gcat/DarkEye)
 
 
-> 赶过年前架构调整
+> todo: add 应急响应
 
 ## Demo
 
@@ -12,7 +12,7 @@
 ### 1、主机发现
 支持多种`loader: tcp、ping、http、nb`
 ```bash
-./dist/superscan_darwin_amd64 -action disco-host -ip 192.168.1.1-254
+./dist/superscan_darwin_amd64 -action host -ip 192.168.1.1-254
 ```
 
 ### 2、网段发现
@@ -22,7 +22,7 @@
 支持两种`loader: tcp、ping`
 
 ```bash
- ./dist/superscan_darwin_amd64 -action disco-net -loader ping -ip 192.168.1-254 
+ ./dist/superscan_darwin_amd64 -action net -loader ping -ip 192.168.1-254 
 ```
 
 ### 3、协议爆破

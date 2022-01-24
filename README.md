@@ -10,11 +10,16 @@
 ## 🚀快速使用
 
 ### 1、主机发现
+
 支持多种`loader: tcp、ping、http、nb`
+
 ```bash
 ./dist/superscan_darwin_amd64 -action host -ip 192.168.1.1-254
+```
 
-指定http发现
+loader: `http` (获取title、server、status、iconHash ...)
+
+```bash
 ./dist/superscan_darwin_amd64 -action host -loader http -ip 192.168.1.1-254 
 ```
 
@@ -29,7 +34,9 @@
 ```
 
 ### 3、协议爆破
+
 可查看帮助选取loader，默认为所有协议插件
+
 ```bash
 ./dist/superscan_darwin_amd64 -action risk -loader ssh -p 22  -ip 192.168.1.253 		
 ```
@@ -68,9 +75,6 @@
    mongodb  100/1168 [===>--------------------------------------------]   9 %
    postgresql 1168/1168 [=============================================] 100 %
    ```
-
-   
-
 
 ## 🛠 编译安装
 

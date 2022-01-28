@@ -12,11 +12,13 @@ import (
 )
 
 type nb struct {
-	Ip string
+	Ip       string
 	Hostname string
 	Address  []string
 	Username string
 	Domain   []string
+	Os       string
+	vulDesc  string
 }
 
 func (s *discovery) nb(_ context.Context, ip string) (interface{}, error) {
@@ -26,6 +28,15 @@ func (s *discovery) nb(_ context.Context, ip string) (interface{}, error) {
 		return nil, err
 	}
 	defer conn.Close()
+
+	result := nb{
+		Ip:      ip,
+		Address: make([]string, 0),
+		Domain:  make([]string, 0),
+	}
+
+	s.scanMs17010(ip, &result)
+
 	this := ProbeNetbios{
 		timeout: s.timeout,
 		socket:  conn,
@@ -37,13 +48,7 @@ func (s *discovery) nb(_ context.Context, ip string) (interface{}, error) {
 	if err = this.ProcessReplies(); err != nil {
 		return nil, err
 	}
-	result := nb{
-		Ip: ip,
-		Hostname: this.trimName(string(this.nb.statusReply.HostName[:])),
-		Address:  make([]string, 0),
-		Domain:   make([]string, 0),
-	}
-
+	result.Hostname = this.trimName(string(this.nb.statusReply.HostName[:]))
 	if this.nb.nameReply.Header.RecordType == 0x20 {
 		for _, a := range this.nb.nameReply.Addresses {
 			result.Address = append(result.Address, net.IP(a.Address[:]).String())

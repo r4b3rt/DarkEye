@@ -2,7 +2,7 @@ export GOPROXY=https://goproxy.io,direct
 export GO111MODULE=on
 
 Version="v5.0.1"
-ldFlag="-s -w -X main.Version=${Version}"
+ldFlag="-s -w -X main.Version=${Version} -trimpath"
 topDir=$(pwd)
 AppName=superscan
 

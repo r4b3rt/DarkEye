@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/b1gcat/DarkEye/scan"
-	"github.com/sirupsen/logrus"
 	"runtime"
 	"strings"
+
+	"github.com/b1gcat/DarkEye/scan"
+	"github.com/sirupsen/logrus"
 )
 
 type config struct {

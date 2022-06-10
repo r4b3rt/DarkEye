@@ -2,9 +2,9 @@
 
 
 ## 扫描器
-
 * https://github.com/chaitin/xray 一款功能强大的安全评估工具
 * https://github.com/Weik1/Artillery  Artillery 插件化 JAVA 漏洞扫描器（Weblogic、Tomcat、Spring...）
+* https://github.com/zan8in/afrog
 
 ## fuzz
 * https://github.com/ffuf/ffuf
@@ -19,7 +19,6 @@
 
 
 ## payload
-
 * https://github.com/swisskyrepo/PayloadsAllTheThings 
 * https://github.com/fofapro/vulfocus
 * https://github.com/Mr-xn/Penetration_Testing_POC
